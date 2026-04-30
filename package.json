@@ -1,1 +1,31 @@
-{"name": "prosure", "version": "0.1.0", "private": true, "scripts": {"dev": "vite", "build": "vite build", "serve": "vite preview"}, "dependencies": {"react": "^18.0.0", "react-dom": "^18.0.0"}, "devDependencies": {"vite": "^3.0.0", "tailwindcss": "^3.0.0"}}
+{
+  "name": "zilpo",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.3",
+    "@react-google-maps/api": "^2.19.3",
+    "next": "14.2.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "twilio": "^5.3.3",
+    "razorpay": "^2.9.2",
+    "react-day-picker": "^8.10.1",
+    "date-fns": "^3.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.4",
+    "typescript": "^5"
+  }
+}
