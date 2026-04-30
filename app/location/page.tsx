@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useLocation } from '@/context/LocationContext'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabaseClient'
-import { reverseGeocode } from '@/lib/googleMaps'
+import { reverseGeocode, cleanAddress } from '@/lib/googleMaps'
 
 const MapComponent = dynamic(() => import('@/components/MapComponent'), { ssr: false })
 const DEFAULT = { lat: 28.6139, lng: 77.2090 }
@@ -60,10 +60,11 @@ export default function LocationPage() {
         return
       }
     } catch {}
-    // Fallback Nominatim
+    // Fallback Nominatim — clean Hindi/Urdu from display names
     try {
       const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=5`)
-      setSuggestions(await res.json())
+      const raw = await res.json()
+      setSuggestions(raw.map((r: Suggestion) => ({ ...r, display_name: cleanAddress(r.display_name) })))
     } catch {}
   }
 
