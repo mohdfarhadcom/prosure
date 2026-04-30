@@ -16,12 +16,6 @@ const BANNERS = [
   { img: 'https://images.unsplash.com/photo-1545173168-9f1947eebb7f?w=800&auto=format&q=80', title: 'Schedule. Relax. Done.', sub: 'Pick a time that works for you' },
 ]
 
-const TRUST_BADGES = [
-  { icon: '✓', label: 'Govt ID verified', color: 'bg-green-50 border-green-100' },
-  { icon: '★', label: '4.9 avg rating', color: 'bg-yellow-50 border-yellow-100' },
-  { icon: '⊕', label: 'Rs 6k damage cover', color: 'bg-blue-50 border-blue-100' },
-  { icon: '◉', label: 'Masked contact', color: 'bg-purple-50 border-purple-100' },
-]
 
 const FAQS = [
   { q: 'How do I book?', a: 'Add a service, pick a date and time, pay online. Done.' },
@@ -141,17 +135,6 @@ export default function HomePage() {
           ))}
         </div>
 
-        {/* ── Trust badges ── */}
-        <div className="px-4 mt-5">
-          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-            {TRUST_BADGES.map(b => (
-              <div key={b.label} className={`flex-shrink-0 flex items-center gap-2 ${b.color} border rounded-xl px-3 py-2`}>
-                <span className="text-sm font-bold text-[#F5A623]">{b.icon}</span>
-                <span className="text-xs font-semibold text-gray-700 whitespace-nowrap">{b.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
 
         {/* ── Book by hour ── */}
         <div className="px-4 mt-6">
