@@ -6,19 +6,11 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
 )
 
-export async function POST(req: Request) {
-  const { phone, code, name, service_type, gender } = await req.json()
-  if (!phone || !code) return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
-
+async function twilioVerify(phone: string, code: string) {
   const sid = process.env.TWILIO_ACCOUNT_SID
   const token = process.env.TWILIO_AUTH_TOKEN
   const service = process.env.TWILIO_VERIFY_SERVICE_SID
-
-  if (!sid || !token || !service) {
-    return NextResponse.json({ error: 'OTP_NOT_CONFIGURED' }, { status: 503 })
-  }
-
-  // Verify with Twilio
+  if (!sid || !token || !service) return { ok: false, error: 'OTP_NOT_CONFIGURED' }
   const res = await fetch(
     `https://verify.twilio.com/v2/Services/${service}/VerificationChecks`,
     {
@@ -31,36 +23,43 @@ export async function POST(req: Request) {
     }
   )
   const data = await res.json()
-  if (data.status !== 'approved') {
-    return NextResponse.json({ error: 'Invalid OTP' }, { status: 400 })
+  return { ok: data.status === 'approved', error: data.status }
+}
+
+export async function POST(req: Request) {
+  const { phone, code, name, service_type, gender } = await req.json()
+  if (!phone || !code) return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
+
+  const isSignup = !!(name && service_type)
+
+  if (isSignup) {
+    // SIGNUP: verify OTP first, then create account
+    const { ok, error } = await twilioVerify(phone, code)
+    if (!ok) return NextResponse.json({ error: 'Invalid OTP' }, { status: 400 })
+
+    // Check if already exists (duplicate signup)
+    const { data: existing } = await supabase.from('professionals').select('*').eq('phone', phone).single()
+    if (existing) return NextResponse.json({ pro: existing, isNew: false })
+
+    const { data: newPro, error: dbErr } = await supabase
+      .from('professionals')
+      .insert({ phone, name, service_type, gender: gender || null, approved: false })
+      .select().single()
+    if (dbErr) return NextResponse.json({ error: dbErr.message }, { status: 500 })
+
+    await supabase.from('pro_wallets').insert({ professional_id: newPro.id })
+    return NextResponse.json({ pro: newPro, isNew: true })
   }
 
-  // Check if professional exists
-  const { data: existing } = await supabase
-    .from('professionals')
-    .select('*')
-    .eq('phone', phone)
-    .single()
-
-  if (existing) {
-    return NextResponse.json({ pro: existing, isNew: false })
+  // LOGIN: check DB first so we don't waste the OTP if account doesn't exist
+  const { data: existing } = await supabase.from('professionals').select('*').eq('phone', phone).single()
+  if (!existing) {
+    return NextResponse.json({ error: 'NO_ACCOUNT' }, { status: 404 })
   }
 
-  // Create new professional
-  if (!name || !service_type) {
-    return NextResponse.json({ error: 'Name and service type required for signup' }, { status: 400 })
-  }
+  // Account exists — now verify OTP
+  const { ok } = await twilioVerify(phone, code)
+  if (!ok) return NextResponse.json({ error: 'Invalid OTP' }, { status: 400 })
 
-  const { data: newPro, error } = await supabase
-    .from('professionals')
-    .insert({ phone, name, service_type, gender: gender || null, approved: false })
-    .select()
-    .single()
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-
-  // Create wallet
-  await supabase.from('pro_wallets').insert({ professional_id: newPro.id })
-
-  return NextResponse.json({ pro: newPro, isNew: true })
+  return NextResponse.json({ pro: existing, isNew: false })
 }

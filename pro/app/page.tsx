@@ -8,9 +8,15 @@ export default function RootPage() {
   const router = useRouter()
 
   useEffect(() => {
-    if (!loading) {
-      router.replace(pro ? '/home' : '/login')
-    }
+    if (loading) return
+    try {
+      const onboarded = localStorage.getItem('zilpo_pro_onboarded')
+      if (!onboarded) {
+        router.replace('/onboarding')
+        return
+      }
+    } catch {}
+    router.replace(pro ? '/home' : '/login')
   }, [pro, loading, router])
 
   return (

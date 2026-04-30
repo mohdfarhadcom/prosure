@@ -91,6 +91,23 @@ const ur: Translations = {
   error: 'کچھ غلط ہوا۔ دوبارہ کوشش کریں۔',
   rs: 'Rs',
   mins: 'منٹ',
+  selectLanguage: 'اپنی زبان منتخب کریں',
+  selectLanguageSub: 'وہ زبان منتخب کریں جو آپ کو سب سے زیادہ آرام دہ لگتی ہے',
+  onboardingTitle: 'شروع کرنے سے پہلے',
+  onboardingSubtitle: 'تیار ہونے کے لیے یہ مختصر ویڈیوز دیکھیں',
+  getStarted: 'شروع کریں',
+  skip: 'چھوڑیں',
+  comingSoon: 'ویڈیو جلد آ رہی ہے',
+  video1Title: 'Zilpo Pro میں خوش آمدید',
+  video1Desc: 'Zilpo کیا ہے اور پلیٹ فارم کیسے کام کرتا ہے',
+  video2Title: 'ایپ کا استعمال',
+  video2Desc: 'آرڈر قبول کرنے اور ادائیگی حاصل کرنے کی مکمل گائیڈ',
+  video3Title: 'گاہکوں کے ساتھ',
+  video3Desc: 'پیشہ ورانہ اور احترام کے ساتھ کیسے پیش آئیں',
+  video4Title: 'آپ کی حفاظت',
+  video4Desc: 'غیر محفوظ یا تکلیف دہ صورتحال میں کیا کریں',
+  video5Title: 'آپ کی خدمات',
+  video5Desc: 'اپنی خدمات بہترین طریقے سے کیسے انجام دیں',
 }
 
 export default ur

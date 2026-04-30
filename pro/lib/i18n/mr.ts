@@ -91,6 +91,23 @@ const mr: Translations = {
   error: 'काहीतरी चूक झाली. पुन्हा प्रयत्न करा.',
   rs: 'Rs',
   mins: 'मिनिटे',
+  selectLanguage: 'तुमची भाषा निवडा',
+  selectLanguageSub: 'तुम्हाला सर्वात आरामदायक वाटणारी भाषा निवडा',
+  onboardingTitle: 'सुरू करण्यापूर्वी',
+  onboardingSubtitle: 'तयार होण्यासाठी हे लहान व्हिडिओ पहा',
+  getStarted: 'सुरू करा',
+  skip: 'वगळा',
+  comingSoon: 'व्हिडिओ लवकरच येईल',
+  video1Title: 'Zilpo Pro मध्ये स्वागत आहे',
+  video1Desc: 'Zilpo काय आहे आणि प्लॅटफॉर्म कसे काम करते',
+  video2Title: 'ॲप वापरणे',
+  video2Desc: 'ऑर्डर स्वीकारणे आणि पैसे मिळवणे याची संपूर्ण मार्गदर्शिका',
+  video3Title: 'ग्राहकांसोबत',
+  video3Desc: 'व्यावसायिक आणि आदरपूर्वक वागणे कसे',
+  video4Title: 'तुमची सुरक्षा',
+  video4Desc: 'असुरक्षित किंवा अस्वस्थ परिस्थितीत काय करावे',
+  video5Title: 'तुमच्या सेवा',
+  video5Desc: 'तुमच्या सेवा सर्वोत्तम दर्जाने कशा द्याव्यात',
 }
 
 export default mr

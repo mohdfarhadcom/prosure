@@ -1,14 +1,13 @@
 'use client'
 import { useState, useEffect, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/context/AuthContext'
 import { useI18n } from '@/context/I18nContext'
-import { supabase } from '@/lib/supabaseClient'
+import type { Lang } from '@/context/I18nContext'
 
 function LoginContent() {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const { setPro } = useAuth()
   const { t, lang, setLang, langLabels } = useI18n()
   const [step, setStep] = useState<'phone' | 'otp'>('phone')
@@ -21,8 +20,8 @@ function LoginContent() {
 
   useEffect(() => {
     if (countdown > 0) {
-      const t = setTimeout(() => setCountdown(c => c - 1), 1000)
-      return () => clearTimeout(t)
+      const timer = setTimeout(() => setCountdown(c => c - 1), 1000)
+      return () => clearTimeout(timer)
     }
   }, [countdown])
 
@@ -53,8 +52,8 @@ function LoginContent() {
     setLoading(false)
 
     if (!res.ok) {
-      if (data.error === 'Name and service type required for signup') {
-        router.push(`/signup?phone=${phone}`)
+      if (res.status === 404) {
+        setError('No account found. Please sign up first.')
         return
       }
       setError(data.error || t.error)
@@ -84,7 +83,7 @@ function LoginContent() {
           </button>
           {showLang && (
             <div className="absolute right-0 top-10 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 overflow-hidden w-36">
-              {(Object.keys(langLabels) as (keyof typeof langLabels)[]).map(l => (
+              {(Object.keys(langLabels) as Lang[]).map(l => (
                 <button
                   key={l}
                   onClick={() => { setLang(l); setShowLang(false) }}
@@ -119,7 +118,14 @@ function LoginContent() {
                 />
               </div>
             </div>
-            {error && <p className="text-xs text-red-500 mb-3">{error}</p>}
+            {error && (
+              <div className="mb-4 bg-red-50 rounded-xl px-4 py-3">
+                <p className="text-xs text-red-600">{error}</p>
+                {error.includes('sign up') && (
+                  <Link href="/signup" className="text-xs text-[#F5A623] font-bold mt-1 block">{t.signup} →</Link>
+                )}
+              </div>
+            )}
             <button
               onClick={sendOtp}
               disabled={loading}
@@ -130,7 +136,7 @@ function LoginContent() {
           </>
         ) : (
           <>
-            <div className="mb-1">
+            <div className="mb-4">
               <p className="text-sm text-gray-500 mb-4">OTP sent to +91 {phone}</p>
               <label className="text-xs font-semibold text-gray-500 mb-1.5 block">OTP</label>
               <input
@@ -147,7 +153,7 @@ function LoginContent() {
             <button
               onClick={verify}
               disabled={loading}
-              className="w-full bg-[#F5A623] text-white font-bold py-4 rounded-2xl text-base disabled:opacity-50 shadow-[0_4px_20px_rgba(245,166,35,0.35)] mt-4"
+              className="w-full bg-[#F5A623] text-white font-bold py-4 rounded-2xl text-base disabled:opacity-50 shadow-[0_4px_20px_rgba(245,166,35,0.35)] mt-2"
             >
               {loading ? t.loading : t.verifyOtp}
             </button>

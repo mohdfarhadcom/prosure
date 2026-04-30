@@ -99,6 +99,24 @@ const en = {
   error: 'Something went wrong. Please try again.',
   rs: 'Rs',
   mins: 'mins',
+  // Onboarding
+  selectLanguage: 'Select your language',
+  selectLanguageSub: 'Choose the language you are most comfortable with',
+  onboardingTitle: 'Before you start',
+  onboardingSubtitle: 'Watch these short videos to get ready',
+  getStarted: "Let's get started",
+  skip: 'Skip',
+  comingSoon: 'Video coming soon',
+  video1Title: 'Welcome to Zilpo Pro',
+  video1Desc: 'What is Zilpo and how the platform works',
+  video2Title: 'Using the app',
+  video2Desc: 'Step-by-step guide to accepting orders and getting paid',
+  video3Title: 'With customers',
+  video3Desc: 'How to behave professionally and respectfully',
+  video4Title: 'Your safety',
+  video4Desc: 'What to do in an unsafe or uncomfortable situation',
+  video5Title: 'Your services',
+  video5Desc: 'How to perform your services to the highest standard',
 }
 
 export default en

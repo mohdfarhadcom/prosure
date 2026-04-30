@@ -91,6 +91,23 @@ const hi: Translations = {
   error: 'कुछ गलत हुआ। कृपया पुनः प्रयास करें।',
   rs: 'Rs',
   mins: 'मिनट',
+  selectLanguage: 'अपनी भाषा चुनें',
+  selectLanguageSub: 'वह भाषा चुनें जो आपको सबसे अच्छी लगती है',
+  onboardingTitle: 'शुरू करने से पहले',
+  onboardingSubtitle: 'तैयार होने के लिए ये छोटे वीडियो देखें',
+  getStarted: 'शुरू करें',
+  skip: 'छोड़ें',
+  comingSoon: 'वीडियो जल्द आएगा',
+  video1Title: 'Zilpo Pro में आपका स्वागत है',
+  video1Desc: 'Zilpo क्या है और प्लेटफॉर्म कैसे काम करता है',
+  video2Title: 'ऐप का उपयोग',
+  video2Desc: 'ऑर्डर स्वीकार करने और भुगतान पाने की पूरी गाइड',
+  video3Title: 'ग्राहकों के साथ',
+  video3Desc: 'पेशेवर और सम्मानजनक व्यवहार कैसे करें',
+  video4Title: 'आपकी सुरक्षा',
+  video4Desc: 'असुरक्षित या असहज स्थिति में क्या करें',
+  video5Title: 'आपकी सेवाएं',
+  video5Desc: 'अपनी सेवाएं सर्वोत्तम तरीके से कैसे दें',
 }
 
 export default hi
