@@ -29,7 +29,7 @@ const FAQS = [
   {
     category: 'Service quality',
     items: [
-      { q: 'Do I need to provide cleaning equipment?', a: 'No. Professionals bring all necessary tools and supplies.' },
+      { q: 'Do I need to provide cleaning equipment?', a: 'Yes. Please keep basic supplies like mops, brooms, and cleaning liquids ready. Your professional will use your equipment.' },
       { q: 'What if there is a service issue?', a: 'Contact us immediately at team@getzilpo.com or call +91 98100 40589. We will resolve it.' },
       { q: 'Is there a damage policy?', a: 'Damage cover is capped at Rs 6,000 per booking. Not applicable on promo bookings.' },
     ],

@@ -65,7 +65,7 @@ export default function ServiceDetailPage() {
           <h3 className="font-semibold text-sm mb-3">What is included</h3>
           <div className="flex flex-col gap-2.5">
             {[
-              'Professional brings all tools and supplies',
+              'Please keep basic cleaning supplies ready at home',
               'Verified and background-checked worker',
               'Damage cover up to Rs 6,000 per booking',
               'Masked contact — no direct numbers shared',

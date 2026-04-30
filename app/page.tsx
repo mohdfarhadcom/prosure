@@ -1,11 +1,10 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useLocation } from '@/context/LocationContext'
 import { useCart } from '@/context/CartContext'
-import { reverseGeocode } from '@/lib/googleMaps'
 import { SERVICES } from '@/lib/services'
 import ServiceCard from '@/components/ServiceCard'
 import LocationPrompt from '@/components/LocationPrompt'
@@ -28,7 +27,7 @@ const FAQS = [
   { q: 'How do I book?', a: 'Add a service, pick a date and time, pay online. Done.' },
   { q: 'Are professionals verified?', a: 'Yes. Government ID check, police verification, and skills test before hiring.' },
   { q: 'What if I cancel?', a: 'Full refund if you cancel 3+ hours before. No refund within 3 hours.' },
-  { q: 'Do I provide equipment?', a: 'No. Professionals bring everything needed.' },
+  { q: 'Do I need to provide equipment?', a: 'Yes. Keep basic cleaning supplies at home. Your professional will use them.' },
   { q: 'Is there a damage policy?', a: 'Yes. Up to Rs 6,000 cover per booking. Not on promo bookings.' },
   { q: 'How are prices set?', a: 'Base prices shown. GST 18% and Rs 20 service fee added at checkout.' },
 ]
@@ -38,8 +37,7 @@ export default function HomePage() {
   const { count } = useCart()
   const router = useRouter()
   const [addressText, setAddressText] = useState('Set location')
-  const [searchQ, setSearchQ] = useState('')
-  const [suggestions, setSuggestions] = useState<{ display_name: string; lat: string; lon: string }[]>([])
+  const [serviceQ, setServiceQ] = useState('')
   const [openFaq, setOpenFaq] = useState<string | null>(null)
   const [showPrompt, setShowPrompt] = useState(false)
 
@@ -52,43 +50,13 @@ export default function HomePage() {
     }
   }, [location])
 
-  // Hide prompt once location is set
   useEffect(() => {
     if (location && showPrompt) setShowPrompt(false)
   }, [location])
 
-  const searchAddress = async (q: string) => {
-    if (q.length < 3) { setSuggestions([]); return }
-    // Try Google Maps Geocoding first
-    try {
-      const key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
-      const res = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(q)}&key=${key}`)
-      const data = await res.json()
-      if (data.status === 'OK' && data.results?.length) {
-        const mapped = data.results.slice(0, 5).map((r: { formatted_address: string; geometry: { location: { lat: number; lng: number } } }) => ({
-          display_name: r.formatted_address,
-          lat: String(r.geometry.location.lat),
-          lon: String(r.geometry.location.lng),
-        }))
-        setSuggestions(mapped)
-        return
-      }
-    } catch {}
-    // Fallback to Nominatim
-    try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=5`)
-      setSuggestions(await res.json())
-    } catch {}
-  }
-
-  const selectSuggestion = (s: { display_name: string; lat: string; lon: string }) => {
-    const lat = parseFloat(s.lat)
-    const lng = parseFloat(s.lon)
-    setAddressText(s.display_name.split(',').slice(0, 2).join(',').trim())
-    setLocation({ lat, lng, address: s.display_name })
-    setSuggestions([])
-    setSearchQ('')
-  }
+  const filteredServices = serviceQ.trim().length > 0
+    ? SERVICES.filter(s => s.name.toLowerCase().includes(serviceQ.toLowerCase()) || s.category.toLowerCase().includes(serviceQ.toLowerCase()))
+    : SERVICES
 
   return (
     <>
@@ -127,24 +95,32 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Search */}
+          {/* Service search */}
           <div className="px-4 pb-3 relative">
             <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-2xl px-4 py-2.5 focus-within:border-[#F5A623] transition-colors">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               <input
-                value={searchQ}
-                onChange={e => { setSearchQ(e.target.value); searchAddress(e.target.value) }}
-                placeholder="Search location..."
+                value={serviceQ}
+                onChange={e => setServiceQ(e.target.value)}
+                placeholder="Search services (e.g. bathroom, laundry...)"
                 className="flex-1 bg-transparent text-sm outline-none"
               />
+              {serviceQ && (
+                <button onClick={() => setServiceQ('')} className="text-gray-400">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              )}
             </div>
-            {suggestions.length > 0 && (
+            {serviceQ.trim().length > 0 && filteredServices.length > 0 && (
               <div className="absolute left-4 right-4 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 overflow-hidden mt-1">
-                {suggestions.map((s, i) => (
-                  <button key={i} onClick={() => selectSuggestion(s)} className="w-full px-4 py-3 text-left text-sm hover:bg-gray-50 border-b border-gray-50 last:border-0 truncate flex items-center gap-2">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#F5A623" strokeWidth="2.5" className="flex-shrink-0"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/></svg>
-                    <span className="truncate">{s.display_name}</span>
-                  </button>
+                {filteredServices.slice(0, 6).map(s => (
+                  <Link key={s.slug} href={`/services/${s.slug}`} onClick={() => setServiceQ('')} className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 border-b border-gray-50 last:border-0">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#F5A623" strokeWidth="2.5" className="flex-shrink-0"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{s.name}</p>
+                      <p className="text-xs text-gray-400">Rs {s.base} · {s.duration} min</p>
+                    </div>
+                  </Link>
                 ))}
               </div>
             )}
@@ -217,11 +193,14 @@ export default function HomePage() {
         <div className="px-4 mt-6">
           <div className="flex items-center justify-between mb-1">
             <h2 className="font-bold text-base">All services</h2>
-            <span className="text-xs text-gray-400">{SERVICES.length} services</span>
+            <span className="text-xs text-gray-400">{filteredServices.length} services</span>
           </div>
           <p className="text-xs text-gray-400 mb-4">Schedule and book for later</p>
+          {filteredServices.length === 0 && (
+            <p className="text-sm text-gray-400 py-6 text-center">No services match &ldquo;{serviceQ}&rdquo;</p>
+          )}
           <div className="grid grid-cols-3 gap-3">
-            {SERVICES.map(s => (
+            {filteredServices.map(s => (
               <ServiceCard key={s.slug} slug={s.slug} name={s.name} base={s.base} original={s.original} img={s.img} />
             ))}
           </div>
