@@ -1,8 +1,7 @@
 'use client'
-import { useState, useEffect, useRef, Suspense } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import type { ConfirmationResult, RecaptchaVerifier as RV } from 'firebase/auth'
 import { useAuth } from '@/context/AuthContext'
 import { useI18n } from '@/context/I18nContext'
 import type { Lang } from '@/context/I18nContext'
@@ -18,8 +17,6 @@ function LoginContent() {
   const [error, setError] = useState('')
   const [countdown, setCountdown] = useState(0)
   const [showLang, setShowLang] = useState(false)
-  const recaptchaRef = useRef<RV | null>(null)
-  const confirmationRef = useRef<ConfirmationResult | null>(null)
 
   useEffect(() => {
     if (countdown > 0) {
@@ -28,83 +25,40 @@ function LoginContent() {
     }
   }, [countdown])
 
-  // Set up invisible reCAPTCHA once on mount
-  useEffect(() => {
-    let mounted = true
-    ;(async () => {
-      const { firebaseAuth, firebaseConfigured } = await import('@/lib/firebase')
-      if (!firebaseConfigured || !firebaseAuth || !mounted) return
-      const { RecaptchaVerifier } = await import('firebase/auth')
-      recaptchaRef.current = new RecaptchaVerifier(firebaseAuth, 'recaptcha-login', {
-        size: 'invisible',
-      })
-    })()
-    return () => { mounted = false }
-  }, [])
-
   const sendOtp = async () => {
     setError('')
     if (!/^\d{10}$/.test(phone)) { setError('Enter a valid 10-digit number'); return }
     setLoading(true)
-
-    // Check account exists first — no point spending an OTP on unknown numbers
-    const check = await fetch('/api/check-pro', {
+    const res = await fetch('/api/send-otp', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone }),
+      body: JSON.stringify({ phone, loginOnly: true }),
     })
-    if (!check.ok) {
-      setError(check.status === 404 ? 'No account found. Please sign up first.' : t.error)
+    const data = await res.json()
+    if (!res.ok) {
+      setError(res.status === 404 ? 'No account found. Please sign up first.' : data.error || t.error)
       setLoading(false)
       return
     }
-
-    try {
-      const { firebaseAuth, firebaseConfigured } = await import('@/lib/firebase')
-      if (!firebaseConfigured || !firebaseAuth) throw new Error('Auth not configured')
-      const { signInWithPhoneNumber } = await import('firebase/auth')
-
-      // Reset verifier if it was used before
-      if (!recaptchaRef.current) {
-        const { RecaptchaVerifier } = await import('firebase/auth')
-        recaptchaRef.current = new RecaptchaVerifier(firebaseAuth, 'recaptcha-login', { size: 'invisible' })
-      }
-
-      const result = await signInWithPhoneNumber(firebaseAuth, `+91${phone}`, recaptchaRef.current)
-      confirmationRef.current = result
-      setStep('otp')
-      setCountdown(30)
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : t.error
-      setError(msg)
-      recaptchaRef.current = null  // force fresh verifier next attempt
-    }
+    setStep('otp')
+    setCountdown(30)
     setLoading(false)
   }
 
   const verify = async () => {
     setError('')
     if (otp.length !== 6) { setError('Enter the 6-digit OTP'); return }
-    if (!confirmationRef.current) { setError('Please request OTP again'); return }
     setLoading(true)
-    try {
-      const result = await confirmationRef.current.confirm(otp)
-      const idToken = await result.user.getIdToken()
-      const res = await fetch('/api/verify-firebase', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken, phone }),
-      })
-      const data = await res.json()
-      if (!res.ok) { setError(data.error || t.error); setLoading(false); return }
-      setPro(data.pro)
-      router.replace('/home')
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : t.error)
-    }
-    setLoading(false)
+    const res = await fetch('/api/verify-otp', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, code: otp }),
+    })
+    const data = await res.json()
+    if (!res.ok) { setError(data.error || t.error); setLoading(false); return }
+    setPro(data.pro)
+    router.replace('/home')
   }
 
   const resend = async () => {
-    recaptchaRef.current = null
     setOtp('')
     setStep('phone')
     await sendOtp()
@@ -112,9 +66,6 @@ function LoginContent() {
 
   return (
     <main className="min-h-dvh bg-white flex flex-col max-w-[430px] mx-auto">
-      {/* invisible reCAPTCHA mount point */}
-      <div id="recaptcha-login" />
-
       {/* Header */}
       <div className="flex items-center justify-between px-6 pt-10 pb-6">
         <div>
