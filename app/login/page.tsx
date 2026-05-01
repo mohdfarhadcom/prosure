@@ -1,9 +1,8 @@
 'use client'
-import { useState, Suspense } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import type { ConfirmationResult, RecaptchaVerifier as RV } from 'firebase/auth'
 import { useAuth } from '@/context/AuthContext'
-
-type Step = 'phone' | 'otp'
 
 function LoginContent() {
   const router = useRouter()
@@ -11,27 +10,56 @@ function LoginContent() {
   const redirect = params.get('redirect') || '/'
   const { setUser } = useAuth()
 
-  const [step, setStep] = useState<Step>('phone')
+  const [step, setStep] = useState<'phone' | 'otp'>('phone')
   const [phone, setPhone] = useState('')
   const [otp, setOtp] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [countdown, setCountdown] = useState(0)
+  const recaptchaRef = useRef<RV | null>(null)
+  const confirmationRef = useRef<ConfirmationResult | null>(null)
+
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setTimeout(() => setCountdown(c => c - 1), 1000)
+      return () => clearTimeout(timer)
+    }
+  }, [countdown])
+
+  useEffect(() => {
+    let mounted = true
+    ;(async () => {
+      const { firebaseAuth, firebaseConfigured } = await import('@/lib/firebase')
+      if (!firebaseConfigured || !firebaseAuth || !mounted) return
+      const { RecaptchaVerifier } = await import('firebase/auth')
+      recaptchaRef.current = new RecaptchaVerifier(firebaseAuth, 'recaptcha-login', {
+        size: 'invisible',
+      })
+    })()
+    return () => { mounted = false }
+  }, [])
 
   const sendOtp = async () => {
     if (phone.replace(/\D/g, '').length < 10) { setError('Enter a valid 10-digit number'); return }
     setError('')
     setLoading(true)
     try {
-      const res = await fetch('/api/send-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Failed to send OTP')
+      const { firebaseAuth, firebaseConfigured } = await import('@/lib/firebase')
+      if (!firebaseConfigured || !firebaseAuth) throw new Error('Auth not configured')
+      const { signInWithPhoneNumber } = await import('firebase/auth')
+
+      if (!recaptchaRef.current) {
+        const { RecaptchaVerifier } = await import('firebase/auth')
+        recaptchaRef.current = new RecaptchaVerifier(firebaseAuth, 'recaptcha-login', { size: 'invisible' })
+      }
+
+      const result = await signInWithPhoneNumber(firebaseAuth, `+91${phone}`, recaptchaRef.current)
+      confirmationRef.current = result
       setStep('otp')
+      setCountdown(30)
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Failed to send OTP')
+      recaptchaRef.current = null
     } finally {
       setLoading(false)
     }
@@ -39,16 +67,19 @@ function LoginContent() {
 
   const verifyOtp = async () => {
     if (otp.length !== 6) { setError('Enter 6-digit OTP'); return }
+    if (!confirmationRef.current) { setError('Please request OTP again'); return }
     setError('')
     setLoading(true)
     try {
-      const res = await fetch('/api/verify-otp', {
+      const result = await confirmationRef.current.confirm(otp)
+      const idToken = await result.user.getIdToken()
+      const res = await fetch('/api/verify-firebase', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, code: otp }),
+        body: JSON.stringify({ idToken }),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Invalid OTP')
+      if (!res.ok) throw new Error(data.error || 'Verification failed')
       setUser(data.user)
       router.push(redirect)
     } catch (e: unknown) {
@@ -58,8 +89,17 @@ function LoginContent() {
     }
   }
 
+  const resend = async () => {
+    recaptchaRef.current = null
+    setOtp('')
+    await sendOtp()
+  }
+
   return (
     <main className="page px-4 py-8">
+      {/* invisible reCAPTCHA mount point */}
+      <div id="recaptcha-login" />
+
       <div className="text-2xl font-extrabold text-[#F5A623] mb-8">Zilpo</div>
 
       {step === 'phone' ? (
@@ -105,6 +145,7 @@ function LoginContent() {
             className="w-full border border-gray-200 rounded-xl px-4 py-4 text-center text-2xl font-bold tracking-widest outline-none focus:border-[#F5A623] mb-4"
             maxLength={6}
             inputMode="numeric"
+            autoFocus
           />
 
           {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
@@ -124,13 +165,10 @@ function LoginContent() {
             Change number
           </button>
 
-          <button
-            onClick={sendOtp}
-            disabled={loading}
-            className="w-full text-[#F5A623] text-sm font-semibold py-2"
-          >
-            Resend OTP
-          </button>
+          {countdown > 0
+            ? <p className="text-center text-xs text-gray-400 mt-1">Resend in {countdown}s</p>
+            : <button onClick={resend} disabled={loading} className="w-full text-[#F5A623] text-sm font-semibold py-2">Resend OTP</button>
+          }
         </>
       )}
 
