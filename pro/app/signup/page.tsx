@@ -1,7 +1,8 @@
 'use client'
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import type { ConfirmationResult, RecaptchaVerifier as RV } from 'firebase/auth'
 import { useAuth } from '@/context/AuthContext'
 import { useI18n } from '@/context/I18nContext'
 
@@ -19,13 +20,29 @@ function SignupContent() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [countdown, setCountdown] = useState(0)
+  const recaptchaRef = useRef<RV | null>(null)
+  const confirmationRef = useRef<ConfirmationResult | null>(null)
 
   useEffect(() => {
     if (countdown > 0) {
-      const t = setTimeout(() => setCountdown(c => c - 1), 1000)
-      return () => clearTimeout(t)
+      const timer = setTimeout(() => setCountdown(c => c - 1), 1000)
+      return () => clearTimeout(timer)
     }
   }, [countdown])
+
+  // Set up invisible reCAPTCHA once on mount
+  useEffect(() => {
+    let mounted = true
+    ;(async () => {
+      const { firebaseAuth, firebaseConfigured } = await import('@/lib/firebase')
+      if (!firebaseConfigured || !firebaseAuth || !mounted) return
+      const { RecaptchaVerifier } = await import('firebase/auth')
+      recaptchaRef.current = new RecaptchaVerifier(firebaseAuth, 'recaptcha-signup', {
+        size: 'invisible',
+      })
+    })()
+    return () => { mounted = false }
+  }, [])
 
   const goToPhone = () => {
     setError('')
@@ -39,34 +56,61 @@ function SignupContent() {
     setError('')
     if (!/^\d{10}$/.test(phone)) { setError('Enter a valid 10-digit number'); return }
     setLoading(true)
-    const res = await fetch('/api/send-otp', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone }),
-    })
-    const data = await res.json()
+    try {
+      const { firebaseAuth, firebaseConfigured } = await import('@/lib/firebase')
+      if (!firebaseConfigured || !firebaseAuth) throw new Error('Auth not configured')
+      const { signInWithPhoneNumber } = await import('firebase/auth')
+
+      if (!recaptchaRef.current) {
+        const { RecaptchaVerifier } = await import('firebase/auth')
+        recaptchaRef.current = new RecaptchaVerifier(firebaseAuth, 'recaptcha-signup', { size: 'invisible' })
+      }
+
+      const result = await signInWithPhoneNumber(firebaseAuth, `+91${phone}`, recaptchaRef.current)
+      confirmationRef.current = result
+      setStep('otp')
+      setCountdown(30)
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : t.error
+      setError(msg)
+      recaptchaRef.current = null
+    }
     setLoading(false)
-    if (!res.ok) { setError(data.error || t.error); return }
-    setStep('otp')
-    setCountdown(30)
   }
 
   const verify = async () => {
     setError('')
     if (otp.length !== 6) { setError('Enter the 6-digit OTP'); return }
+    if (!confirmationRef.current) { setError('Please request OTP again'); return }
     setLoading(true)
-    const res = await fetch('/api/verify-otp', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone, code: otp, name, service_type: serviceType, gender }),
-    })
-    const data = await res.json()
+    try {
+      const result = await confirmationRef.current.confirm(otp)
+      const idToken = await result.user.getIdToken()
+      const res = await fetch('/api/verify-firebase', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken, name, service_type: serviceType, gender }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setError(data.error || t.error); setLoading(false); return }
+      setPro(data.pro)
+      router.replace('/home')
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : t.error)
+    }
     setLoading(false)
-    if (!res.ok) { setError(data.error || t.error); return }
-    setPro(data.pro)
-    router.replace('/home')
+  }
+
+  const resend = async () => {
+    recaptchaRef.current = null
+    setOtp('')
+    await sendOtp()
   }
 
   return (
     <main className="min-h-dvh bg-white flex flex-col max-w-[430px] mx-auto">
+      {/* invisible reCAPTCHA mount point */}
+      <div id="recaptcha-signup" />
+
       <div className="flex items-center justify-between px-6 pt-10 pb-6">
         <div>
           <span className="gradient-text font-black text-3xl tracking-tighter">zilpo</span>
@@ -250,9 +294,13 @@ function SignupContent() {
               {countdown > 0 ? (
                 <p className="text-xs text-gray-400">{t.resendIn} {countdown}s</p>
               ) : (
-                <button onClick={sendOtp} className="text-xs text-[#F5A623] font-semibold">{t.resendOtp}</button>
+                <button onClick={resend} className="text-xs text-[#F5A623] font-semibold">{t.resendOtp}</button>
               )}
             </div>
+            <button onClick={() => { setStep('phone'); setOtp(''); setError('') }}
+              className="w-full mt-3 text-xs text-gray-400 text-center">
+              ← Change number
+            </button>
           </>
         )}
 
