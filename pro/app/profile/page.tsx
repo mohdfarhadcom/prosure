@@ -76,8 +76,8 @@ export default function ProfilePage() {
           <p className="text-xs text-gray-400 mt-0.5">+91 {pro.phone}</p>
 
           {/* Approval badge */}
-          <div className={`mt-3 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold ${pro.approved ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-700'}`}>
-            {pro.approved ? (
+          <div className={`mt-3 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold ${pro.status === 'approved' ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-700'}`}>
+            {pro.status === 'approved' ? (
               <>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                 {t.approved}

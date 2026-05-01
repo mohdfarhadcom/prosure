@@ -10,7 +10,7 @@ export type Pro = {
   gender?: string
   lat?: number
   lng?: number
-  approved: boolean
+  status: string  // 'pending' | 'approved'
 }
 
 type AuthCtx = {

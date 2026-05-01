@@ -7,8 +7,7 @@ import { supabase } from '@/lib/supabaseClient'
 import Navbar from '@/components/Navbar'
 
 type Wallet = {
-  available_balance: number
-  processing_balance: number
+  balance: number
   total_earned: number
 }
 
@@ -17,7 +16,6 @@ type Tx = {
   amount: number
   type: string
   status: string
-  description?: string
   created_at: string
 }
 
@@ -71,7 +69,7 @@ export default function WalletPage() {
   }, [pro?.id])
 
   const handleWithdraw = async () => {
-    if (!wallet || wallet.available_balance < 100) {
+    if (!wallet || wallet.balance < 100) {
       alert(t.withdrawMin)
       return
     }
@@ -95,14 +93,9 @@ export default function WalletPage() {
         <div className="mx-4 mt-4 bg-gradient-to-br from-[#F5A623] to-[#FF6B35] rounded-2xl p-5 shadow-lg">
           <p className="text-white/80 text-xs font-medium mb-1">{t.available}</p>
           <p className="text-white font-black text-3xl tracking-tight">
-            Rs {wallet ? Math.round(wallet.available_balance) : '—'}
+            Rs {wallet ? Math.round(wallet.balance) : '—'}
           </p>
           <div className="flex items-center gap-4 mt-4 pt-4 border-t border-white/20">
-            <div>
-              <p className="text-white/70 text-[10px]">{t.processing}</p>
-              <p className="text-white font-bold text-sm">Rs {wallet ? Math.round(wallet.processing_balance) : '—'}</p>
-            </div>
-            <div className="w-px h-8 bg-white/20" />
             <div>
               <p className="text-white/70 text-[10px]">{t.totalEarned}</p>
               <p className="text-white font-bold text-sm">Rs {wallet ? Math.round(wallet.total_earned) : '—'}</p>
@@ -110,21 +103,11 @@ export default function WalletPage() {
           </div>
         </div>
 
-        {/* Processing info */}
-        {wallet && wallet.processing_balance > 0 && (
-          <div className="mx-4 mt-3 bg-amber-50 border border-amber-100 rounded-2xl p-3 flex items-start gap-2">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D97706" strokeWidth="2" className="flex-shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            <p className="text-xs text-amber-700">
-              Rs {Math.round(wallet.processing_balance)} on hold. Releases 1 minute after customer rating (3+ stars).
-            </p>
-          </div>
-        )}
-
         {/* Withdraw button */}
         <div className="px-4 mt-4">
           <button
             onClick={handleWithdraw}
-            disabled={withdrawing || !wallet || wallet.available_balance < 100}
+            disabled={withdrawing || !wallet || wallet.balance < 100}
             className="w-full bg-[#F5A623] text-white font-bold py-4 rounded-2xl text-base disabled:opacity-40 shadow-[0_4px_20px_rgba(245,166,35,0.35)]"
           >
             {withdrawing ? 'Processing...' : t.withdraw}
@@ -158,7 +141,7 @@ export default function WalletPage() {
                         </svg>
                       </div>
                       <div>
-                        <p className="text-xs font-semibold text-gray-900">{tx.description || (tx.type === 'release' ? t.released : tx.type)}</p>
+                        <p className="text-xs font-semibold text-gray-900">{tx.type === 'release' ? t.released : tx.type === 'credit' ? 'Booking payment' : tx.type}</p>
                         <p className="text-[10px] text-gray-400">{dateStr} · {timeStr}</p>
                       </div>
                     </div>

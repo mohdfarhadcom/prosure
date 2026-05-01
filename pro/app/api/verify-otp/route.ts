@@ -35,7 +35,7 @@ export async function POST(req: Request) {
 
       const { data: newPro, error: dbErr } = await supabase
         .from('professionals')
-        .insert({ phone, name, service_type, gender: gender || null, approved: false })
+        .insert({ phone, name, service_type, gender: gender || null })
         .select().single()
       if (dbErr) return NextResponse.json({ error: dbErr.message }, { status: 500 })
 

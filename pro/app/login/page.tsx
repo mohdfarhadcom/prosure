@@ -31,11 +31,18 @@ function LoginContent() {
     setLoading(true)
     const res = await fetch('/api/send-otp', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone }),
+      body: JSON.stringify({ phone, loginOnly: true }),
     })
     const data = await res.json()
     setLoading(false)
-    if (!res.ok) { setError(data.error || t.error); return }
+    if (!res.ok) {
+      if (res.status === 404) {
+        setError('No account found. Please sign up first.')
+        return
+      }
+      setError(data.error || t.error)
+      return
+    }
     setStep('otp')
     setCountdown(30)
   }
