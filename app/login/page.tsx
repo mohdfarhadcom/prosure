@@ -130,10 +130,10 @@ function LoginContent() {
         </>
       )}
 
-      <p className="text-xs text-gray-400 mt-8 text-center">
-        By continuing you agree to our{' '}
-        <a href="/terms" className="underline">Terms</a> and{' '}
-        <a href="/privacy" className="underline">Privacy Policy</a>.
+      <p className="text-xs text-gray-400 mt-6 text-center leading-relaxed">
+        By clicking Get OTP you agree to our{' '}
+        <a href="/terms" className="underline text-gray-500">Terms &amp; Conditions</a> and{' '}
+        <a href="/privacy" className="underline text-gray-500">Privacy Policy</a>.
       </p>
     </main>
   )

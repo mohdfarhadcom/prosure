@@ -204,7 +204,7 @@ export default function HomePage() {
           <div className="bg-gray-50 rounded-2xl p-4">
             <p className="text-xs text-gray-400 mb-1">Today's earnings</p>
             <p className="font-bold text-xl text-gray-900">Rs {Math.round(todayEarnings)}</p>
-            <p className="text-[10px] text-green-600 font-semibold mt-0.5">80% of total</p>
+            <p className="text-[10px] text-gray-400 font-semibold mt-0.5">this week</p>
           </div>
           <div className="bg-gray-50 rounded-2xl p-4">
             <p className="text-xs text-gray-400 mb-1">Jobs today</p>

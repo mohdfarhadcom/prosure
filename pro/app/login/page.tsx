@@ -147,7 +147,12 @@ function LoginContent() {
           </>
         )}
 
-        <p className="text-xs text-center text-gray-400 mt-8">
+        <p className="text-xs text-center text-gray-400 mt-4 leading-relaxed">
+          By clicking Send OTP you agree to our{' '}
+          <Link href="/terms" className="underline text-gray-500">Terms &amp; Conditions</Link> and{' '}
+          <Link href="/privacy" className="underline text-gray-500">Privacy Policy</Link>.
+        </p>
+        <p className="text-xs text-center text-gray-400 mt-4">
           {t.noAccount}{' '}
           <Link href="/signup" className="text-[#F5A623] font-semibold">{t.signup}</Link>
         </p>
