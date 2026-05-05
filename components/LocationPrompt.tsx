@@ -21,7 +21,15 @@ export default function LocationPrompt() {
         setLocation({ lat, lng, address })
         setLoading(false)
       },
-      () => { setError('Location access denied. Search manually.'); setLoading(false) },
+      (err) => {
+        if (err.code === err.TIMEOUT || err.code === err.POSITION_UNAVAILABLE) {
+          setError('GPS is off. Please turn on Location/GPS in your phone settings and try again.')
+        } else {
+          setError('Location access denied. Please allow location or search manually.')
+        }
+        setLoading(false)
+      },
+      { timeout: 8000, enableHighAccuracy: true, maximumAge: 0 },
     )
   }
 
