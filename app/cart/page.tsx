@@ -74,7 +74,29 @@ export default function CartPage() {
 
   return (
     <main className="page px-4 py-6">
-      <h1 className="font-bold text-xl mb-6">Your cart</h1>
+      <h1 className="font-bold text-xl mb-4">Your cart</h1>
+
+      {/* Booking mode toggle — top of page */}
+      <div className="mb-5">
+        <p className="text-xs text-gray-400 mb-2">When do you need the service?</p>
+        <div className="flex bg-gray-100 rounded-2xl p-1 gap-1">
+          <button
+            onClick={() => setBookingMode('schedule')}
+            className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${bookingMode === 'schedule' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-400'}`}
+          >
+            Schedule
+          </button>
+          <button
+            onClick={() => setBookingMode('instant')}
+            className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${bookingMode === 'instant' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-400'}`}
+          >
+            ⚡ Instant
+          </button>
+        </div>
+        {bookingMode === 'instant' && (
+          <p className="text-xs text-[#F5A623] mt-2 text-center">A professional will arrive within 60 minutes</p>
+        )}
+      </div>
 
       {/* Services */}
       <div className="flex flex-col gap-0 mb-4 bg-white rounded-2xl border border-gray-100 overflow-hidden">
@@ -112,28 +134,6 @@ export default function CartPage() {
           </div>
         </div>
         <Link href="/location" className="text-[#F5A623] text-xs font-bold ml-2 flex-shrink-0">Change</Link>
-      </div>
-
-      {/* Booking mode toggle */}
-      <div className="mb-5">
-        <p className="text-xs text-gray-400 mb-2">When do you need the service?</p>
-        <div className="flex bg-gray-100 rounded-2xl p-1 gap-1">
-          <button
-            onClick={() => setBookingMode('schedule')}
-            className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${bookingMode === 'schedule' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-400'}`}
-          >
-            Schedule
-          </button>
-          <button
-            onClick={() => setBookingMode('instant')}
-            className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${bookingMode === 'instant' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-400'}`}
-          >
-            ⚡ Instant
-          </button>
-        </div>
-        {bookingMode === 'instant' && (
-          <p className="text-xs text-[#F5A623] mt-2 text-center">A professional will arrive within 60 minutes</p>
-        )}
       </div>
 
       {/* Promo */}

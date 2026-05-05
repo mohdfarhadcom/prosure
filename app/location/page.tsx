@@ -23,6 +23,7 @@ export default function LocationPage() {
   const [label, setLabel] = useState('Home')
   const [saving, setSaving] = useState(false)
   const [detecting, setDetecting] = useState(false)
+  const [gpsError, setGpsError] = useState('')
 
   useEffect(() => {
     if (!location) autoDetect()
@@ -31,6 +32,7 @@ export default function LocationPage() {
   const autoDetect = () => {
     if (!navigator.geolocation) return
     setDetecting(true)
+    setGpsError('')
     navigator.geolocation.getCurrentPosition(
       async pos => {
         const lat = pos.coords.latitude
@@ -40,7 +42,15 @@ export default function LocationPage() {
         setAddress(addr)
         setDetecting(false)
       },
-      () => setDetecting(false),
+      (err) => {
+        setDetecting(false)
+        if (err.code === 2) {
+          setGpsError('GPS is off. Please turn on Location / GPS in your device settings and try again.')
+        } else if (err.code === 1) {
+          setGpsError('Location permission denied. Please allow location access in browser settings.')
+        }
+      },
+      { timeout: 10000 },
     )
   }
 
@@ -107,6 +117,14 @@ export default function LocationPage() {
           {detecting ? 'Detecting...' : 'Auto-detect'}
         </button>
       </header>
+
+      {/* GPS error */}
+      {gpsError && (
+        <div className="mx-4 mt-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 flex items-start gap-2.5">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D97706" strokeWidth="2.5" className="mt-0.5 flex-shrink-0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <p className="text-xs text-amber-800 leading-relaxed">{gpsError}</p>
+        </div>
+      )}
 
       {/* Search */}
       <div className="px-4 py-3 relative z-20">

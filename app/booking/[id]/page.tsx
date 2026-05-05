@@ -160,7 +160,7 @@ export default function BookingDetailPage() {
             center={mapCenter}
             showWorkers
             height="220px"
-            defaultZoom={isPending ? 13 : 15}
+            defaultZoom={15}
           />
           {/* Finding strip - brand color fills below map */}
           {isPending && <FindingStrip createdAt={booking.created_at} />}
