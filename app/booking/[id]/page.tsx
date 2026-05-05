@@ -1,7 +1,7 @@
 'use client'
 import dynamic from 'next/dynamic'
 import { useParams, useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabaseClient'
 
@@ -10,10 +10,44 @@ const MapComponent = dynamic(() => import('@/components/MapComponent'), { ssr: f
 type Booking = {
   id: string; date: string; slot: string; amount: number; status: string;
   booking_type: string; duration: number; rating: number | null; rated_at: string | null;
+  created_at?: string;
   workers?: { lat: number; lng: number; name: string }
 }
 
 const STATUS_STEPS = ['confirmed', 'en route', 'in progress', 'completed']
+const FINDING_DURATION = 5 * 60 // 5 minutes in seconds
+
+// Progress strip shown below map while finding a professional
+function FindingStrip({ createdAt }: { createdAt?: string }) {
+  const [progress, setProgress] = useState(0)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  useEffect(() => {
+    const startMs = createdAt ? new Date(createdAt).getTime() : Date.now()
+    const tick = () => {
+      const elapsed = (Date.now() - startMs) / 1000
+      setProgress(Math.min((elapsed / FINDING_DURATION) * 100, 100))
+    }
+    tick()
+    intervalRef.current = setInterval(tick, 1000)
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
+  }, [createdAt])
+
+  return (
+    <div className="px-4 py-3">
+      <div className="flex items-center justify-between mb-1.5">
+        <span className="text-xs font-semibold text-gray-700">Finding a professional nearby...</span>
+        <span className="text-xs text-[#F5A623] font-bold">{Math.round(progress)}%</span>
+      </div>
+      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+        <div
+          className="h-full rounded-full transition-all duration-1000"
+          style={{ width: `${progress}%`, background: 'linear-gradient(90deg, #F5A623, #FF6B35)' }}
+        />
+      </div>
+    </div>
+  )
+}
 
 export default function BookingDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -74,9 +108,15 @@ export default function BookingDetailPage() {
   if (!booking) return <div className="page px-4 py-8"><p className="text-gray-400 text-sm">Booking not found.</p></div>
 
   const stepIdx = STATUS_STEPS.indexOf(booking.status)
-  const workerCenter = booking.workers
+  const progress = stepIdx < 0 ? 0 : Math.round((stepIdx / (STATUS_STEPS.length - 1)) * 100)
+
+  // Default to Delhi-NCR center for map when no pro assigned yet
+  const mapCenter = booking.workers
     ? { lat: booking.workers.lat, lng: booking.workers.lng }
     : { lat: 28.6139, lng: 77.2090 }
+
+  const showMap = !['cancelled'].includes(booking.status)
+  const isPending = ['pending', 'confirmed'].includes(booking.status)
 
   return (
     <main className="page">
@@ -85,37 +125,55 @@ export default function BookingDetailPage() {
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
         <h1 className="font-semibold text-base">Booking details</h1>
+        <span className={`ml-auto text-xs font-bold px-2.5 py-1 rounded-xl capitalize ${
+          booking.status === 'completed' ? 'bg-green-50 text-green-700' :
+          booking.status === 'cancelled' ? 'bg-red-50 text-red-600' :
+          'bg-amber-50 text-amber-700'
+        }`}>
+          {booking.status}
+        </span>
       </header>
 
-      {/* Status tracker */}
-      <div className="px-4 py-6">
-        <div className="flex items-center gap-0 mb-6">
-          {STATUS_STEPS.map((step, i) => (
-            <div key={step} className="flex items-center flex-1">
-              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 flex-shrink-0 ${
-                i <= stepIdx ? 'bg-[#F5A623] border-[#F5A623] text-white' : 'border-gray-200 text-gray-300'
-              }`}>
-                {i + 1}
-              </div>
-              {i < STATUS_STEPS.length - 1 && (
-                <div className={`flex-1 h-0.5 ${i < stepIdx ? 'bg-[#F5A623]' : 'bg-gray-100'}`} />
-              )}
-            </div>
-          ))}
+      {/* Brand-color progress strip */}
+      {booking.status !== 'cancelled' && (
+        <div className="px-4 pt-4 pb-2">
+          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all duration-700"
+              style={{ width: `${progress}%`, background: 'linear-gradient(90deg, #F5A623, #FF6B35)' }}
+            />
+          </div>
+          <div className="flex justify-between mt-1.5">
+            {STATUS_STEPS.map((step, i) => (
+              <span key={step} className={`text-[9px] font-semibold capitalize ${i <= stepIdx ? 'text-[#F5A623]' : 'text-gray-300'}`}>
+                {step}
+              </span>
+            ))}
+          </div>
         </div>
-        <p className="text-center font-semibold capitalize text-[#F5A623]">{booking.status}</p>
-      </div>
+      )}
 
-      {/* Map */}
-      {['en route', 'in progress'].includes(booking.status) && (
-        <div className="mb-4">
-          <MapComponent center={workerCenter} showWorkers height="220px" />
-          <p className="text-center text-xs text-gray-400 py-2">Live worker location</p>
+      {/* Map - shown for all non-cancelled statuses */}
+      {showMap && (
+        <div className="mt-3">
+          <MapComponent
+            center={mapCenter}
+            showWorkers
+            height="220px"
+            defaultZoom={isPending ? 13 : 15}
+          />
+          {/* Finding strip - brand color fills below map */}
+          {isPending && <FindingStrip createdAt={booking.created_at} />}
+          {!isPending && booking.workers && (
+            <p className="text-center text-xs text-gray-400 py-2">
+              {booking.status === 'en route' ? 'Professional is on the way' : 'Live professional location'}
+            </p>
+          )}
         </div>
       )}
 
       {/* Details */}
-      <div className="px-4 flex flex-col gap-4">
+      <div className="px-4 mt-4 flex flex-col gap-4 pb-8">
         <div className="bg-gray-50 rounded-xl p-4">
           <h3 className="font-semibold text-sm mb-3">Booking info</h3>
           <div className="flex flex-col gap-2 text-sm">

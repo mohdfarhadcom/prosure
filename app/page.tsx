@@ -10,10 +10,10 @@ import ServiceCard from '@/components/ServiceCard'
 import LocationPrompt from '@/components/LocationPrompt'
 
 const BANNERS = [
-  { img: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&auto=format&q=80', title: 'A cleaner home starts today', sub: 'Book in under 2 minutes' },
-  { img: 'https://images.unsplash.com/photo-1527515637-0ec73f94e1e5?w=800&auto=format&q=80', title: 'Professionals at your door', sub: 'Verified, trained, reliable' },
-  { img: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&auto=format&q=80', title: 'Every corner, spotless', sub: 'Kitchen to bathroom' },
-  { img: 'https://images.unsplash.com/photo-1545173168-9f1947eebb7f?w=800&auto=format&q=80', title: 'Schedule. Relax. Done.', sub: 'Pick a time that works for you' },
+  { img: 'https://lh3.googleusercontent.com/d/1YwzOPCvhXzRaYahOBkxhmZjIpVdX2Bql', title: 'A cleaner home starts today', sub: 'Book in under 2 minutes' },
+  { img: 'https://lh3.googleusercontent.com/d/1LQL6P-QAXrm7xRuRLB5raN3aMmAEREJ8', title: 'Professionals at your door', sub: 'Verified, trained, reliable' },
+  { img: 'https://lh3.googleusercontent.com/d/1TMcK1JPJMvHs6E1ErC_ovW2BEaUBUjya', title: 'Every corner, spotless', sub: 'Kitchen to bathroom' },
+  { img: 'https://lh3.googleusercontent.com/d/1s6mUyGyoutLE6JGCazbdR48CSq8fwOg9', title: 'Schedule. Relax. Done.', sub: 'Pick a time that works for you' },
 ]
 
 
@@ -184,7 +184,7 @@ export default function HomePage() {
           )}
           <div className="grid grid-cols-3 gap-3">
             {filteredServices.map(s => (
-              <ServiceCard key={s.slug} slug={s.slug} name={s.name} base={s.base} original={s.original} img={s.img} />
+              <ServiceCard key={s.slug} slug={s.slug} name={s.name} base={s.base} original={s.original} img={s.img} rating={s.rating} reviews={s.reviews} isNew={s.isNew} />
             ))}
           </div>
         </div>
