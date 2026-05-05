@@ -56,9 +56,13 @@ export default function OrderDetailPage() {
   }, [id])
 
   const markComplete = async () => {
-    if (!booking) return
+    if (!booking || !pro) return
     setCompleting(true)
-    await supabase.from('bookings').update({ status: 'completed' }).eq('id', booking.id)
+    await fetch('/api/complete-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bookingId: booking.id, professionalId: pro.id }),
+    })
     setCompleting(false)
   }
 

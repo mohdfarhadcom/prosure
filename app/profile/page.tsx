@@ -15,6 +15,7 @@ export default function ProfilePage() {
   const [addresses, setAddresses] = useState<Address[]>([])
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [deletingAccount, setDeletingAccount] = useState(false)
 
   useEffect(() => {
     if (!user) return
@@ -43,6 +44,25 @@ export default function ProfilePage() {
   const handleLogout = async () => {
     await logout()
     router.push('/')
+  }
+
+  const handleDeleteAccount = async () => {
+    if (!user) return
+    const confirmed = confirm('Delete your account permanently? All your data and bookings will be removed. This cannot be undone.')
+    if (!confirmed) return
+    setDeletingAccount(true)
+    const res = await fetch('/api/delete-account', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: user.id }),
+    })
+    if (res.ok) {
+      await logout()
+      router.push('/')
+    } else {
+      alert('Failed to delete account. Please contact support.')
+    }
+    setDeletingAccount(false)
   }
 
   if (!user) {
@@ -144,9 +164,17 @@ export default function ProfilePage() {
 
       <button
         onClick={handleLogout}
-        className="w-full border border-red-200 text-red-500 font-semibold py-4 rounded-2xl"
+        className="w-full border border-red-200 text-red-500 font-semibold py-4 rounded-2xl mb-3"
       >
         Log out
+      </button>
+
+      <button
+        onClick={handleDeleteAccount}
+        disabled={deletingAccount}
+        className="w-full text-red-400 text-xs py-3 disabled:opacity-50"
+      >
+        {deletingAccount ? 'Deleting account...' : 'Delete account'}
       </button>
     </main>
   )

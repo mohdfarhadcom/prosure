@@ -39,6 +39,7 @@ export default function CartPage() {
   const [promo, setPromo] = useState('')
   const [promoApplied, setPromoApplied] = useState(false)
   const [promoError, setPromoError] = useState('')
+  const [bookingMode, setBookingMode] = useState<'schedule' | 'instant'>('schedule')
 
   const subtotal = total
   const discount = promoApplied ? Math.round(subtotal * 0.1) : 0
@@ -53,7 +54,7 @@ export default function CartPage() {
   const proceed = () => {
     if (!user) { router.push('/login?redirect=/cart'); return }
     if (!location) { router.push('/location'); return }
-    router.push(`/payment?amount=${toPay}`)
+    router.push(`/payment?amount=${toPay}&mode=${bookingMode}`)
   }
 
   if (items.length === 0) {
@@ -111,6 +112,28 @@ export default function CartPage() {
           </div>
         </div>
         <Link href="/location" className="text-[#F5A623] text-xs font-bold ml-2 flex-shrink-0">Change</Link>
+      </div>
+
+      {/* Booking mode toggle */}
+      <div className="mb-5">
+        <p className="text-xs text-gray-400 mb-2">When do you need the service?</p>
+        <div className="flex bg-gray-100 rounded-2xl p-1 gap-1">
+          <button
+            onClick={() => setBookingMode('schedule')}
+            className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${bookingMode === 'schedule' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-400'}`}
+          >
+            Schedule
+          </button>
+          <button
+            onClick={() => setBookingMode('instant')}
+            className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${bookingMode === 'instant' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-400'}`}
+          >
+            ⚡ Instant
+          </button>
+        </div>
+        {bookingMode === 'instant' && (
+          <p className="text-xs text-[#F5A623] mt-2 text-center">A professional will arrive within 60 minutes</p>
+        )}
       </div>
 
       {/* Promo */}

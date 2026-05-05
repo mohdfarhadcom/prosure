@@ -9,7 +9,7 @@ const MapComponent = dynamic(() => import('@/components/MapComponent'), { ssr: f
 
 type Booking = {
   id: string; date: string; slot: string; amount: number; status: string;
-  booking_type: string; duration: number;
+  booking_type: string; duration: number; rating: number | null; rated_at: string | null;
   workers?: { lat: number; lng: number; name: string }
 }
 
@@ -22,6 +22,10 @@ export default function BookingDetailPage() {
   const [booking, setBooking] = useState<Booking | null>(null)
   const [loading, setLoading] = useState(true)
   const [cancelling, setCancelling] = useState(false)
+  const [rating, setRating] = useState(0)
+  const [hoverRating, setHoverRating] = useState(0)
+  const [submittingRating, setSubmittingRating] = useState(false)
+  const [ratingDone, setRatingDone] = useState(false)
 
   useEffect(() => {
     if (!user) return
@@ -43,6 +47,19 @@ export default function BookingDetailPage() {
       .single()
     setBooking(data as Booking)
     setLoading(false)
+  }
+
+  const submitRating = async () => {
+    if (!rating) return
+    setSubmittingRating(true)
+    await fetch('/api/rate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bookingId: id, rating }),
+    })
+    setRatingDone(true)
+    setSubmittingRating(false)
+    setBooking(prev => prev ? { ...prev, rating, rated_at: new Date().toISOString() } : null)
   }
 
   const cancel = async () => {
@@ -120,6 +137,44 @@ export default function BookingDetailPage() {
         <div className="bg-[#FFF3DC] rounded-xl p-4 text-xs text-gray-700">
           Damage policy: up to Rs 6,000 per booking. Not applicable on promo bookings.
         </div>
+
+        {/* Rating */}
+        {booking.status === 'completed' && !booking.rated_at && !ratingDone && (
+          <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
+            <p className="font-bold text-base text-gray-900 mb-1">How was the service?</p>
+            <p className="text-xs text-gray-400 mb-4">Rate your experience</p>
+            <div className="flex justify-center gap-3 mb-5">
+              {[1, 2, 3, 4, 5].map(star => (
+                <button
+                  key={star}
+                  onMouseEnter={() => setHoverRating(star)}
+                  onMouseLeave={() => setHoverRating(0)}
+                  onClick={() => setRating(star)}
+                >
+                  <svg width="36" height="36" viewBox="0 0 24 24"
+                    fill={(hoverRating || rating) >= star ? '#F5A623' : 'none'}
+                    stroke="#F5A623" strokeWidth="1.5">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                  </svg>
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={submitRating}
+              disabled={!rating || submittingRating}
+              className="w-full bg-[#F5A623] text-white font-bold py-3.5 rounded-2xl disabled:opacity-40"
+            >
+              {submittingRating ? 'Submitting...' : 'Submit rating'}
+            </button>
+          </div>
+        )}
+
+        {(booking.rated_at || ratingDone) && booking.status === 'completed' && (
+          <div className="bg-green-50 rounded-2xl p-4 flex items-center gap-3">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#22C55E" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <p className="text-sm font-semibold text-green-800">Thanks for your rating!</p>
+          </div>
+        )}
 
         {!['completed', 'cancelled'].includes(booking.status) && (
           <button

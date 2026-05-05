@@ -16,6 +16,10 @@ export default function ProfilePage() {
   const [name, setName] = useState(pro?.name || '')
   const [saving, setSaving] = useState(false)
   const [showLangSheet, setShowLangSheet] = useState(false)
+  const [showDeleteSheet, setShowDeleteSheet] = useState(false)
+  const [deleteReason, setDeleteReason] = useState('')
+  const [submittingDelete, setSubmittingDelete] = useState(false)
+  const [deleteRequested, setDeleteRequested] = useState(false)
 
   if (loading) return null
   if (!pro) { router.replace('/login'); return null }
@@ -37,6 +41,19 @@ export default function ProfilePage() {
   const handleLogout = async () => {
     await logout()
     router.replace('/login')
+  }
+
+  const submitDeletionRequest = async () => {
+    if (!pro) return
+    setSubmittingDelete(true)
+    await fetch('/api/request-deletion', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ professionalId: pro.id, reason: deleteReason || 'No reason provided' }),
+    })
+    setSubmittingDelete(false)
+    setShowDeleteSheet(false)
+    setDeleteRequested(true)
   }
 
   const serviceLabel = pro.service_type === 'home_help' ? t.homeHelp : t.homeCook
@@ -144,6 +161,20 @@ export default function ProfilePage() {
             </div>
             <p className="text-sm font-semibold text-red-600">{t.logout}</p>
           </button>
+
+          {/* Delete account request */}
+          {deleteRequested ? (
+            <p className="text-center text-xs text-gray-400 mt-3 px-4">
+              Account deletion request submitted. Admin will review it shortly.
+            </p>
+          ) : (
+            <button
+              onClick={() => setShowDeleteSheet(true)}
+              className="text-center text-xs text-gray-400 mt-3 w-full py-2"
+            >
+              Request account deletion
+            </button>
+          )}
         </div>
 
         <div className="px-4 mt-8 pb-4 text-center">
@@ -178,6 +209,31 @@ export default function ProfilePage() {
       )}
 
       <Navbar />
+
+      {/* Deletion request bottom sheet */}
+      {showDeleteSheet && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-end max-w-[430px] mx-auto" onClick={() => setShowDeleteSheet(false)}>
+          <div className="w-full bg-white rounded-t-3xl p-6" onClick={e => e.stopPropagation()}>
+            <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-5" />
+            <h3 className="font-bold text-base mb-1 text-gray-900">Request account deletion</h3>
+            <p className="text-xs text-gray-400 mb-4">Your account will be reviewed by admin before deletion.</p>
+            <textarea
+              value={deleteReason}
+              onChange={e => setDeleteReason(e.target.value)}
+              placeholder="Reason for leaving (optional)"
+              rows={3}
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#F5A623] resize-none mb-4"
+            />
+            <button
+              onClick={submitDeletionRequest}
+              disabled={submittingDelete}
+              className="w-full bg-red-500 text-white font-bold py-3.5 rounded-2xl disabled:opacity-50"
+            >
+              {submittingDelete ? 'Submitting...' : 'Submit request'}
+            </button>
+          </div>
+        </div>
+      )}
     </>
   )
 }
