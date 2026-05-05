@@ -184,7 +184,7 @@ export default function HomePage() {
           )}
           <div className="grid grid-cols-3 gap-3">
             {filteredServices.map(s => (
-              <ServiceCard key={s.slug} slug={s.slug} name={s.name} base={s.base} original={s.original} img={s.img} rating={s.rating} reviews={s.reviews} isNew={s.isNew} />
+              <ServiceCard key={s.slug} slug={s.slug} name={s.name} base={s.base} original={s.original} img={s.img} />
             ))}
           </div>
         </div>
