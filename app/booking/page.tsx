@@ -8,6 +8,7 @@ import { supabase } from '@/lib/supabaseClient'
 import { SERVICES } from '@/lib/services'
 import { format, addDays } from 'date-fns'
 
+
 // Consistent prices matching home page
 const HOURLY_PRICES: Record<number, number> = { 0.5: 49, 1: 99, 1.5: 149, 2: 189, 2.5: 249, 3: 299 }
 
@@ -23,7 +24,7 @@ function BookingContent() {
   const initHours = parseFloat(params.get('hours') || '1')
 
   const { user } = useAuth()
-  const { items, total } = useCart()
+  const { items } = useCart()
   const { location } = useLocation()
 
   // Calculate dates client-side only to avoid SSR hydration mismatch
@@ -38,7 +39,11 @@ function BookingContent() {
 
   const chosenDate = selectedDate ?? dates[0]
   const hourlyPrice = HOURLY_PRICES[selectedHours] ?? Math.round(selectedHours * 99)
-  const servicesPrice = total
+  // Compute total from the checkboxes directly, not from CartContext
+  const servicesPrice = useMemo(
+    () => selectedServices.reduce((sum, slug) => sum + (SERVICES.find(s => s.slug === slug)?.base ?? 0), 0),
+    [selectedServices]
+  )
   const bookingAmount = tab === 'hourly' ? hourlyPrice : servicesPrice
 
   const proceed = async () => {
@@ -179,18 +184,25 @@ function BookingContent() {
           <div className="flex justify-between text-sm mb-1">
             <span className="text-gray-500">{format(chosenDate, 'EEE, MMM d')} at {selectedSlot}</span>
           </div>
+          {tab === 'services' && selectedServices.length > 0 && (
+            <div className="flex justify-between text-xs text-gray-400 mb-1">
+              <span>{selectedServices.length} service{selectedServices.length > 1 ? 's' : ''} selected</span>
+            </div>
+          )}
           <div className="flex justify-between text-base font-extrabold">
             <span>Total</span>
-            <span className="text-[#F5A623]">₹{bookingAmount}</span>
+            <span className={bookingAmount > 0 ? 'text-[#F5A623]' : 'text-gray-400'}>
+              {bookingAmount > 0 ? `₹${bookingAmount}` : '—'}
+            </span>
           </div>
         </div>
 
         <button
           onClick={proceed}
-          disabled={loading}
+          disabled={loading || bookingAmount === 0}
           className="w-full bg-[#F5A623] text-white font-bold py-4 rounded-2xl text-base disabled:opacity-50 shadow-[0_4px_20px_rgba(245,166,35,0.35)]"
         >
-          {loading ? 'Booking...' : `Pay ₹${bookingAmount}`}
+          {loading ? 'Booking...' : bookingAmount > 0 ? `Pay ₹${bookingAmount}` : 'Select a service'}
         </button>
       </div>
     </main>

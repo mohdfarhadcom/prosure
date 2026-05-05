@@ -9,11 +9,13 @@ type Props = {
   base: number
   original: number
   img: string
+  isNew?: boolean
 }
 
-export default function ServiceCard({ slug, name, base, original, img }: Props) {
+export default function ServiceCard({ slug, name, base, original, img, isNew }: Props) {
   const { add, items, remove } = useCart()
   const inCart = items.find(i => i.slug === slug)
+  const discount = Math.round((1 - base / original) * 100)
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-all group">
@@ -27,9 +29,16 @@ export default function ServiceCard({ slug, name, base, original, img }: Props) 
             className="object-cover group-hover:scale-105 transition-transform duration-300"
             unoptimized
           />
-          <span className="absolute top-1.5 left-1.5 text-[9px] font-bold bg-red-500 text-white px-1.5 py-0.5 rounded-md shadow">
-            NEW
-          </span>
+          {isNew && (
+            <span className="absolute top-1.5 left-1.5 text-[9px] font-bold bg-red-500 text-white px-1.5 py-0.5 rounded-md shadow">
+              NEW
+            </span>
+          )}
+          {discount > 0 && (
+            <span className="absolute bottom-1.5 right-1.5 text-[9px] font-bold bg-green-500 text-white px-1.5 py-0.5 rounded-md shadow">
+              -{discount}%
+            </span>
+          )}
         </div>
       </Link>
 
