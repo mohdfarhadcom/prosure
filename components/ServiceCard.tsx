@@ -1,18 +1,18 @@
 'use client'
 import Link from 'next/link'
-import Image from 'next/image'
 import { useCart } from '@/context/CartContext'
+import ServiceIllustration from '@/components/ServiceIllustration'
 
 type Props = {
   slug: string
   name: string
   base: number
   original: number
-  img: string
+  img?: string
   isNew?: boolean
 }
 
-export default function ServiceCard({ slug, name, base, original, img, isNew }: Props) {
+export default function ServiceCard({ slug, name, base, original, isNew }: Props) {
   const { add, items, remove } = useCart()
   const inCart = items.find(i => i.slug === slug)
   const discount = Math.round((1 - base / original) * 100)
@@ -20,22 +20,17 @@ export default function ServiceCard({ slug, name, base, original, img, isNew }: 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-all group">
       <Link href={`/services/${slug}`}>
-        <div className="relative w-full overflow-hidden bg-gray-50" style={{ aspectRatio: '1/1' }}>
-          <Image
-            src={img}
-            alt={name}
-            fill
-            sizes="(max-width: 480px) 33vw, 160px"
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
-            unoptimized
-          />
+        <div className="relative w-full" style={{ paddingBottom: '100%' }}>
+          <div className="absolute inset-0">
+            <ServiceIllustration slug={slug} />
+          </div>
           {isNew && (
-            <span className="absolute top-1.5 left-1.5 text-[9px] font-bold bg-red-500 text-white px-1.5 py-0.5 rounded-md shadow">
+            <span className="absolute top-1.5 left-1.5 text-[9px] font-bold bg-red-500 text-white px-1.5 py-0.5 rounded-md shadow z-10">
               NEW
             </span>
           )}
           {discount > 0 && (
-            <span className="absolute bottom-1.5 right-1.5 text-[9px] font-bold bg-green-500 text-white px-1.5 py-0.5 rounded-md shadow">
+            <span className="absolute bottom-1.5 right-1.5 text-[9px] font-bold bg-green-500 text-white px-1.5 py-0.5 rounded-md shadow z-10">
               -{discount}%
             </span>
           )}
