@@ -2,687 +2,671 @@
 
 function BathroomCleaning() {
   return (
-    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+    <svg viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="bc-bg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#E0F2FE" />
-          <stop offset="100%" stopColor="#BAE6FD" />
-        </linearGradient>
+        <linearGradient id="bc-bg" x1="0" y1="0" x2=".5" y2="1"><stop offset="0%" stopColor="#1A3A5C"/><stop offset="100%" stopColor="#071425"/></linearGradient>
+        <linearGradient id="bc-cera" x1="0" y1="0" x2=".4" y2="1"><stop offset="0%" stopColor="#F0F9FF"/><stop offset="60%" stopColor="#BAE6FD"/><stop offset="100%" stopColor="#7DD3FC"/></linearGradient>
+        <linearGradient id="bc-gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#FDE68A"/><stop offset="50%" stopColor="#F59E0B"/><stop offset="100%" stopColor="#92400E"/></linearGradient>
+        <linearGradient id="bc-floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#1E3A8A"/><stop offset="100%" stopColor="#0F1E4A"/></linearGradient>
+        <radialGradient id="bc-bub" cx="30%" cy="30%" r="70%"><stop offset="0%" stopColor="white" stopOpacity=".5"/><stop offset="100%" stopColor="#93C5FD" stopOpacity=".1"/></radialGradient>
       </defs>
-      <rect width="200" height="200" fill="url(#bc-bg)" />
-      {/* Wall tiles */}
-      <rect x="0" y="0" width="200" height="110" fill="#F0F9FF" opacity="0.6" />
-      <line x1="0" y1="55" x2="200" y2="55" stroke="#BAE6FD" strokeWidth="1" />
-      <line x1="50" y1="0" x2="50" y2="110" stroke="#BAE6FD" strokeWidth="1" />
-      <line x1="100" y1="0" x2="100" y2="110" stroke="#BAE6FD" strokeWidth="1" />
-      <line x1="150" y1="0" x2="150" y2="110" stroke="#BAE6FD" strokeWidth="1" />
-      {/* Floor */}
-      <rect x="0" y="155" width="200" height="45" fill="#DBEAFE" />
-      <line x1="0" y1="177" x2="200" y2="177" stroke="#BAE6FD" strokeWidth="1" />
-      <line x1="66" y1="155" x2="66" y2="200" stroke="#BAE6FD" strokeWidth="1" />
-      <line x1="133" y1="155" x2="133" y2="200" stroke="#BAE6FD" strokeWidth="1" />
-      {/* Toilet tank */}
-      <rect x="68" y="72" width="64" height="42" rx="8" fill="white" stroke="#93C5FD" strokeWidth="2" />
-      {/* Tank handle */}
-      <rect x="116" y="79" width="12" height="7" rx="3.5" fill="#60A5FA" />
-      {/* Toilet seat */}
-      <ellipse cx="100" cy="114" rx="46" ry="12" fill="#F0F9FF" stroke="#93C5FD" strokeWidth="2" />
-      {/* Bowl rim */}
-      <rect x="58" y="114" width="84" height="18" rx="4" fill="white" stroke="#93C5FD" strokeWidth="2" />
-      {/* Bowl */}
-      <ellipse cx="100" cy="136" rx="42" ry="19" fill="white" stroke="#93C5FD" strokeWidth="2" />
-      {/* Cleaning brush */}
-      <rect x="148" y="108" width="10" height="48" rx="5" fill="#F5A623" />
-      <ellipse cx="153" cy="108" rx="13" ry="16" fill="#FDE68A" />
-      <ellipse cx="153" cy="108" rx="8" ry="10" fill="#F5A623" />
-      {/* Soap bubbles */}
-      <circle cx="36" cy="38" r="14" fill="white" opacity="0.75" />
-      <circle cx="56" cy="18" r="9" fill="white" opacity="0.6" />
-      <circle cx="22" cy="20" r="7" fill="white" opacity="0.5" />
-      <circle cx="168" cy="32" r="11" fill="white" opacity="0.65" />
-      <circle cx="182" cy="14" r="7" fill="white" opacity="0.5" />
+      <rect width="200" height="200" fill="url(#bc-bg)"/>
+      <rect x="0" y="152" width="200" height="48" fill="url(#bc-floor)"/>
+      <line x1="0" y1="152" x2="200" y2="152" stroke="#3B82F6" strokeWidth="1.5" strokeOpacity=".7"/>
+      <line x1="50" y1="152" x2="50" y2="200" stroke="#1D4ED8" strokeWidth=".8" strokeOpacity=".4"/>
+      <line x1="100" y1="152" x2="100" y2="200" stroke="#1D4ED8" strokeWidth=".8" strokeOpacity=".4"/>
+      <line x1="150" y1="152" x2="150" y2="200" stroke="#1D4ED8" strokeWidth=".8" strokeOpacity=".4"/>
+      <line x1="0" y1="176" x2="200" y2="176" stroke="#1D4ED8" strokeWidth=".8" strokeOpacity=".4"/>
+      <ellipse cx="100" cy="158" rx="50" ry="6" fill="#000" fillOpacity=".5"/>
+      <rect x="58" y="66" width="84" height="54" rx="12" fill="url(#bc-cera)"/>
+      <rect x="58" y="66" width="84" height="6" rx="3" fill="white" fillOpacity=".45"/>
+      <rect x="62" y="72" width="5" height="30" rx="2.5" fill="white" fillOpacity=".35"/>
+      <ellipse cx="100" cy="80" rx="14" ry="5" fill="#60A5FA"/>
+      <ellipse cx="96" cy="79" rx="6" ry="2.5" fill="white" fillOpacity=".6"/>
+      <ellipse cx="100" cy="120" rx="52" ry="16" fill="#60A5FA"/>
+      <ellipse cx="100" cy="118" rx="52" ry="16" fill="url(#bc-cera)"/>
+      <ellipse cx="82" cy="114" rx="14" ry="5" fill="white" fillOpacity=".35"/>
+      <path d="M50 120 Q46 158 100 164 Q154 158 150 120 Z" fill="url(#bc-cera)"/>
+      <ellipse cx="100" cy="150" rx="28" ry="9" fill="#BFDBFE" fillOpacity=".45"/>
+      <rect x="152" y="86" width="10" height="66" rx="5" fill="url(#bc-gold)"/>
+      <rect x="152" y="86" width="5" height="66" rx="2.5" fill="white" fillOpacity=".2"/>
+      <ellipse cx="157" cy="88" rx="16" ry="12" fill="#F59E0B"/>
+      <ellipse cx="152" cy="83" rx="8" ry="7" fill="#FDE68A"/>
+      <circle cx="34" cy="88" r="13" fill="url(#bc-bub)" stroke="#60A5FA" strokeWidth="1.5" strokeOpacity=".7"/>
+      <circle cx="32" cy="83" r="4" fill="white" fillOpacity=".3"/>
+      <circle cx="50" cy="70" r="9" fill="url(#bc-bub)" stroke="#93C5FD" strokeWidth="1.5" strokeOpacity=".6"/>
+      <circle cx="22" cy="74" r="6" fill="url(#bc-bub)" stroke="#60A5FA" strokeWidth="1" strokeOpacity=".5"/>
+      <circle cx="170" cy="78" r="10" fill="url(#bc-bub)" stroke="#93C5FD" strokeWidth="1.5" strokeOpacity=".5"/>
     </svg>
   )
 }
 
 function FridgeCleaning() {
   return (
-    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+    <svg viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="fc-bg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#DCFCE7" />
-          <stop offset="100%" stopColor="#A7F3D0" />
-        </linearGradient>
+        <linearGradient id="fc-bg" x1="0" y1="0" x2=".5" y2="1"><stop offset="0%" stopColor="#064E3B"/><stop offset="100%" stopColor="#012418"/></linearGradient>
+        <linearGradient id="fc-m" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#F8FAFC"/><stop offset="40%" stopColor="#E2E8F0"/><stop offset="100%" stopColor="#94A3B8"/></linearGradient>
+        <linearGradient id="fc-s" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#94A3B8"/><stop offset="100%" stopColor="#64748B"/></linearGradient>
+        <linearGradient id="fc-g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#ECFDF5" stopOpacity=".9"/><stop offset="100%" stopColor="#6EE7B7" stopOpacity=".4"/></linearGradient>
       </defs>
-      <rect width="200" height="200" fill="url(#fc-bg)" />
-      {/* Fridge body */}
-      <rect x="40" y="20" width="120" height="165" rx="14" fill="white" stroke="#6EE7B7" strokeWidth="2.5" />
-      {/* Freezer divider */}
-      <line x1="40" y1="90" x2="160" y2="90" stroke="#6EE7B7" strokeWidth="2" />
-      {/* Freezer handle */}
-      <rect x="130" y="48" width="8" height="26" rx="4" fill="#34D399" />
-      {/* Fridge handle */}
-      <rect x="130" y="108" width="8" height="40" rx="4" fill="#34D399" />
-      {/* Freezer interior – shelf items */}
-      <rect x="58" y="38" width="60" height="8" rx="3" fill="#CFFAFE" />
-      <rect x="58" y="52" width="40" height="8" rx="3" fill="#BAE6FD" />
-      <rect x="102" y="52" width="18" height="8" rx="3" fill="#FDE68A" />
-      <rect x="58" y="66" width="24" height="8" rx="3" fill="#D1FAE5" />
-      {/* Fridge shelf lines */}
-      <line x1="52" y1="120" x2="148" y2="120" stroke="#D1FAE5" strokeWidth="1.5" />
-      <line x1="52" y1="148" x2="148" y2="148" stroke="#D1FAE5" strokeWidth="1.5" />
-      {/* Fridge items */}
-      <rect x="58" y="126" width="18" height="18" rx="4" fill="#FCA5A5" />
-      <rect x="82" y="123" width="14" height="22" rx="3" fill="#FDE68A" />
-      <ellipse cx="120" cy="134" rx="12" ry="12" fill="#86EFAC" />
-      <rect x="60" y="154" width="28" height="20" rx="3" fill="#BAE6FD" />
-      <rect x="94" y="154" width="16" height="20" rx="3" fill="#FDE68A" />
-      {/* Sparkles */}
-      <text x="26" y="50" fontSize="16" fill="#34D399">✦</text>
-      <text x="162" y="70" fontSize="12" fill="#6EE7B7">✦</text>
-      <text x="170" y="140" fontSize="10" fill="#34D399">✦</text>
+      <rect width="200" height="200" fill="url(#fc-bg)"/>
+      <rect x="148" y="22" width="20" height="162" fill="url(#fc-s)"/>
+      <rect x="32" y="22" width="116" height="162" rx="12" fill="url(#fc-m)"/>
+      <line x1="34" y1="92" x2="146" y2="92" stroke="#CBD5E1" strokeWidth="2"/>
+      <rect x="42" y="30" width="96" height="55" rx="6" fill="url(#fc-g)"/>
+      <rect x="42" y="30" width="36" height="55" rx="6" fill="white" fillOpacity=".3"/>
+      <rect x="46" y="34" width="5" height="22" rx="2.5" fill="white" fillOpacity=".5"/>
+      <rect x="52" y="38" width="28" height="8" rx="3" fill="#BAE6FD"/>
+      <rect x="52" y="50" width="18" height="8" rx="3" fill="#7DD3FC"/>
+      <rect x="74" y="50" width="14" height="8" rx="3" fill="#FDE68A"/>
+      <rect x="52" y="63" width="22" height="8" rx="3" fill="#A7F3D0"/>
+      <rect x="42" y="100" width="96" height="77" rx="6" fill="url(#fc-g)"/>
+      <rect x="42" y="100" width="36" height="77" rx="6" fill="white" fillOpacity=".25"/>
+      <rect x="46" y="104" width="5" height="30" rx="2.5" fill="white" fillOpacity=".5"/>
+      <line x1="44" y1="128" x2="136" y2="128" stroke="#A7F3D0" strokeWidth="1.5" strokeOpacity=".7"/>
+      <line x1="44" y1="152" x2="136" y2="152" stroke="#A7F3D0" strokeWidth="1.5" strokeOpacity=".7"/>
+      <rect x="52" y="106" width="18" height="20" rx="4" fill="#FCA5A5"/>
+      <ellipse cx="88" cy="116" rx="12" ry="12" fill="#86EFAC"/>
+      <rect x="104" y="107" width="14" height="18" rx="3" fill="#FDE68A"/>
+      <rect x="52" y="132" width="24" height="16" rx="4" fill="#93C5FD"/>
+      <rect x="80" y="133" width="16" height="15" rx="3" fill="#C4B5FD"/>
+      <rect x="52" y="156" width="30" height="16" rx="4" fill="#FCA5A5"/>
+      <rect x="134" y="100" width="8" height="42" rx="4" fill="#34D399"/>
+      <rect x="134" y="98" width="8" height="8" rx="4" fill="#6EE7B7"/>
+      <ellipse cx="36" cy="105" rx="3" ry="14" fill="white" fillOpacity=".15"/>
     </svg>
   )
 }
 
 function PackingUnpacking() {
   return (
-    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+    <svg viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="pu-bg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#FEF9C3" />
-          <stop offset="100%" stopColor="#FDE68A" />
-        </linearGradient>
+        <linearGradient id="pu-bg" x1="0" y1="0" x2=".5" y2="1"><stop offset="0%" stopColor="#7C2D12"/><stop offset="100%" stopColor="#1A0500"/></linearGradient>
+        <linearGradient id="pu-f" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#FEF9C3"/><stop offset="100%" stopColor="#FDE68A"/></linearGradient>
+        <linearGradient id="pu-s" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#FDE68A"/><stop offset="100%" stopColor="#D97706"/></linearGradient>
+        <linearGradient id="pu-t" x1="0" y1="0" x2=".3" y2="1"><stop offset="0%" stopColor="#FEF9C3"/><stop offset="100%" stopColor="#FEF3C7"/></linearGradient>
+        <linearGradient id="pu-tape" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#A78BFA"/><stop offset="100%" stopColor="#6D28D9"/></linearGradient>
       </defs>
-      <rect width="200" height="200" fill="url(#pu-bg)" />
-      {/* Floor shadow */}
-      <ellipse cx="100" cy="178" rx="75" ry="10" fill="#FCD34D" opacity="0.3" />
-      {/* Big box back */}
-      <rect x="30" y="95" width="100" height="80" rx="6" fill="#D97706" opacity="0.15" />
-      {/* Big box body */}
-      <rect x="28" y="98" width="100" height="78" rx="6" fill="#FEF3C7" stroke="#D97706" strokeWidth="2" />
-      {/* Big box tape horizontal */}
-      <rect x="28" y="130" width="100" height="8" fill="#FBBF24" opacity="0.6" />
-      {/* Big box flaps open */}
-      <path d="M28 98 L78 75 L128 98" fill="#FDE68A" stroke="#D97706" strokeWidth="2" />
-      <path d="M78 98 L78 75" stroke="#D97706" strokeWidth="1.5" strokeDasharray="4,3" />
-      {/* Item inside box – book */}
-      <rect x="52" y="104" width="30" height="20" rx="3" fill="#60A5FA" />
-      <rect x="54" y="106" width="26" height="3" rx="1.5" fill="white" opacity="0.6" />
-      <rect x="54" y="112" width="20" height="3" rx="1.5" fill="white" opacity="0.6" />
-      {/* Small box right */}
-      <rect x="140" y="128" width="55" height="48" rx="5" fill="#FFFBEB" stroke="#D97706" strokeWidth="1.5" />
-      <rect x="140" y="144" width="55" height="6" fill="#FBBF24" opacity="0.5" />
-      {/* Small box flap */}
-      <path d="M140 128 L167 116 L195 128" fill="#FDE68A" stroke="#D97706" strokeWidth="1.5" />
-      {/* Tape roll */}
-      <circle cx="28" cy="80" r="16" fill="#FEF3C7" stroke="#D97706" strokeWidth="2" />
-      <circle cx="28" cy="80" r="8" fill="#FDE68A" stroke="#D97706" strokeWidth="1.5" />
-      <line x1="28" y1="64" x2="28" y2="98" stroke="none" />
-      <path d="M38 72 Q52 65 55 80" stroke="#D97706" strokeWidth="1.5" fill="none" />
+      <rect width="200" height="200" fill="url(#pu-bg)"/>
+      <rect x="0" y="168" width="200" height="32" fill="#1A0800" fillOpacity=".8"/>
+      <line x1="0" y1="168" x2="200" y2="168" stroke="#92400E" strokeWidth="1" strokeOpacity=".6"/>
+      <ellipse cx="90" cy="173" rx="70" ry="6" fill="#000" fillOpacity=".5"/>
+      <rect x="130" y="100" width="32" height="72" fill="url(#pu-s)"/>
+      <rect x="32" y="100" width="98" height="72" rx="4" fill="url(#pu-f)"/>
+      <path d="M32 100 L62 76 L162 76 L130 100 Z" fill="url(#pu-t)"/>
+      <path d="M32 100 L62 76 L62 56 L32 82 Z" fill="#FEF9C3"/>
+      <path d="M130 100 L162 76 L162 56 L130 82 Z" fill="#FDE68A"/>
+      <rect x="32" y="130" width="98" height="9" fill="url(#pu-tape)" fillOpacity=".8"/>
+      <rect x="130" y="130" width="32" height="9" fill="#5B21B6" fillOpacity=".7"/>
+      <rect x="36" y="104" width="4" height="40" rx="2" fill="white" fillOpacity=".3"/>
+      <rect x="36" y="104" width="60" height="4" rx="2" fill="white" fillOpacity=".2"/>
+      <rect x="72" y="154" width="24" height="7" rx="3.5" fill="#D97706"/>
+      <rect x="142" y="130" width="14" height="42" fill="url(#pu-s)"/>
+      <rect x="130" y="130" width="12" height="42" fill="url(#pu-f)"/>
+      <rect x="130" y="120" width="26" height="12" fill="url(#pu-t)"/>
+      <circle cx="28" cy="88" r="16" fill="none" stroke="#A78BFA" strokeWidth="8"/>
+      <circle cx="28" cy="88" r="7" fill="#4C1D95"/>
     </svg>
   )
 }
 
 function UtensilsCleaning() {
   return (
-    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+    <svg viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="uc-bg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#FFFBEB" />
-          <stop offset="100%" stopColor="#FEF08A" />
-        </linearGradient>
+        <linearGradient id="uc-bg" x1="0" y1="0" x2=".5" y2="1"><stop offset="0%" stopColor="#1E1B4B"/><stop offset="100%" stopColor="#07061A"/></linearGradient>
+        <linearGradient id="uc-sv" x1="0" y1="0" x2=".3" y2="1"><stop offset="0%" stopColor="#F8FAFC"/><stop offset="50%" stopColor="#CBD5E1"/><stop offset="100%" stopColor="#64748B"/></linearGradient>
+        <linearGradient id="uc-pl" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#F8FAFC"/><stop offset="100%" stopColor="#E2E8F0"/></linearGradient>
+        <linearGradient id="uc-wt" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#312E81"/><stop offset="100%" stopColor="#1E1B4B"/></linearGradient>
+        <radialGradient id="uc-bub" cx="30%" cy="25%" r="65%"><stop offset="0%" stopColor="white" stopOpacity=".6"/><stop offset="100%" stopColor="#818CF8" stopOpacity="0"/></radialGradient>
       </defs>
-      <rect width="200" height="200" fill="url(#uc-bg)" />
-      {/* Sink basin */}
-      <rect x="30" y="110" width="140" height="65" rx="10" fill="#E0F2FE" stroke="#7DD3FC" strokeWidth="2" />
-      <rect x="38" y="118" width="124" height="50" rx="6" fill="#BAE6FD" opacity="0.5" />
-      {/* Water ripple */}
-      <ellipse cx="100" cy="155" rx="40" ry="8" fill="none" stroke="#7DD3FC" strokeWidth="1.5" />
-      <ellipse cx="100" cy="155" rx="22" ry="4" fill="none" stroke="#7DD3FC" strokeWidth="1" />
-      {/* Plate stack */}
-      <ellipse cx="100" cy="108" rx="44" ry="10" fill="#E2E8F0" stroke="#94A3B8" strokeWidth="1.5" />
-      <ellipse cx="100" cy="100" rx="44" ry="10" fill="white" stroke="#94A3B8" strokeWidth="1.5" />
-      <ellipse cx="100" cy="92" rx="44" ry="10" fill="white" stroke="#94A3B8" strokeWidth="1.5" />
-      <ellipse cx="100" cy="84" rx="44" ry="10" fill="white" stroke="#94A3B8" strokeWidth="1.5" />
-      <ellipse cx="100" cy="77" rx="30" ry="7" fill="#F8FAFC" stroke="#CBD5E1" strokeWidth="1" />
-      {/* Fork */}
-      <rect x="42" y="50" width="5" height="50" rx="2.5" fill="#94A3B8" />
-      <rect x="40" y="50" width="2" height="18" rx="1" fill="#94A3B8" />
-      <rect x="45" y="50" width="2" height="18" rx="1" fill="#94A3B8" />
-      <rect x="50" y="50" width="2" height="18" rx="1" fill="#94A3B8" />
-      {/* Spoon */}
-      <rect x="153" y="68" width="5" height="42" rx="2.5" fill="#94A3B8" />
-      <ellipse cx="155.5" cy="58" rx="9" ry="12" fill="#CBD5E1" stroke="#94A3B8" strokeWidth="1.5" />
-      {/* Soap bubbles */}
-      <circle cx="60" cy="35" r="13" fill="white" opacity="0.8" />
-      <circle cx="80" cy="22" r="9" fill="white" opacity="0.65" />
-      <circle cx="48" cy="20" r="7" fill="white" opacity="0.55" />
-      <circle cx="148" cy="30" r="11" fill="white" opacity="0.7" />
-      <circle cx="168" cy="16" r="7" fill="white" opacity="0.55" />
-      <circle cx="130" cy="18" r="8" fill="white" opacity="0.6" />
+      <rect width="200" height="200" fill="url(#uc-bg)"/>
+      <rect x="22" y="108" width="156" height="72" rx="12" fill="url(#uc-wt)"/>
+      <ellipse cx="100" cy="116" rx="68" ry="9" fill="#4338CA" fillOpacity=".4"/>
+      <path d="M34 116 Q70 110 100 116 Q130 122 166 116" stroke="#6366F1" strokeWidth="1.5" fill="none" strokeOpacity=".6"/>
+      <rect x="90" y="68" width="20" height="44" rx="10" fill="url(#uc-sv)"/>
+      <rect x="68" y="80" width="64" height="10" rx="5" fill="url(#uc-sv)"/>
+      <rect x="68" y="78" width="64" height="5" rx="2.5" fill="white" fillOpacity=".4"/>
+      <ellipse cx="90" cy="112" rx="48" ry="6" fill="#000" fillOpacity=".4"/>
+      <ellipse cx="90" cy="108" rx="46" ry="10" fill="url(#uc-pl)" stroke="#CBD5E1" strokeWidth="1"/>
+      <ellipse cx="90" cy="100" rx="46" ry="10" fill="url(#uc-pl)" stroke="#CBD5E1" strokeWidth="1"/>
+      <ellipse cx="90" cy="92" rx="46" ry="10" fill="url(#uc-pl)" stroke="#CBD5E1" strokeWidth="1"/>
+      <ellipse cx="90" cy="84" rx="46" ry="10" fill="url(#uc-pl)" stroke="#CBD5E1" strokeWidth="1"/>
+      <ellipse cx="78" cy="80" rx="14" ry="4" fill="white" fillOpacity=".4"/>
+      <rect x="148" y="46" width="7" height="65" rx="3.5" fill="url(#uc-sv)"/>
+      <rect x="144" y="46" width="3" height="22" rx="1.5" fill="url(#uc-sv)"/>
+      <rect x="153" y="46" width="3" height="22" rx="1.5" fill="url(#uc-sv)"/>
+      <rect x="157" y="46" width="3" height="22" rx="1.5" fill="url(#uc-sv)"/>
+      <rect x="164" y="65" width="7" height="50" rx="3.5" fill="url(#uc-sv)"/>
+      <ellipse cx="167" cy="55" rx="10" ry="14" fill="url(#uc-sv)" stroke="#94A3B8" strokeWidth="1"/>
+      <ellipse cx="165" cy="51" rx="5" ry="7" fill="white" fillOpacity=".4"/>
+      <circle cx="44" cy="125" r="14" fill="url(#uc-bub)" stroke="#818CF8" strokeWidth="1.5" strokeOpacity=".7"/>
+      <circle cx="41" cy="120" r="4" fill="white" fillOpacity=".3"/>
+      <circle cx="64" cy="138" r="10" fill="url(#uc-bub)" stroke="#6366F1" strokeWidth="1.5" strokeOpacity=".6"/>
+      <circle cx="128" cy="122" r="12" fill="url(#uc-bub)" stroke="#818CF8" strokeWidth="1.5" strokeOpacity=".6"/>
+      <circle cx="144" cy="136" r="8" fill="url(#uc-bub)" stroke="#6366F1" strokeWidth="1" strokeOpacity=".5"/>
     </svg>
   )
 }
 
 function KitchenPrep() {
   return (
-    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+    <svg viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="kp-bg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#F0FDF4" />
-          <stop offset="100%" stopColor="#BBF7D0" />
-        </linearGradient>
+        <linearGradient id="kp-bg" x1="0" y1="0" x2=".5" y2="1"><stop offset="0%" stopColor="#14532D"/><stop offset="100%" stopColor="#052010"/></linearGradient>
+        <linearGradient id="kp-bd" x1="0" y1="0" x2=".3" y2="1"><stop offset="0%" stopColor="#FEF9C3"/><stop offset="60%" stopColor="#FDE68A"/><stop offset="100%" stopColor="#D97706"/></linearGradient>
+        <linearGradient id="kp-bs" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#D97706"/><stop offset="100%" stopColor="#92400E"/></linearGradient>
+        <linearGradient id="kp-ca" x1="0" y1="0" x2=".3" y2="1"><stop offset="0%" stopColor="#FED7AA"/><stop offset="50%" stopColor="#FB923C"/><stop offset="100%" stopColor="#C2410C"/></linearGradient>
+        <radialGradient id="kp-to" cx="35%" cy="30%" r="65%"><stop offset="0%" stopColor="#FCA5A5"/><stop offset="50%" stopColor="#EF4444"/><stop offset="100%" stopColor="#991B1B"/></radialGradient>
+        <linearGradient id="kp-kn" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#F1F5F9"/><stop offset="100%" stopColor="#64748B"/></linearGradient>
       </defs>
-      <rect width="200" height="200" fill="url(#kp-bg)" />
-      {/* Table surface */}
-      <rect x="0" y="145" width="200" height="55" rx="0" fill="#D1FAE5" />
-      <rect x="0" y="145" width="200" height="6" fill="#6EE7B7" />
-      {/* Cutting board */}
-      <rect x="28" y="80" width="144" height="74" rx="10" fill="#FEF3C7" stroke="#D97706" strokeWidth="2" />
-      {/* Board grain lines */}
-      <line x1="28" y1="100" x2="172" y2="100" stroke="#FDE68A" strokeWidth="1" />
-      <line x1="28" y1="116" x2="172" y2="116" stroke="#FDE68A" strokeWidth="1" />
-      <line x1="28" y1="132" x2="172" y2="132" stroke="#FDE68A" strokeWidth="1" />
-      {/* Board handle */}
-      <rect x="162" y="107" width="26" height="14" rx="7" fill="#FEF3C7" stroke="#D97706" strokeWidth="1.5" />
-      {/* Carrot */}
-      <ellipse cx="72" cy="112" rx="10" ry="28" fill="#FB923C" transform="rotate(-20 72 112)" />
-      <path d="M72 86 Q65 75 60 70" stroke="#4ADE80" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-      <path d="M72 86 Q72 74 70 68" stroke="#4ADE80" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-      <path d="M72 86 Q80 76 84 70" stroke="#4ADE80" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-      {/* Tomato */}
-      <circle cx="120" cy="116" r="22" fill="#F87171" />
-      <circle cx="120" cy="116" r="16" fill="#FCA5A5" opacity="0.5" />
-      <path d="M118 96 Q120 90 122 88" stroke="#4ADE80" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-      <path d="M120 96 Q116 90 112 90" stroke="#4ADE80" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-      {/* Knife */}
-      <rect x="28" y="48" width="95" height="10" rx="2" fill="#94A3B8" />
-      <path d="M28 48 L28 58 L123 58 L123 52 Z" fill="#CBD5E1" />
-      <rect x="123" y="46" width="26" height="14" rx="4" fill="#D97706" />
-      {/* Onion half */}
-      <ellipse cx="58" cy="125" rx="14" ry="10" fill="#FEF9C3" stroke="#FDE047" strokeWidth="1.5" />
-      <path d="M47 122 Q58 115 69 122" stroke="#FDE047" strokeWidth="1" fill="none" />
+      <rect width="200" height="200" fill="url(#kp-bg)"/>
+      <rect x="0" y="155" width="200" height="45" fill="#1A3A1A"/>
+      <rect x="0" y="153" width="200" height="5" fill="#166534"/>
+      <ellipse cx="95" cy="160" rx="72" ry="7" fill="#000" fillOpacity=".5"/>
+      <rect x="28" y="142" width="144" height="18" rx="4" fill="url(#kp-bs)"/>
+      <rect x="24" y="78" width="144" height="68" rx="8" fill="url(#kp-bd)"/>
+      <rect x="28" y="82" width="5" height="48" rx="2.5" fill="white" fillOpacity=".3"/>
+      <rect x="28" y="82" width="100" height="4" rx="2" fill="white" fillOpacity=".2"/>
+      <rect x="162" y="98" width="26" height="14" rx="7" fill="url(#kp-bs)"/>
+      <path d="M62 130 Q58 100 68 86 Q78 100 74 130 Z" fill="url(#kp-ca)"/>
+      <path d="M65 86 Q60 74 55 66" stroke="#4ADE80" strokeWidth="3" strokeLinecap="round" fill="none"/>
+      <path d="M65 86 Q62 72 64 62" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
+      <path d="M66 86 Q72 74 78 68" stroke="#4ADE80" strokeWidth="3" strokeLinecap="round" fill="none"/>
+      <circle cx="118" cy="116" r="24" fill="url(#kp-to)"/>
+      <circle cx="108" cy="104" r="8" fill="#FCA5A5" fillOpacity=".3"/>
+      <path d="M114 94 Q118 86 122 92" stroke="#4ADE80" strokeWidth="3" fill="none" strokeLinecap="round"/>
+      <path d="M118 94 Q114 87 108 90" stroke="#16A34A" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
+      <path d="M24 74 L154 68 L154 78 L24 80 Z" fill="url(#kp-kn)"/>
+      <rect x="154" y="66" width="28" height="14" rx="5" fill="#92400E"/>
+      <rect x="28" y="70" width="4" height="8" rx="2" fill="white" fillOpacity=".5"/>
     </svg>
   )
 }
 
 function DustingWiping() {
   return (
-    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+    <svg viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="dw-bg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#F5F3FF" />
-          <stop offset="100%" stopColor="#DDD6FE" />
-        </linearGradient>
+        <linearGradient id="dw-bg" x1="0" y1="0" x2=".5" y2="1"><stop offset="0%" stopColor="#3B0764"/><stop offset="100%" stopColor="#0F0320"/></linearGradient>
+        <linearGradient id="dw-bt" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#22D3EE"/><stop offset="50%" stopColor="#0891B2"/><stop offset="100%" stopColor="#0E4A6E"/></linearGradient>
+        <linearGradient id="dw-cp" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#A5F3FC"/><stop offset="100%" stopColor="#0891B2"/></linearGradient>
+        <linearGradient id="dw-gd" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#FDE68A"/><stop offset="50%" stopColor="#F59E0B"/><stop offset="100%" stopColor="#92400E"/></linearGradient>
+        <radialGradient id="dw-ms" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#A5F3FC" stopOpacity=".5"/><stop offset="100%" stopColor="#22D3EE" stopOpacity="0"/></radialGradient>
       </defs>
-      <rect width="200" height="200" fill="url(#dw-bg)" />
-      {/* Spray bottle */}
-      <rect x="110" y="70" width="42" height="80" rx="8" fill="white" stroke="#A78BFA" strokeWidth="2" />
-      <rect x="118" y="62" width="26" height="18" rx="5" fill="white" stroke="#A78BFA" strokeWidth="2" />
-      {/* Spray nozzle */}
-      <rect x="140" y="68" width="22" height="8" rx="4" fill="#7C3AED" />
-      {/* Spray mist */}
-      <circle cx="170" cy="60" r="4" fill="#C4B5FD" opacity="0.8" />
-      <circle cx="178" cy="54" r="3" fill="#C4B5FD" opacity="0.6" />
-      <circle cx="168" cy="50" r="3" fill="#C4B5FD" opacity="0.6" />
-      <circle cx="180" cy="64" r="2.5" fill="#C4B5FD" opacity="0.5" />
-      <circle cx="174" cy="44" r="2" fill="#C4B5FD" opacity="0.4" />
-      {/* Bottle label */}
-      <rect x="116" y="100" width="28" height="22" rx="3" fill="#EDE9FE" />
-      <rect x="119" y="104" width="22" height="3" rx="1.5" fill="#A78BFA" />
-      <rect x="119" y="110" width="16" height="3" rx="1.5" fill="#A78BFA" />
-      {/* Liquid inside */}
-      <rect x="114" y="128" width="34" height="18" rx="4" fill="#C4B5FD" opacity="0.4" />
-      {/* Duster handle */}
-      <rect x="56" y="90" width="12" height="85" rx="6" fill="#F5A623" />
-      {/* Duster fluffy head */}
-      <ellipse cx="62" cy="80" rx="28" ry="18" fill="#FDE68A" />
-      <ellipse cx="42" cy="75" rx="16" ry="12" fill="#FDE68A" />
-      <ellipse cx="82" cy="75" rx="16" ry="12" fill="#FDE68A" />
-      <ellipse cx="62" cy="66" rx="20" ry="14" fill="#FBBF24" opacity="0.7" />
-      {/* Dust sparkles */}
-      <text x="14" y="48" fontSize="16" fill="#C4B5FD">✦</text>
-      <text x="168" y="120" fontSize="14" fill="#A78BFA">✦</text>
-      <text x="24" y="110" fontSize="12" fill="#DDD6FE">✦</text>
-      <text x="158" y="160" fontSize="10" fill="#C4B5FD">✦</text>
-      {/* Wipe arc marks */}
-      <path d="M30 155 Q60 140 90 155" stroke="#C4B5FD" strokeWidth="2" fill="none" strokeDasharray="4,3" />
-      <path d="M30 168 Q60 153 90 168" stroke="#C4B5FD" strokeWidth="1.5" fill="none" strokeDasharray="4,3" />
+      <rect width="200" height="200" fill="url(#dw-bg)"/>
+      <rect x="0" y="80" width="200" height="10" rx="4" fill="#4C1D95"/>
+      <rect x="0" y="78" width="200" height="5" rx="2.5" fill="#6D28D9" fillOpacity=".7"/>
+      <rect x="14" y="36" width="16" height="44" rx="3" fill="#7C3AED"/>
+      <rect x="14" y="34" width="16" height="5" rx="2" fill="#A78BFA"/>
+      <rect x="32" y="42" width="13" height="38" rx="3" fill="#C4B5FD"/>
+      <rect x="47" y="30" width="18" height="50" rx="3" fill="#5B21B6"/>
+      <rect x="47" y="28" width="18" height="5" rx="2" fill="#7C3AED"/>
+      <ellipse cx="114" cy="178" rx="28" ry="5" fill="#000" fillOpacity=".5"/>
+      <rect x="88" y="96" width="46" height="80" rx="10" fill="url(#dw-bt)"/>
+      <rect x="88" y="96" width="20" height="80" rx="10" fill="white" fillOpacity=".2"/>
+      <rect x="92" y="100" width="5" height="40" rx="2.5" fill="white" fillOpacity=".35"/>
+      <rect x="90" y="148" width="42" height="26" rx="8" fill="#0E7490" fillOpacity=".6"/>
+      <rect x="96" y="80" width="30" height="20" rx="6" fill="url(#dw-cp)"/>
+      <rect x="96" y="78" width="30" height="6" rx="3" fill="#A5F3FC" fillOpacity=".6"/>
+      <rect x="122" y="85" width="28" height="9" rx="4.5" fill="#0E7490"/>
+      <rect x="122" y="83" width="28" height="5" rx="2.5" fill="#22D3EE" fillOpacity=".5"/>
+      <circle cx="158" cy="78" r="12" fill="url(#dw-ms)"/>
+      <circle cx="168" cy="68" r="8" fill="url(#dw-ms)"/>
+      <circle cx="162" cy="60" r="6" fill="url(#dw-ms)"/>
+      <circle cx="174" cy="78" r="5" fill="url(#dw-ms)"/>
+      <ellipse cx="44" cy="182" rx="22" ry="4" fill="#000" fillOpacity=".4"/>
+      <rect x="40" y="110" width="10" height="72" rx="5" fill="url(#dw-gd)"/>
+      <rect x="40" y="110" width="5" height="72" rx="2.5" fill="white" fillOpacity=".2"/>
+      <ellipse cx="45" cy="105" rx="30" ry="16" fill="#F59E0B"/>
+      <ellipse cx="22" cy="98" rx="18" ry="12" fill="#FDE68A"/>
+      <ellipse cx="68" cy="98" rx="16" ry="12" fill="#FBBF24"/>
+      <ellipse cx="45" cy="90" rx="22" ry="16" fill="#FDE68A" fillOpacity=".8"/>
     </svg>
   )
 }
 
 function SweepingMopping() {
   return (
-    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+    <svg viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="sm-bg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#EFF6FF" />
-          <stop offset="100%" stopColor="#BFDBFE" />
-        </linearGradient>
+        <linearGradient id="sm-bg" x1="0" y1="0" x2=".5" y2="1"><stop offset="0%" stopColor="#0C1445"/><stop offset="100%" stopColor="#030712"/></linearGradient>
+        <linearGradient id="sm-bk" x1="0" y1="0" x2=".3" y2="1"><stop offset="0%" stopColor="#FDE68A"/><stop offset="50%" stopColor="#F59E0B"/><stop offset="100%" stopColor="#92400E"/></linearGradient>
+        <linearGradient id="sm-fl" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#1E3A8A" stopOpacity=".6"/><stop offset="100%" stopColor="#0F1E40"/></linearGradient>
+        <linearGradient id="sm-mh" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#F0F9FF"/><stop offset="100%" stopColor="#93C5FD"/></linearGradient>
+        <linearGradient id="sm-br" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#FDE68A"/><stop offset="100%" stopColor="#F59E0B"/></linearGradient>
       </defs>
-      <rect width="200" height="200" fill="url(#sm-bg)" />
-      {/* Floor */}
-      <rect x="0" y="155" width="200" height="45" fill="#DBEAFE" />
-      <line x1="0" y1="178" x2="200" y2="178" stroke="#BFDBFE" strokeWidth="1" />
-      <line x1="50" y1="155" x2="50" y2="200" stroke="#BFDBFE" strokeWidth="1" />
-      <line x1="100" y1="155" x2="100" y2="200" stroke="#BFDBFE" strokeWidth="1" />
-      <line x1="150" y1="155" x2="150" y2="200" stroke="#BFDBFE" strokeWidth="1" />
-      {/* Mop bucket */}
-      <path d="M20 138 L28 175 L68 175 L76 138 Z" fill="#FEF3C7" stroke="#D97706" strokeWidth="2" />
-      <rect x="20" y="133" width="56" height="10" rx="4" fill="#FDE68A" stroke="#D97706" strokeWidth="2" />
-      {/* Bucket handle */}
-      <path d="M30 133 Q48 118 66 133" fill="none" stroke="#D97706" strokeWidth="2" />
-      {/* Water in bucket */}
-      <ellipse cx="48" cy="160" rx="20" ry="6" fill="#7DD3FC" opacity="0.5" />
-      {/* Mop handle */}
-      <rect x="107" y="18" width="10" height="128" rx="5" fill="#D97706" />
-      {/* Mop head */}
-      <rect x="85" y="138" width="54" height="14" rx="4" fill="#E2E8F0" />
-      <rect x="87" y="152" width="6" height="16" rx="3" fill="#94A3B8" />
-      <rect x="96" y="152" width="6" height="18" rx="3" fill="#94A3B8" />
-      <rect x="105" y="152" width="6" height="16" rx="3" fill="#94A3B8" />
-      <rect x="114" y="152" width="6" height="18" rx="3" fill="#94A3B8" />
-      <rect x="123" y="152" width="6" height="16" rx="3" fill="#94A3B8" />
-      {/* Broom handle */}
-      <rect x="152" y="22" width="10" height="112" rx="5" fill="#F5A623" transform="rotate(10 157 100)" />
-      {/* Broom head */}
-      <rect x="140" y="140" width="52" height="12" rx="4" fill="#FDE68A" />
-      <rect x="140" y="152" width="6" height="12" rx="3" fill="#FBBF24" />
-      <rect x="149" y="152" width="6" height="14" rx="3" fill="#FBBF24" />
-      <rect x="158" y="152" width="6" height="12" rx="3" fill="#FBBF24" />
-      <rect x="167" y="152" width="6" height="14" rx="3" fill="#FBBF24" />
-      <rect x="176" y="152" width="6" height="12" rx="3" fill="#FBBF24" />
-      {/* Dust particles */}
-      <circle cx="130" cy="148" r="3" fill="#94A3B8" opacity="0.4" />
-      <circle cx="118" cy="144" r="2" fill="#94A3B8" opacity="0.3" />
-      <circle cx="142" cy="146" r="2.5" fill="#94A3B8" opacity="0.35" />
+      <rect width="200" height="200" fill="url(#sm-bg)"/>
+      <rect x="0" y="158" width="200" height="42" fill="url(#sm-fl)"/>
+      <line x1="0" y1="158" x2="200" y2="158" stroke="#3B82F6" strokeWidth="1.5" strokeOpacity=".6"/>
+      <line x1="50" y1="158" x2="50" y2="200" stroke="#1D4ED8" strokeWidth=".8" strokeOpacity=".3"/>
+      <line x1="100" y1="158" x2="100" y2="200" stroke="#1D4ED8" strokeWidth=".8" strokeOpacity=".3"/>
+      <line x1="150" y1="158" x2="150" y2="200" stroke="#1D4ED8" strokeWidth=".8" strokeOpacity=".3"/>
+      <line x1="0" y1="179" x2="200" y2="179" stroke="#1D4ED8" strokeWidth=".8" strokeOpacity=".3"/>
+      <ellipse cx="44" cy="164" rx="30" ry="5" fill="#000" fillOpacity=".5"/>
+      <path d="M58 130 L70 165 L82 165 L70 130 Z" fill="#B45309"/>
+      <path d="M18 128 L28 165 L70 165 L60 128 Z" fill="url(#sm-bk)"/>
+      <rect x="18" y="122" width="44" height="12" rx="5" fill="url(#sm-bk)"/>
+      <rect x="18" y="120" width="44" height="6" rx="3" fill="#FDE68A" fillOpacity=".6"/>
+      <rect x="22" y="128" width="5" height="30" rx="2.5" fill="white" fillOpacity=".25"/>
+      <path d="M26 122 Q40 105 56 122" fill="none" stroke="#D97706" strokeWidth="3" strokeLinecap="round"/>
+      <ellipse cx="44" cy="154" rx="22" ry="7" fill="#3B82F6" fillOpacity=".5"/>
+      <rect x="106" y="16" width="10" height="128" rx="5" fill="#92400E"/>
+      <rect x="106" y="16" width="5" height="128" rx="2.5" fill="white" fillOpacity=".15"/>
+      <rect x="92" y="138" width="38" height="12" rx="4" fill="#1E40AF"/>
+      <rect x="92" y="136" width="38" height="5" rx="2.5" fill="#3B82F6" fillOpacity=".5"/>
+      <line x1="96" y1="150" x2="94" y2="174" stroke="url(#sm-mh)" strokeWidth="2.5" strokeLinecap="round"/>
+      <line x1="103" y1="150" x2="101" y2="174" stroke="url(#sm-mh)" strokeWidth="2.5" strokeLinecap="round"/>
+      <line x1="110" y1="150" x2="108" y2="174" stroke="url(#sm-mh)" strokeWidth="2.5" strokeLinecap="round"/>
+      <line x1="117" y1="150" x2="115" y2="174" stroke="url(#sm-mh)" strokeWidth="2.5" strokeLinecap="round"/>
+      <line x1="124" y1="150" x2="122" y2="174" stroke="url(#sm-mh)" strokeWidth="2.5" strokeLinecap="round"/>
+      <rect x="150" y="22" width="10" height="112" rx="5" fill="#F59E0B" transform="rotate(12 155 78)"/>
+      <rect x="142" y="140" width="48" height="12" rx="4" fill="url(#sm-br)"/>
+      <rect x="142" y="138" width="48" height="6" rx="3" fill="#FDE68A" fillOpacity=".5"/>
+      <line x1="146" y1="152" x2="144" y2="168" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round"/>
+      <line x1="152" y1="152" x2="150" y2="168" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round"/>
+      <line x1="158" y1="152" x2="156" y2="168" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round"/>
+      <line x1="164" y1="152" x2="162" y2="168" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round"/>
+      <line x1="170" y1="152" x2="168" y2="168" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round"/>
+      <line x1="176" y1="152" x2="174" y2="168" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round"/>
+      <ellipse cx="28" cy="130" rx="8" ry="3" fill="white" fillOpacity=".3"/>
     </svg>
   )
 }
 
 function CompleteWardrobe() {
   return (
-    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+    <svg viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="cw-bg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#FDF2F8" />
-          <stop offset="100%" stopColor="#FBCFE8" />
-        </linearGradient>
+        <linearGradient id="cw-bg" x1="0" y1="0" x2=".5" y2="1"><stop offset="0%" stopColor="#4A044E"/><stop offset="100%" stopColor="#120014"/></linearGradient>
+        <linearGradient id="cw-wd" x1="0" y1="0" x2=".3" y2="1"><stop offset="0%" stopColor="#FEF3C7"/><stop offset="40%" stopColor="#D97706"/><stop offset="100%" stopColor="#78350F"/></linearGradient>
+        <linearGradient id="cw-ws" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#78350F"/><stop offset="100%" stopColor="#451A03"/></linearGradient>
+        <linearGradient id="cw-rd" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#E2E8F0"/><stop offset="100%" stopColor="#64748B"/></linearGradient>
       </defs>
-      <rect width="200" height="200" fill="url(#cw-bg)" />
-      {/* Wardrobe body */}
-      <rect x="18" y="22" width="164" height="165" rx="10" fill="white" stroke="#F9A8D4" strokeWidth="2.5" />
-      {/* Centre divider */}
-      <line x1="100" y1="22" x2="100" y2="187" stroke="#F9A8D4" strokeWidth="2" />
-      {/* Top shelf */}
-      <rect x="22" y="44" width="74" height="8" rx="2" fill="#FCE7F3" />
-      <rect x="104" y="44" width="74" height="8" rx="2" fill="#FCE7F3" />
-      {/* Folded items on top shelf – left */}
-      <rect x="28" y="36" width="28" height="8" rx="2" fill="#FCA5A5" />
-      <rect x="28" y="29" width="28" height="8" rx="2" fill="#93C5FD" />
-      {/* Right top shelf */}
-      <rect x="110" y="36" width="26" height="8" rx="2" fill="#86EFAC" />
-      <rect x="110" y="29" width="26" height="8" rx="2" fill="#FDE68A" />
-      {/* Hanging rod left */}
-      <rect x="26" y="56" width="70" height="4" rx="2" fill="#F9A8D4" />
-      {/* Hanging rod right */}
-      <rect x="104" y="56" width="70" height="4" rx="2" fill="#F9A8D4" />
-      {/* Shirt left – hanger + shirt */}
-      <line x1="46" y1="56" x2="46" y2="62" stroke="#E879A5" strokeWidth="1.5" />
-      <path d="M36 72 L46 62 L56 72 L58 100 L34 100 Z" fill="#93C5FD" />
-      <line x1="62" y1="56" x2="62" y2="62" stroke="#E879A5" strokeWidth="1.5" />
-      <path d="M52 72 L62 62 L72 72 L74 115 L50 115 Z" fill="#FCA5A5" />
-      <line x1="78" y1="56" x2="78" y2="62" stroke="#E879A5" strokeWidth="1.5" />
-      <path d="M68 72 L78 62 L88 72 L90 105 L66 105 Z" fill="#86EFAC" />
-      {/* Shirt right – hanger + shirt */}
-      <line x1="120" y1="56" x2="120" y2="62" stroke="#E879A5" strokeWidth="1.5" />
-      <path d="M110 72 L120 62 L130 72 L132 110 L108 110 Z" fill="#FDE68A" />
-      <line x1="140" y1="56" x2="140" y2="62" stroke="#E879A5" strokeWidth="1.5" />
-      <path d="M130 72 L140 62 L150 72 L152 120 L128 120 Z" fill="#C4B5FD" />
-      <line x1="160" y1="56" x2="160" y2="62" stroke="#E879A5" strokeWidth="1.5" />
-      <path d="M150 72 L160 62 L170 72 L172 100 L148 100 Z" fill="#FDA4AF" />
-      {/* Bottom drawer left */}
-      <rect x="22" y="152" width="74" height="26" rx="5" fill="#FCE7F3" stroke="#F9A8D4" strokeWidth="1.5" />
-      <rect x="52" y="162" width="14" height="6" rx="3" fill="#F9A8D4" />
-      {/* Bottom drawer right */}
-      <rect x="104" y="152" width="74" height="26" rx="5" fill="#FCE7F3" stroke="#F9A8D4" strokeWidth="1.5" />
-      <rect x="134" y="162" width="14" height="6" rx="3" fill="#F9A8D4" />
+      <rect width="200" height="200" fill="url(#cw-bg)"/>
+      <ellipse cx="100" cy="192" rx="80" ry="6" fill="#000" fillOpacity=".5"/>
+      <rect x="168" y="18" width="18" height="172" fill="url(#cw-ws)"/>
+      <path d="M14 18 L32 12 L186 12 L168 18 Z" fill="#FEF3C7" fillOpacity=".7"/>
+      <rect x="14" y="18" width="154" height="172" rx="6" fill="url(#cw-wd)"/>
+      <rect x="89" y="20" width="6" height="168" fill="#B45309"/>
+      <rect x="16" y="52" width="71" height="5" rx="2" fill="#92400E" fillOpacity=".6"/>
+      <rect x="97" y="52" width="69" height="5" rx="2" fill="#92400E" fillOpacity=".6"/>
+      <rect x="20" y="60" width="67" height="5" rx="2.5" fill="url(#cw-rd)"/>
+      <rect x="97" y="60" width="69" height="5" rx="2.5" fill="url(#cw-rd)"/>
+      <rect x="22" y="24" width="32" height="10" rx="3" fill="#FCA5A5"/>
+      <rect x="22" y="36" width="32" height="10" rx="3" fill="#93C5FD"/>
+      <rect x="22" y="24" width="10" height="10" rx="3" fill="white" fillOpacity=".2"/>
+      <rect x="100" y="24" width="30" height="10" rx="3" fill="#86EFAC"/>
+      <rect x="100" y="36" width="30" height="10" rx="3" fill="#FDE68A"/>
+      <path d="M29 65 L22 74 L22 112 L38 112 L38 74 Z" fill="#FCA5A5"/>
+      <rect x="22" y="74" width="5" height="38" rx="2.5" fill="white" fillOpacity=".15"/>
+      <path d="M49 65 L42 74 L42 115 L58 115 L58 74 Z" fill="#C4B5FD"/>
+      <rect x="42" y="74" width="5" height="38" rx="2.5" fill="white" fillOpacity=".15"/>
+      <path d="M71 65 L64 74 L64 112 L80 112 L80 74 Z" fill="#86EFAC"/>
+      <rect x="64" y="74" width="5" height="38" rx="2.5" fill="white" fillOpacity=".15"/>
+      <path d="M111 65 L104 75 L104 118 L122 118 L122 75 Z" fill="#FDE68A"/>
+      <rect x="104" y="75" width="5" height="43" rx="2.5" fill="white" fillOpacity=".15"/>
+      <path d="M133 65 L126 75 L126 120 L144 120 L144 75 Z" fill="#FCA5A5"/>
+      <rect x="126" y="75" width="5" height="43" rx="2.5" fill="white" fillOpacity=".15"/>
+      <path d="M157 65 L150 75 L150 118 L168 118 L168 75 Z" fill="#93C5FD"/>
+      <rect x="150" y="75" width="5" height="43" rx="2.5" fill="white" fillOpacity=".15"/>
+      <rect x="18" y="148" width="67" height="36" rx="4" fill="#92400E"/>
+      <rect x="18" y="148" width="67" height="8" rx="4" fill="#B45309" fillOpacity=".5"/>
+      <rect x="42" y="162" width="18" height="7" rx="3.5" fill="#FDE68A"/>
+      <rect x="97" y="148" width="69" height="36" rx="4" fill="#92400E"/>
+      <rect x="97" y="148" width="69" height="8" rx="4" fill="#B45309" fillOpacity=".5"/>
+      <rect x="122" y="162" width="18" height="7" rx="3.5" fill="#FDE68A"/>
+      <rect x="18" y="22" width="5" height="80" rx="2.5" fill="white" fillOpacity=".2"/>
     </svg>
   )
 }
 
 function IroningFolding() {
   return (
-    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+    <svg viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="if-bg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#CCFBF1" />
-          <stop offset="100%" stopColor="#99F6E4" />
-        </linearGradient>
+        <linearGradient id="if-bg" x1="0" y1="0" x2=".5" y2="1"><stop offset="0%" stopColor="#042F2E"/><stop offset="100%" stopColor="#010F0F"/></linearGradient>
+        <linearGradient id="if-bo" x1="0" y1="0" x2=".3" y2="1"><stop offset="0%" stopColor="#4ADE80"/><stop offset="100%" stopColor="#166534"/></linearGradient>
+        <linearGradient id="if-ir" x1="0" y1="0" x2=".3" y2="1"><stop offset="0%" stopColor="#475569"/><stop offset="60%" stopColor="#1E293B"/><stop offset="100%" stopColor="#0F172A"/></linearGradient>
+        <linearGradient id="if-pl" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#CBD5E1"/><stop offset="100%" stopColor="#94A3B8"/></linearGradient>
+        <linearGradient id="if-lg" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#6EE7B7"/><stop offset="100%" stopColor="#0D9488"/></linearGradient>
       </defs>
-      <rect width="200" height="200" fill="url(#if-bg)" />
-      {/* Ironing board legs */}
-      <line x1="48" y1="138" x2="38" y2="180" stroke="#5EEAD4" strokeWidth="4" strokeLinecap="round" />
-      <line x1="152" y1="138" x2="162" y2="180" stroke="#5EEAD4" strokeWidth="4" strokeLinecap="round" />
-      <line x1="80" y1="138" x2="88" y2="180" stroke="#5EEAD4" strokeWidth="3" strokeLinecap="round" />
-      <line x1="130" y1="138" x2="122" y2="180" stroke="#5EEAD4" strokeWidth="3" strokeLinecap="round" />
-      {/* Ironing board surface */}
-      <path d="M22 122 Q22 138 48 138 L152 138 Q178 138 178 130 Q178 122 152 122 L22 122 Z" fill="#E0FDF4" stroke="#5EEAD4" strokeWidth="2" />
-      <path d="M22 122 Q10 128 22 138" fill="#F0FDFA" stroke="#5EEAD4" strokeWidth="1.5" />
-      {/* Shirt/cloth on board */}
-      <rect x="42" y="110" width="96" height="28" rx="4" fill="white" opacity="0.9" />
-      <rect x="42" y="110" width="96" height="6" rx="3" fill="#99F6E4" opacity="0.6" />
-      {/* Iron body */}
-      <path d="M90 68 L160 68 Q175 68 175 82 L175 106 L90 106 Q76 106 76 92 Z" fill="white" stroke="#5EEAD4" strokeWidth="2.5" />
-      {/* Iron sole plate */}
-      <path d="M90 106 L175 106 Q175 112 160 116 L90 116 Q80 116 78 112 Z" fill="#99F6E4" />
-      {/* Iron handle */}
-      <path d="M110 68 Q110 52 130 52 Q150 52 150 68" fill="none" stroke="#5EEAD4" strokeWidth="8" strokeLinecap="round" />
-      {/* Steam holes on sole */}
-      <circle cx="102" cy="110" r="2.5" fill="#5EEAD4" />
-      <circle cx="116" cy="110" r="2.5" fill="#5EEAD4" />
-      <circle cx="130" cy="110" r="2.5" fill="#5EEAD4" />
-      <circle cx="144" cy="110" r="2.5" fill="#5EEAD4" />
-      <circle cx="158" cy="110" r="2.5" fill="#5EEAD4" />
-      {/* Steam wisps */}
-      <path d="M100 68 Q96 56 100 44" stroke="#A7F3D0" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-      <path d="M120 68 Q116 54 120 40" stroke="#A7F3D0" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-      <path d="M140 68 Q136 56 140 42" stroke="#A7F3D0" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-      {/* Folded clothes stack */}
-      <rect x="20" y="150" width="46" height="10" rx="3" fill="#93C5FD" />
-      <rect x="20" y="140" width="46" height="10" rx="3" fill="#FCA5A5" />
-      <rect x="20" y="130" width="46" height="10" rx="3" fill="#86EFAC" />
+      <rect width="200" height="200" fill="url(#if-bg)"/>
+      <line x1="46" y1="140" x2="32" y2="188" stroke="url(#if-lg)" strokeWidth="5" strokeLinecap="round"/>
+      <line x1="154" y1="140" x2="168" y2="188" stroke="url(#if-lg)" strokeWidth="5" strokeLinecap="round"/>
+      <line x1="78" y1="140" x2="86" y2="188" stroke="url(#if-lg)" strokeWidth="4" strokeLinecap="round"/>
+      <line x1="130" y1="140" x2="122" y2="188" stroke="url(#if-lg)" strokeWidth="4" strokeLinecap="round"/>
+      <ellipse cx="100" cy="188" rx="72" ry="6" fill="#000" fillOpacity=".6"/>
+      <path d="M18 124 Q18 140 46 140 L154 140 Q182 140 182 132 Q182 124 154 120 L18 120 Z" fill="url(#if-bo)"/>
+      <path d="M18 120 Q10 128 18 140" fill="#2D6A4F" stroke="#4ADE80" strokeWidth="1"/>
+      <rect x="40" y="112" width="112" height="28" rx="4" fill="white" fillOpacity=".9"/>
+      <rect x="40" y="112" width="112" height="8" rx="3" fill="#99F6E4" fillOpacity=".5"/>
+      <ellipse cx="125" cy="108" rx="40" ry="8" fill="#000" fillOpacity=".5"/>
+      <path d="M86 68 Q82 68 82 80 L82 106 L168 106 Q178 106 178 94 Q178 78 168 68 Z" fill="url(#if-ir)"/>
+      <path d="M86 68 Q82 68 82 80 L82 88 L168 82 Q178 80 178 74 Q174 68 168 68 Z" fill="white" fillOpacity=".1"/>
+      <path d="M82 106 L168 106 Q178 106 178 112 L164 118 L82 118 Z" fill="url(#if-pl)"/>
+      <rect x="84" y="108" width="5" height="10" rx="2.5" fill="white" fillOpacity=".5"/>
+      <circle cx="96" cy="111" r="2.5" fill="#166534"/>
+      <circle cx="108" cy="111" r="2.5" fill="#166534"/>
+      <circle cx="120" cy="111" r="2.5" fill="#166534"/>
+      <circle cx="132" cy="111" r="2.5" fill="#166534"/>
+      <circle cx="144" cy="111" r="2.5" fill="#166534"/>
+      <circle cx="156" cy="111" r="2.5" fill="#166534"/>
+      <path d="M108 68 Q108 50 128 50 Q148 50 148 68" fill="none" stroke="#475569" strokeWidth="9" strokeLinecap="round"/>
+      <path d="M108 68 Q108 50 128 50 Q148 50 148 68" fill="none" stroke="#CBD5E1" strokeWidth="4" strokeLinecap="round"/>
+      <path d="M96 60 Q92 48 96 36" stroke="#99F6E4" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeOpacity=".8"/>
+      <path d="M116 58 Q112 44 116 30" stroke="#6EE7B7" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeOpacity=".7"/>
+      <path d="M136 58 Q132 45 136 32" stroke="#99F6E4" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeOpacity=".6"/>
+      <rect x="16" y="152" width="50" height="12" rx="3" fill="#FCA5A5"/>
+      <rect x="16" y="166" width="50" height="12" rx="3" fill="#93C5FD"/>
+      <rect x="16" y="180" width="50" height="12" rx="3" fill="#86EFAC"/>
     </svg>
   )
 }
 
 function WindowCleaning() {
   return (
-    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+    <svg viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="wc-bg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#E0F7FA" />
-          <stop offset="100%" stopColor="#B2EBF2" />
-        </linearGradient>
-        <linearGradient id="wc-sky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#BAE6FD" />
-          <stop offset="100%" stopColor="#7DD3FC" />
-        </linearGradient>
+        <linearGradient id="wc-bg" x1="0" y1="0" x2=".5" y2="1"><stop offset="0%" stopColor="#0C4A6E"/><stop offset="100%" stopColor="#020F1A"/></linearGradient>
+        <linearGradient id="wc-sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#38BDF8"/><stop offset="100%" stopColor="#0284C7"/></linearGradient>
+        <linearGradient id="wc-fr" x1="0" y1="0" x2=".3" y2="1"><stop offset="0%" stopColor="#F8FAFC"/><stop offset="100%" stopColor="#CBD5E1"/></linearGradient>
+        <linearGradient id="wc-sq" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#FDE68A"/><stop offset="100%" stopColor="#D97706"/></linearGradient>
+        <radialGradient id="wc-su" cx="40%" cy="35%" r="60%"><stop offset="0%" stopColor="#FEF9C3"/><stop offset="50%" stopColor="#FDE68A"/><stop offset="100%" stopColor="#F59E0B"/></radialGradient>
+        <linearGradient id="wc-fs" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#94A3B8"/><stop offset="100%" stopColor="#475569"/></linearGradient>
       </defs>
-      <rect width="200" height="200" fill="url(#wc-bg)" />
-      {/* Window frame outer */}
-      <rect x="24" y="20" width="140" height="155" rx="8" fill="white" stroke="#7DD3FC" strokeWidth="3" />
-      {/* Window glass panes sky */}
-      <rect x="32" y="28" width="62" height="70" rx="3" fill="url(#wc-sky)" />
-      <rect x="100" y="28" width="56" height="70" rx="3" fill="url(#wc-sky)" />
-      <rect x="32" y="104" width="62" height="62" rx="3" fill="url(#wc-sky)" opacity="0.7" />
-      <rect x="100" y="104" width="56" height="62" rx="3" fill="url(#wc-sky)" opacity="0.7" />
-      {/* Cloud in top left pane */}
-      <ellipse cx="58" cy="48" rx="18" ry="10" fill="white" opacity="0.85" />
-      <ellipse cx="48" cy="52" rx="12" ry="8" fill="white" opacity="0.85" />
-      <ellipse cx="70" cy="52" rx="10" ry="7" fill="white" opacity="0.85" />
-      {/* Shine reflections */}
-      <rect x="36" y="32" width="3" height="18" rx="1.5" fill="white" opacity="0.7" />
-      <rect x="41" y="32" width="2" height="10" rx="1" fill="white" opacity="0.5" />
-      {/* Squeegee handle */}
-      <rect x="144" y="28" width="10" height="110" rx="5" fill="#F5A623" transform="rotate(15 149 80)" />
-      {/* Squeegee rubber head */}
-      <rect x="148" y="90" width="36" height="12" rx="4" fill="#374151" transform="rotate(15 166 96)" />
-      {/* Water streak */}
-      <path d="M162 106 L158 135 L155 160" stroke="#7DD3FC" strokeWidth="2.5" fill="none" strokeLinecap="round" opacity="0.6" />
-      {/* Sparkle stars on glass */}
-      <text x="104" y="55" fontSize="18" fill="white" opacity="0.9">✦</text>
-      <text x="118" y="88" fontSize="12" fill="white" opacity="0.7">✦</text>
-      <text x="36" y="130" fontSize="14" fill="white" opacity="0.7">✦</text>
+      <rect width="200" height="200" fill="url(#wc-bg)"/>
+      <rect x="162" y="16" width="14" height="168" fill="url(#wc-fs)"/>
+      <ellipse cx="100" cy="190" rx="80" ry="5" fill="#000" fillOpacity=".5"/>
+      <rect x="18" y="16" width="144" height="168" rx="8" fill="url(#wc-fr)"/>
+      <rect x="84" y="16" width="10" height="168" fill="url(#wc-fr)"/>
+      <rect x="18" y="96" width="144" height="10" fill="url(#wc-fr)"/>
+      <rect x="22" y="20" width="58" height="72" rx="4" fill="url(#wc-sk)"/>
+      <circle cx="52" cy="50" r="20" fill="url(#wc-su)"/>
+      <circle cx="46" cy="44" r="8" fill="white" fillOpacity=".3"/>
+      <line x1="52" y1="26" x2="52" y2="18" stroke="#FEF9C3" strokeWidth="2.5" strokeLinecap="round" strokeOpacity=".9"/>
+      <line x1="68" y1="32" x2="74" y2="26" stroke="#FEF9C3" strokeWidth="2.5" strokeLinecap="round" strokeOpacity=".9"/>
+      <line x1="74" y1="50" x2="82" y2="50" stroke="#FEF9C3" strokeWidth="2.5" strokeLinecap="round" strokeOpacity=".9"/>
+      <line x1="68" y1="68" x2="74" y2="74" stroke="#FEF9C3" strokeWidth="2.5" strokeLinecap="round" strokeOpacity=".9"/>
+      <line x1="36" y1="32" x2="30" y2="26" stroke="#FEF9C3" strokeWidth="2.5" strokeLinecap="round" strokeOpacity=".9"/>
+      <line x1="30" y1="50" x2="22" y2="50" stroke="#FEF9C3" strokeWidth="2.5" strokeLinecap="round" strokeOpacity=".9"/>
+      <rect x="98" y="20" width="60" height="72" rx="4" fill="url(#wc-sk)" fillOpacity=".8"/>
+      <rect x="98" y="20" width="60" height="72" rx="4" fill="#F8FAFC" fillOpacity=".15"/>
+      <rect x="22" y="110" width="58" height="70" rx="4" fill="url(#wc-sk)" fillOpacity=".7"/>
+      <rect x="98" y="110" width="60" height="70" rx="4" fill="url(#wc-sk)" fillOpacity=".6"/>
+      <rect x="26" y="24" width="4" height="28" rx="2" fill="white" fillOpacity=".5"/>
+      <rect x="26" y="24" width="24" height="4" rx="2" fill="white" fillOpacity=".4"/>
+      <rect x="102" y="114" width="4" height="22" rx="2" fill="white" fillOpacity=".4"/>
+      <rect x="148" y="22" width="12" height="90" rx="6" fill="url(#wc-sq)" transform="rotate(18 154 70)"/>
+      <rect x="148" y="22" width="6" height="90" rx="3" fill="white" fillOpacity=".25" transform="rotate(18 154 70)"/>
+      <rect x="152" y="88" width="36" height="12" rx="4" fill="#1E293B" transform="rotate(18 170 94)"/>
+      <path d="M170 106 Q168 118 166 130 Q164 142 162 158" stroke="#7DD3FC" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeOpacity=".7"/>
     </svg>
   )
 }
 
 function Laundry() {
   return (
-    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+    <svg viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="la-bg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#EFF6FF" />
-          <stop offset="100%" stopColor="#DBEAFE" />
-        </linearGradient>
+        <linearGradient id="la-bg" x1="0" y1="0" x2=".5" y2="1"><stop offset="0%" stopColor="#1E1B4B"/><stop offset="100%" stopColor="#060515"/></linearGradient>
+        <linearGradient id="la-mc" x1="0" y1="0" x2=".3" y2="1"><stop offset="0%" stopColor="#334155"/><stop offset="50%" stopColor="#1E293B"/><stop offset="100%" stopColor="#0F172A"/></linearGradient>
+        <linearGradient id="la-pn" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#1E3A8A"/><stop offset="100%" stopColor="#1E1B4B"/></linearGradient>
+        <radialGradient id="la-gl" cx="35%" cy="32%" r="65%"><stop offset="0%" stopColor="#BAE6FD" stopOpacity=".9"/><stop offset="60%" stopColor="#3B82F6" stopOpacity=".6"/><stop offset="100%" stopColor="#1D4ED8" stopOpacity=".8"/></radialGradient>
       </defs>
-      <rect width="200" height="200" fill="url(#la-bg)" />
-      {/* Machine body */}
-      <rect x="22" y="30" width="156" height="158" rx="14" fill="white" stroke="#93C5FD" strokeWidth="2.5" />
-      {/* Top panel */}
-      <rect x="22" y="30" width="156" height="42" rx="14" fill="#DBEAFE" />
-      <rect x="22" y="58" width="156" height="14" fill="#DBEAFE" />
-      {/* Control knob */}
-      <circle cx="54" cy="52" r="14" fill="white" stroke="#93C5FD" strokeWidth="2" />
-      <circle cx="54" cy="52" r="8" fill="#BFDBFE" />
-      <circle cx="54" cy="44" r="3" fill="#3B82F6" />
-      {/* Display panel */}
-      <rect x="76" y="40" width="54" height="24" rx="5" fill="#1E3A5F" />
-      <text x="103" y="57" fontSize="13" fill="#60A5FA" textAnchor="middle" fontFamily="monospace">30°</text>
-      {/* Buttons */}
-      <circle cx="148" cy="48" r="7" fill="white" stroke="#93C5FD" strokeWidth="1.5" />
-      <circle cx="166" cy="48" r="7" fill="white" stroke="#93C5FD" strokeWidth="1.5" />
-      {/* Door rim */}
-      <circle cx="100" cy="130" r="58" fill="none" stroke="#93C5FD" strokeWidth="3" />
-      {/* Door glass */}
-      <circle cx="100" cy="130" r="50" fill="#EFF6FF" />
-      <circle cx="100" cy="130" r="50" fill="#BAE6FD" opacity="0.3" />
-      {/* Clothes tumbling */}
-      <path d="M80 115 Q100 100 120 115 Q130 125 120 140 Q100 155 80 140 Q70 130 80 115 Z" fill="#FCA5A5" opacity="0.8" />
-      <path d="M90 125 Q110 112 128 122" stroke="#F87171" strokeWidth="2" fill="none" />
-      <path d="M72 125 Q80 145 100 148" stroke="#60A5FA" strokeWidth="14" strokeLinecap="round" fill="none" opacity="0.6" />
-      {/* Bubbles */}
-      <circle cx="85" cy="113" r="5" fill="white" opacity="0.7" />
-      <circle cx="115" cy="112" r="4" fill="white" opacity="0.6" />
-      <circle cx="125" cy="125" r="3.5" fill="white" opacity="0.65" />
-      <circle cx="76" cy="140" r="4" fill="white" opacity="0.6" />
-      {/* Door handle */}
-      <rect x="148" y="126" width="14" height="8" rx="4" fill="#60A5FA" />
+      <rect width="200" height="200" fill="url(#la-bg)"/>
+      <rect x="162" y="22" width="16" height="168" fill="#0F172A"/>
+      <path d="M22 22 L38 16 L178 16 L162 22 Z" fill="#475569" fillOpacity=".7"/>
+      <rect x="22" y="22" width="140" height="168" rx="14" fill="url(#la-mc)"/>
+      <rect x="22" y="22" width="140" height="52" rx="14" fill="url(#la-pn)"/>
+      <rect x="22" y="60" width="140" height="14" fill="url(#la-pn)"/>
+      <rect x="80" y="32" width="56" height="28" rx="6" fill="#0F172A"/>
+      <rect x="82" y="34" width="52" height="24" rx="4" fill="#0C1445"/>
+      <text x="108" y="51" fontSize="14" fill="#60A5FA" textAnchor="middle" fontFamily="monospace" fontWeight="bold">30°</text>
+      <circle cx="50" cy="46" r="16" fill="#0F172A"/>
+      <circle cx="50" cy="46" r="12" fill="#1E3A8A"/>
+      <circle cx="50" cy="46" r="6" fill="#3B82F6"/>
+      <circle cx="50" cy="40" r="3" fill="#93C5FD"/>
+      <circle cx="154" cy="38" r="8" fill="#0F172A"/>
+      <circle cx="154" cy="38" r="5" fill="#1D4ED8"/>
+      <circle cx="154" cy="56" r="8" fill="#0F172A"/>
+      <circle cx="154" cy="56" r="5" fill="#6D28D9"/>
+      <circle cx="100" cy="128" r="62" fill="none" stroke="#334155" strokeWidth="4"/>
+      <circle cx="100" cy="128" r="56" fill="none" stroke="#1E3A8A" strokeWidth="3"/>
+      <circle cx="100" cy="128" r="50" fill="url(#la-gl)"/>
+      <path d="M78 112 Q100 96 122 112 Q132 124 122 140 Q100 158 78 140 Q68 128 78 112 Z" fill="#FCA5A5" fillOpacity=".85"/>
+      <path d="M72 125 Q80 145 100 148" stroke="#60A5FA" strokeWidth="16" strokeLinecap="round" fill="none" strokeOpacity=".65"/>
+      <ellipse cx="82" cy="110" rx="16" ry="8" fill="white" fillOpacity=".25"/>
+      <circle cx="82" cy="108" r="6" fill="white" fillOpacity=".3"/>
+      <circle cx="118" cy="106" r="5" fill="white" fillOpacity=".25"/>
+      <circle cx="130" cy="120" r="4" fill="white" fillOpacity=".2"/>
+      <rect x="150" y="122" width="16" height="10" rx="5" fill="#60A5FA"/>
+      <rect x="150" y="120" width="16" height="5" rx="2.5" fill="#93C5FD" fillOpacity=".6"/>
     </svg>
   )
 }
 
 function KitchenCleaning() {
   return (
-    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+    <svg viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="kc-bg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#FFF7ED" />
-          <stop offset="100%" stopColor="#FED7AA" />
-        </linearGradient>
+        <linearGradient id="kc-bg" x1="0" y1="0" x2=".5" y2="1"><stop offset="0%" stopColor="#451A03"/><stop offset="100%" stopColor="#0F0500"/></linearGradient>
+        <linearGradient id="kc-st" x1="0" y1="0" x2=".3" y2="1"><stop offset="0%" stopColor="#334155"/><stop offset="60%" stopColor="#1E293B"/><stop offset="100%" stopColor="#0F172A"/></linearGradient>
+        <linearGradient id="kc-sf" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#475569"/><stop offset="100%" stopColor="#1E293B"/></linearGradient>
+        <radialGradient id="kc-bn" cx="40%" cy="35%" r="60%"><stop offset="0%" stopColor="#475569"/><stop offset="60%" stopColor="#334155"/><stop offset="100%" stopColor="#0F172A"/></radialGradient>
+        <radialGradient id="kc-fl" cx="50%" cy="70%" r="50%"><stop offset="0%" stopColor="#FEF9C3"/><stop offset="40%" stopColor="#FDE68A"/><stop offset="70%" stopColor="#F59E0B"/><stop offset="100%" stopColor="#DC2626" stopOpacity="0"/></radialGradient>
+        <linearGradient id="kc-sp" x1="0" y1="0" x2=".3" y2="1"><stop offset="0%" stopColor="#4ADE80"/><stop offset="100%" stopColor="#166534"/></linearGradient>
+        <linearGradient id="kc-ct" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#64748B"/><stop offset="100%" stopColor="#334155"/></linearGradient>
       </defs>
-      <rect width="200" height="200" fill="url(#kc-bg)" />
-      {/* Counter top */}
-      <rect x="0" y="145" width="200" height="55" rx="0" fill="#E7E5E4" />
-      <rect x="0" y="145" width="200" height="8" fill="#D6D3D1" />
-      {/* Stove body */}
-      <rect x="18" y="80" width="164" height="70" rx="10" fill="white" stroke="#FB923C" strokeWidth="2.5" />
-      {/* Stove top surface */}
-      <rect x="22" y="84" width="156" height="62" rx="8" fill="#F5F5F4" />
-      {/* Left front burner */}
-      <circle cx="60" cy="100" r="22" fill="#E7E5E4" stroke="#D6D3D1" strokeWidth="2" />
-      <circle cx="60" cy="100" r="14" fill="#FAFAF9" stroke="#D6D3D1" strokeWidth="1.5" />
-      <circle cx="60" cy="100" r="6" fill="#E7E5E4" />
-      {/* Right front burner */}
-      <circle cx="140" cy="100" r="22" fill="#E7E5E4" stroke="#D6D3D1" strokeWidth="2" />
-      <circle cx="140" cy="100" r="14" fill="#FAFAF9" stroke="#D6D3D1" strokeWidth="1.5" />
-      <circle cx="140" cy="100" r="6" fill="#E7E5E4" />
-      {/* Left back burner (smaller) */}
-      <circle cx="60" cy="134" r="14" fill="#E7E5E4" stroke="#D6D3D1" strokeWidth="1.5" />
-      <circle cx="60" cy="134" r="8" fill="#FAFAF9" />
-      {/* Right back burner */}
-      <circle cx="140" cy="134" r="14" fill="#E7E5E4" stroke="#D6D3D1" strokeWidth="1.5" />
-      <circle cx="140" cy="134" r="8" fill="#FAFAF9" />
-      {/* Flame on left front burner */}
-      <path d="M54 100 Q52 92 58 88 Q56 96 62 92 Q60 98 66 96 Q62 104 58 104 Q54 104 54 100 Z" fill="#F97316" opacity="0.8" />
-      {/* Steam from right front burner */}
-      <path d="M138 90 Q134 78 138 66" stroke="#FB923C" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.6" />
-      <path d="M144 90 Q148 78 144 66" stroke="#FB923C" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.6" />
-      {/* Sponge */}
-      <rect x="148" y="152" width="36" height="24" rx="6" fill="#86EFAC" stroke="#4ADE80" strokeWidth="1.5" />
-      <rect x="148" y="152" width="36" height="10" rx="6" fill="#4ADE80" opacity="0.6" />
-      {/* Spray bottle */}
-      <rect x="14" y="142" width="22" height="36" rx="5" fill="#FDE68A" stroke="#FBBF24" strokeWidth="1.5" />
-      <rect x="18" y="136" width="14" height="12" rx="3" fill="#FDE68A" stroke="#FBBF24" strokeWidth="1.5" />
-      <rect x="30" y="140" width="12" height="5" rx="2.5" fill="#F5A623" />
+      <rect width="200" height="200" fill="url(#kc-bg)"/>
+      <rect x="0" y="148" width="200" height="52" fill="url(#kc-ct)"/>
+      <rect x="0" y="146" width="200" height="6" fill="#94A3B8"/>
+      <rect x="0" y="144" width="200" height="4" fill="white" fillOpacity=".2"/>
+      <rect x="156" y="82" width="18" height="68" fill="#0F172A"/>
+      <rect x="22" y="82" width="134" height="68" rx="10" fill="url(#kc-st)"/>
+      <rect x="24" y="84" width="130" height="64" rx="8" fill="url(#kc-sf)"/>
+      <circle cx="66" cy="104" r="24" fill="url(#kc-bn)"/>
+      <circle cx="66" cy="104" r="16" fill="#0F172A"/>
+      <circle cx="66" cy="104" r="10" fill="#1E293B"/>
+      <circle cx="66" cy="104" r="5" fill="#0F172A"/>
+      <ellipse cx="66" cy="98" rx="14" ry="18" fill="url(#kc-fl)" fillOpacity=".9"/>
+      <ellipse cx="63" cy="94" rx="6" ry="10" fill="#FEF9C3" fillOpacity=".5"/>
+      <circle cx="130" cy="104" r="24" fill="url(#kc-bn)"/>
+      <circle cx="130" cy="104" r="16" fill="#0F172A"/>
+      <circle cx="130" cy="104" r="10" fill="#1E293B"/>
+      <circle cx="130" cy="104" r="5" fill="#0F172A"/>
+      <path d="M128 84 Q124 72 128 60" stroke="#F97316" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeOpacity=".7"/>
+      <path d="M134 84 Q138 72 134 60" stroke="#FB923C" strokeWidth="2" fill="none" strokeLinecap="round" strokeOpacity=".6"/>
+      <circle cx="38" cy="136" r="8" fill="#0F172A"/>
+      <circle cx="38" cy="136" r="5" fill="#1E293B"/>
+      <circle cx="38" cy="132" r="2" fill="#F59E0B" fillOpacity=".8"/>
+      <circle cx="62" cy="136" r="8" fill="#0F172A"/>
+      <circle cx="62" cy="136" r="5" fill="#1E293B"/>
+      <circle cx="62" cy="132" r="2" fill="#F59E0B" fillOpacity=".8"/>
+      <circle cx="86" cy="136" r="8" fill="#0F172A"/>
+      <circle cx="86" cy="136" r="5" fill="#1E293B"/>
+      <circle cx="86" cy="132" r="2" fill="#F59E0B" fillOpacity=".8"/>
+      <rect x="152" y="148" width="38" height="26" rx="8" fill="url(#kc-sp)"/>
+      <rect x="152" y="148" width="38" height="12" rx="8" fill="#FDE68A" fillOpacity=".7"/>
+      <rect x="155" y="150" width="5" height="10" rx="2.5" fill="white" fillOpacity=".2"/>
+      <line x1="160" y1="148" x2="160" y2="174" stroke="#166534" strokeWidth="1.5" strokeOpacity=".5"/>
+      <line x1="168" y1="148" x2="168" y2="174" stroke="#166534" strokeWidth="1.5" strokeOpacity=".5"/>
+      <line x1="176" y1="148" x2="176" y2="174" stroke="#166534" strokeWidth="1.5" strokeOpacity=".5"/>
+      <rect x="26" y="86" width="4" height="30" rx="2" fill="white" fillOpacity=".15"/>
     </svg>
   )
 }
 
 function BalconyCleaning() {
   return (
-    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+    <svg viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="bal-bg" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#E0F2FE" />
-          <stop offset="100%" stopColor="#D1FAE5" />
-        </linearGradient>
+        <linearGradient id="bal-bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#0369A1"/><stop offset="60%" stopColor="#0C4A6E"/><stop offset="100%" stopColor="#052030"/></linearGradient>
+        <linearGradient id="bal-fl" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#1E3A5F"/><stop offset="100%" stopColor="#0F2040"/></linearGradient>
+        <linearGradient id="bal-pt" x1="0" y1="0" x2=".3" y2="1"><stop offset="0%" stopColor="#FED7AA"/><stop offset="50%" stopColor="#EA580C"/><stop offset="100%" stopColor="#9A3412"/></linearGradient>
+        <linearGradient id="bal-rl" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#CBD5E1"/><stop offset="100%" stopColor="#475569"/></linearGradient>
+        <linearGradient id="bal-bm" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#FDE68A"/><stop offset="100%" stopColor="#92400E"/></linearGradient>
       </defs>
-      <rect width="200" height="200" fill="url(#bal-bg)" />
-      {/* Floor tiles */}
-      <rect x="0" y="145" width="200" height="55" fill="#F0FDF4" />
-      <line x1="0" y1="172" x2="200" y2="172" stroke="#BBF7D0" strokeWidth="1.5" />
-      <line x1="50" y1="145" x2="50" y2="200" stroke="#BBF7D0" strokeWidth="1.5" />
-      <line x1="100" y1="145" x2="100" y2="200" stroke="#BBF7D0" strokeWidth="1.5" />
-      <line x1="150" y1="145" x2="150" y2="200" stroke="#BBF7D0" strokeWidth="1.5" />
-      {/* Railing */}
-      <rect x="0" y="100" width="200" height="8" rx="4" fill="#D1D5DB" />
-      <rect x="20" y="100" width="6" height="50" rx="3" fill="#D1D5DB" />
-      <rect x="54" y="100" width="6" height="50" rx="3" fill="#D1D5DB" />
-      <rect x="88" y="100" width="6" height="50" rx="3" fill="#D1D5DB" />
-      <rect x="122" y="100" width="6" height="50" rx="3" fill="#D1D5DB" />
-      <rect x="156" y="100" width="6" height="50" rx="3" fill="#D1D5DB" />
-      <rect x="0" y="145" width="200" height="6" rx="3" fill="#D1D5DB" />
-      {/* Big terracotta pot */}
-      <path d="M55 100 L48 145 L92 145 L85 100 Z" fill="#FB923C" />
-      <rect x="50" y="95" width="40" height="10" rx="5" fill="#FDBA74" />
-      {/* Plant leaves in big pot */}
-      <ellipse cx="70" cy="75" rx="22" ry="26" fill="#4ADE80" />
-      <ellipse cx="52" cy="85" rx="16" ry="18" fill="#22C55E" />
-      <ellipse cx="88" cy="82" rx="14" ry="16" fill="#16A34A" />
-      <path d="M68 100 L68 72" stroke="#15803D" strokeWidth="3" />
-      <path d="M68 90 Q58 84 52 76" stroke="#15803D" strokeWidth="2" fill="none" />
-      <path d="M70 86 Q80 80 86 72" stroke="#15803D" strokeWidth="2" fill="none" />
-      {/* Small pot */}
-      <path d="M130 120 L126 145 L150 145 L146 120 Z" fill="#FCA5A5" />
-      <rect x="128" y="115" width="22" height="8" rx="4" fill="#FECACA" />
-      {/* Small plant */}
-      <ellipse cx="138" cy="100" rx="14" ry="16" fill="#86EFAC" />
-      <ellipse cx="128" cy="108" rx="9" ry="10" fill="#4ADE80" />
-      <ellipse cx="148" cy="105" rx="8" ry="10" fill="#22C55E" />
-      {/* Broom */}
-      <rect x="160" y="30" width="10" height="115" rx="5" fill="#D97706" transform="rotate(8 165 80)" />
-      <rect x="155" y="145" width="38" height="12" rx="4" fill="#FBBF24" />
-      <rect x="155" y="157" width="6" height="12" rx="3" fill="#D97706" />
-      <rect x="164" y="157" width="6" height="14" rx="3" fill="#D97706" />
-      <rect x="173" y="157" width="6" height="12" rx="3" fill="#D97706" />
-      <rect x="182" y="157" width="6" height="14" rx="3" fill="#D97706" />
+      <rect width="200" height="200" fill="url(#bal-bg)"/>
+      <ellipse cx="160" cy="28" rx="24" ry="24" fill="#FEF9C3" fillOpacity=".4"/>
+      <ellipse cx="160" cy="28" rx="16" ry="16" fill="#FDE68A" fillOpacity=".5"/>
+      <rect x="0" y="148" width="200" height="52" fill="url(#bal-fl)"/>
+      <line x1="0" y1="148" x2="200" y2="148" stroke="#3B82F6" strokeWidth="1.5" strokeOpacity=".5"/>
+      <line x1="50" y1="148" x2="50" y2="200" stroke="#1D4ED8" strokeWidth="1" strokeOpacity=".3"/>
+      <line x1="100" y1="148" x2="100" y2="200" stroke="#1D4ED8" strokeWidth="1" strokeOpacity=".3"/>
+      <line x1="150" y1="148" x2="150" y2="200" stroke="#1D4ED8" strokeWidth="1" strokeOpacity=".3"/>
+      <line x1="0" y1="174" x2="200" y2="174" stroke="#1D4ED8" strokeWidth="1" strokeOpacity=".3"/>
+      <rect x="0" y="100" width="200" height="10" rx="4" fill="url(#bal-rl)"/>
+      <rect x="0" y="98" width="200" height="5" rx="2.5" fill="white" fillOpacity=".3"/>
+      <rect x="0" y="138" width="200" height="12" rx="4" fill="url(#bal-rl)"/>
+      <rect x="0" y="136" width="200" height="5" rx="2.5" fill="white" fillOpacity=".2"/>
+      <rect x="12" y="100" width="8" height="50" rx="4" fill="url(#bal-rl)"/>
+      <rect x="32" y="100" width="8" height="50" rx="4" fill="url(#bal-rl)"/>
+      <rect x="52" y="100" width="8" height="50" rx="4" fill="url(#bal-rl)"/>
+      <rect x="72" y="100" width="8" height="50" rx="4" fill="url(#bal-rl)"/>
+      <rect x="92" y="100" width="8" height="50" rx="4" fill="url(#bal-rl)"/>
+      <rect x="112" y="100" width="8" height="50" rx="4" fill="url(#bal-rl)"/>
+      <rect x="132" y="100" width="8" height="50" rx="4" fill="url(#bal-rl)"/>
+      <rect x="152" y="100" width="8" height="50" rx="4" fill="url(#bal-rl)"/>
+      <rect x="172" y="100" width="8" height="50" rx="4" fill="url(#bal-rl)"/>
+      <ellipse cx="56" cy="152" rx="28" ry="5" fill="#000" fillOpacity=".4"/>
+      <path d="M30 148 L22 108 L90 108 L82 148 Z" fill="url(#bal-pt)"/>
+      <ellipse cx="56" cy="108" rx="34" ry="9" fill="#FED7AA"/>
+      <rect x="24" y="116" width="8" height="32" rx="2" fill="white" fillOpacity=".15"/>
+      <ellipse cx="56" cy="78" rx="30" ry="32" fill="#166534"/>
+      <ellipse cx="36" cy="88" rx="20" ry="24" fill="#15803D"/>
+      <ellipse cx="76" cy="86" rx="18" ry="22" fill="#14532D"/>
+      <ellipse cx="56" cy="62" rx="16" ry="24" fill="#16A34A"/>
+      <path d="M54 108 L54 72" stroke="#14532D" strokeWidth="4" strokeLinecap="round"/>
+      <ellipse cx="142" cy="152" rx="20" ry="4" fill="#000" fillOpacity=".4"/>
+      <path d="M122 148 L118 120 L166 120 L162 148 Z" fill="url(#bal-pt)"/>
+      <ellipse cx="142" cy="120" rx="24" ry="7" fill="#FED7AA"/>
+      <circle cx="142" cy="102" r="20" fill="#166534"/>
+      <circle cx="132" cy="108" r="13" fill="#15803D"/>
+      <circle cx="152" cy="106" r="12" fill="#14532D"/>
+      <ellipse cx="175" cy="192" rx="14" ry="4" fill="#000" fillOpacity=".4"/>
+      <rect x="168" y="30" width="10" height="118" rx="5" fill="url(#bal-bm)" transform="rotate(8 173 90)"/>
+      <rect x="168" y="30" width="5" height="118" rx="2.5" fill="white" fillOpacity=".2" transform="rotate(8 173 90)"/>
+      <rect x="156" y="148" width="42" height="13" rx="5" fill="#FDE68A"/>
+      <rect x="156" y="146" width="42" height="6" rx="3" fill="white" fillOpacity=".2"/>
+      <line x1="159" y1="161" x2="157" y2="175" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round"/>
+      <line x1="165" y1="161" x2="163" y2="175" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round"/>
+      <line x1="171" y1="161" x2="169" y2="175" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round"/>
+      <line x1="177" y1="161" x2="175" y2="175" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round"/>
+      <line x1="183" y1="161" x2="181" y2="175" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round"/>
+      <line x1="189" y1="161" x2="187" y2="175" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round"/>
     </svg>
   )
 }
 
 function FanCleaning() {
   return (
-    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+    <svg viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="fan-bg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#F0F9FF" />
-          <stop offset="100%" stopColor="#BAE6FD" />
-        </linearGradient>
+        <linearGradient id="fan-bg" x1="0" y1="0" x2=".5" y2="1"><stop offset="0%" stopColor="#0C1445"/><stop offset="100%" stopColor="#030712"/></linearGradient>
+        <linearGradient id="fan-cl" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#1E3A8A"/><stop offset="100%" stopColor="#1E1B4B"/></linearGradient>
+        <linearGradient id="fan-bl" x1="0" y1="0" x2=".3" y2="1"><stop offset="0%" stopColor="#F1F5F9"/><stop offset="50%" stopColor="#CBD5E1"/><stop offset="100%" stopColor="#64748B"/></linearGradient>
+        <linearGradient id="fan-hb" x1="0" y1="0" x2=".3" y2="1"><stop offset="0%" stopColor="#CBD5E1"/><stop offset="60%" stopColor="#94A3B8"/><stop offset="100%" stopColor="#334155"/></linearGradient>
+        <linearGradient id="fan-rd" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#94A3B8"/><stop offset="100%" stopColor="#475569"/></linearGradient>
+        <linearGradient id="fan-du" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#FDE68A"/><stop offset="50%" stopColor="#F59E0B"/><stop offset="100%" stopColor="#B45309"/></linearGradient>
       </defs>
-      <rect width="200" height="200" fill="url(#fan-bg)" />
-      {/* Ceiling */}
-      <rect x="0" y="0" width="200" height="30" fill="#E0F2FE" />
-      {/* Fan rod */}
-      <rect x="93" y="28" width="14" height="32" rx="7" fill="#94A3B8" />
-      {/* Fan motor housing */}
-      <circle cx="100" cy="78" r="20" fill="#E2E8F0" stroke="#94A3B8" strokeWidth="2.5" />
-      <circle cx="100" cy="78" r="10" fill="#CBD5E1" />
-      <circle cx="100" cy="78" r="5" fill="#94A3B8" />
-      {/* Fan blades */}
-      {/* Blade 1 – top */}
-      <path d="M100 58 Q80 40 60 48 Q68 62 80 62 Q92 62 100 58 Z" fill="white" stroke="#CBD5E1" strokeWidth="1.5" />
-      {/* Blade 2 – right */}
-      <path d="M120 78 Q138 58 130 38 Q116 46 116 58 Q116 70 120 78 Z" fill="white" stroke="#CBD5E1" strokeWidth="1.5" />
-      {/* Blade 3 – bottom */}
-      <path d="M100 98 Q120 116 140 108 Q132 94 120 94 Q108 94 100 98 Z" fill="white" stroke="#CBD5E1" strokeWidth="1.5" />
-      {/* Blade 4 – left */}
-      <path d="M80 78 Q62 98 70 118 Q84 110 84 98 Q84 86 80 78 Z" fill="white" stroke="#CBD5E1" strokeWidth="1.5" />
-      {/* Dust on blade tops */}
-      <path d="M62 50 Q72 46 80 52" stroke="#D1D5DB" strokeWidth="3" fill="none" strokeLinecap="round" />
-      <path d="M128 42 Q130 52 126 60" stroke="#D1D5DB" strokeWidth="3" fill="none" strokeLinecap="round" />
-      {/* Dust particles floating */}
-      <circle cx="44" cy="55" r="3" fill="#D1D5DB" opacity="0.7" />
-      <circle cx="38" cy="45" r="2" fill="#D1D5DB" opacity="0.5" />
-      <circle cx="155" cy="42" r="3" fill="#D1D5DB" opacity="0.7" />
-      <circle cx="162" cy="52" r="2" fill="#D1D5DB" opacity="0.5" />
-      {/* Duster tool */}
-      <rect x="132" y="118" width="10" height="64" rx="5" fill="#F5A623" />
-      <ellipse cx="137" cy="118" rx="24" ry="16" fill="#FDE68A" />
-      <ellipse cx="118" cy="112" rx="14" ry="10" fill="#FBBF24" />
-      <ellipse cx="155" cy="112" rx="12" ry="9" fill="#FBBF24" />
-      <ellipse cx="137" cy="106" rx="18" ry="12" fill="#FDE68A" opacity="0.8" />
-      {/* Motion arc */}
-      <path d="M40 100 Q100 140 160 100" stroke="#BAE6FD" strokeWidth="2" fill="none" strokeDasharray="5,4" />
+      <rect width="200" height="200" fill="url(#fan-bg)"/>
+      <rect x="0" y="0" width="200" height="32" fill="url(#fan-cl)"/>
+      <line x1="0" y1="32" x2="200" y2="32" stroke="#3B82F6" strokeWidth="1.5" strokeOpacity=".5"/>
+      <circle cx="100" cy="16" r="18" fill="#1E3A8A"/>
+      <circle cx="100" cy="16" r="12" fill="#2D4ED8"/>
+      <circle cx="100" cy="16" r="6" fill="#3B82F6"/>
+      <rect x="94" y="28" width="12" height="36" rx="6" fill="url(#fan-rd)"/>
+      <rect x="94" y="28" width="6" height="36" rx="3" fill="white" fillOpacity=".2"/>
+      {/* Blades BEFORE hub */}
+      <path d="M100 64 Q76 38 52 48 Q62 66 78 68 Q92 68 100 64 Z" fill="url(#fan-bl)"/>
+      <rect x="58" y="52" width="4" height="14" rx="2" fill="white" fillOpacity=".3" transform="rotate(-30 60 60)"/>
+      <path d="M120 80 Q146 56 136 32 Q120 44 118 60 Q116 72 120 80 Z" fill="url(#fan-bl)"/>
+      <rect x="126" y="38" width="4" height="14" rx="2" fill="white" fillOpacity=".3" transform="rotate(60 128 45)"/>
+      <path d="M100 96 Q124 122 148 112 Q138 94 122 92 Q108 92 100 96 Z" fill="url(#fan-bl)"/>
+      <rect x="130" y="100" width="4" height="14" rx="2" fill="white" fillOpacity=".3" transform="rotate(150 132 107)"/>
+      <path d="M80 80 Q54 104 64 128 Q80 116 82 100 Q84 88 80 80 Z" fill="url(#fan-bl)"/>
+      <rect x="62" y="108" width="4" height="14" rx="2" fill="white" fillOpacity=".3" transform="rotate(240 64 115)"/>
+      {/* Hub AFTER blades */}
+      <circle cx="100" cy="80" r="22" fill="url(#fan-hb)"/>
+      <circle cx="100" cy="80" r="14" fill="#1E293B"/>
+      <circle cx="100" cy="80" r="8" fill="#0F172A"/>
+      <circle cx="100" cy="80" r="4" fill="#334155"/>
+      <ellipse cx="94" cy="74" rx="6" ry="4" fill="white" fillOpacity=".2"/>
+      {/* Dust */}
+      <ellipse cx="54" cy="50" rx="8" ry="4" fill="#94A3B8" fillOpacity=".5" transform="rotate(-30 54 50)"/>
+      <ellipse cx="134" cy="34" rx="7" ry="3" fill="#94A3B8" fillOpacity=".4" transform="rotate(60 134 34)"/>
+      <circle cx="40" cy="60" r="2.5" fill="#CBD5E1" fillOpacity=".6"/>
+      <circle cx="32" cy="72" r="2" fill="#94A3B8" fillOpacity=".5"/>
+      <circle cx="158" cy="38" r="2.5" fill="#CBD5E1" fillOpacity=".6"/>
+      {/* Duster */}
+      <rect x="128" y="120" width="10" height="70" rx="5" fill="url(#fan-du)"/>
+      <rect x="128" y="120" width="5" height="70" rx="2.5" fill="white" fillOpacity=".2"/>
+      <ellipse cx="133" cy="118" rx="28" ry="16" fill="#F59E0B"/>
+      <ellipse cx="110" cy="112" rx="16" ry="12" fill="#FDE68A"/>
+      <ellipse cx="156" cy="112" rx="14" ry="11" fill="#FBBF24"/>
+      <ellipse cx="133" cy="104" rx="20" ry="14" fill="#FDE68A" fillOpacity=".8"/>
+      <path d="M38 90 Q100 130 162 90" stroke="#3B82F6" strokeWidth="2" fill="none" strokeDasharray="6,5" strokeOpacity=".3"/>
     </svg>
   )
 }
 
 function KitchenCabinets() {
   return (
-    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+    <svg viewBox="0 0 200 200" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="kb-bg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#FFFBEB" />
-          <stop offset="100%" stopColor="#FDE68A" />
-        </linearGradient>
+        <linearGradient id="kb-bg" x1="0" y1="0" x2=".5" y2="1"><stop offset="0%" stopColor="#431407"/><stop offset="100%" stopColor="#0F0300"/></linearGradient>
+        <linearGradient id="kb-wd" x1="0" y1="0" x2=".3" y2="1"><stop offset="0%" stopColor="#FEF3C7"/><stop offset="40%" stopColor="#D97706"/><stop offset="100%" stopColor="#78350F"/></linearGradient>
+        <linearGradient id="kb-ws" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#78350F"/><stop offset="100%" stopColor="#451A03"/></linearGradient>
+        <linearGradient id="kb-ct" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#94A3B8"/><stop offset="100%" stopColor="#334155"/></linearGradient>
+        <linearGradient id="kb-gl" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stopColor="#ECFEFF" stopOpacity=".7"/><stop offset="100%" stopColor="#A5F3FC" stopOpacity=".2"/></linearGradient>
       </defs>
-      <rect width="200" height="200" fill="url(#kb-bg)" />
-      {/* Wall */}
-      <rect x="0" y="0" width="200" height="160" fill="#FEF3C7" opacity="0.4" />
-      {/* Counter top */}
-      <rect x="0" y="155" width="200" height="12" rx="3" fill="#D6D3D1" />
-      <rect x="0" y="160" width="200" height="40" fill="#E7E5E4" />
-      {/* Left cabinet (closed) */}
-      <rect x="10" y="20" width="80" height="110" rx="8" fill="white" stroke="#D97706" strokeWidth="2" />
-      {/* Left cabinet doors */}
-      <rect x="14" y="24" width="36" height="102" rx="5" fill="#FEF9C3" stroke="#D97706" strokeWidth="1.5" />
-      <rect x="54" y="24" width="32" height="102" rx="5" fill="#FEF9C3" stroke="#D97706" strokeWidth="1.5" />
-      {/* Door handles */}
-      <rect x="46" y="70" width="6" height="18" rx="3" fill="#D97706" />
-      <rect x="52" y="70" width="6" height="18" rx="3" fill="#D97706" />
-      {/* Right cabinet (open) */}
-      <rect x="110" y="20" width="80" height="110" rx="8" fill="white" stroke="#D97706" strokeWidth="2" />
-      {/* Open door swung out */}
-      <rect x="82" y="24" width="28" height="78" rx="5" fill="#FEF9C3" stroke="#D97706" strokeWidth="1.5" />
-      <rect x="84" y="60" width="5" height="14" rx="2.5" fill="#D97706" />
-      {/* Cabinet interior shelves */}
-      <line x1="114" y1="60" x2="186" y2="60" stroke="#FDE68A" strokeWidth="2" />
-      <line x1="114" y1="95" x2="186" y2="95" stroke="#FDE68A" strokeWidth="2" />
-      {/* Top shelf items: jars */}
-      <rect x="118" y="36" width="16" height="22" rx="4" fill="#93C5FD" />
-      <rect x="118" y="32" width="16" height="6" rx="2" fill="#60A5FA" />
-      <rect x="138" y="38" width="14" height="20" rx="4" fill="#86EFAC" />
-      <rect x="138" y="34" width="14" height="6" rx="2" fill="#4ADE80" />
-      <rect x="156" y="36" width="12" height="22" rx="4" fill="#FCA5A5" />
-      <rect x="156" y="32" width="12" height="6" rx="2" fill="#F87171" />
-      <rect x="172" y="40" width="10" height="18" rx="3" fill="#FDE68A" />
-      <rect x="172" y="36" width="10" height="6" rx="2" fill="#FBBF24" />
-      {/* Middle shelf items */}
-      <rect x="116" y="68" width="22" height="24" rx="4" fill="#FDE68A" />
-      <rect x="116" y="65" width="22" height="5" rx="2" fill="#F5A623" />
-      <rect x="142" y="70" width="18" height="22" rx="4" fill="#C4B5FD" />
-      <rect x="163" y="70" width="18" height="22" rx="4" fill="#BAE6FD" />
-      {/* Bottom shelf items */}
-      <rect x="118" y="102" width="26" height="20" rx="4" fill="#FEF3C7" stroke="#D97706" strokeWidth="1" />
-      <rect x="148" y="102" width="20" height="20" rx="4" fill="#FEF3C7" stroke="#D97706" strokeWidth="1" />
-      <rect x="172" y="104" width="12" height="18" rx="3" fill="#D1FAE5" />
-      {/* Sparkle */}
-      <text x="22" y="16" fontSize="14" fill="#FBBF24">✦</text>
-      <text x="170" y="16" fontSize="10" fill="#FBBF24">✦</text>
+      <rect width="200" height="200" fill="url(#kb-bg)"/>
+      <rect x="0" y="148" width="200" height="52" fill="url(#kb-ct)"/>
+      <rect x="0" y="146" width="200" height="6" fill="#CBD5E1"/>
+      <rect x="0" y="144" width="200" height="4" fill="white" fillOpacity=".2"/>
+      <rect x="94" y="14" width="14" height="112" fill="url(#kb-ws)"/>
+      <path d="M8 14 L22 8 L108 8 L94 14 Z" fill="#FEF9C3" fillOpacity=".6"/>
+      <rect x="8" y="14" width="86" height="112" rx="6" fill="url(#kb-wd)"/>
+      <line x1="51" y1="16" x2="51" y2="124" stroke="#92400E" strokeWidth="1.5"/>
+      <rect x="10" y="30" width="6" height="12" rx="2" fill="#F59E0B"/>
+      <rect x="10" y="86" width="6" height="12" rx="2" fill="#F59E0B"/>
+      <rect x="54" y="30" width="6" height="12" rx="2" fill="#F59E0B"/>
+      <rect x="54" y="86" width="6" height="12" rx="2" fill="#F59E0B"/>
+      <rect x="42" y="64" width="7" height="18" rx="3.5" fill="#FDE68A"/>
+      <rect x="52" y="64" width="7" height="18" rx="3.5" fill="#FDE68A"/>
+      <rect x="12" y="18" width="4" height="48" rx="2" fill="white" fillOpacity=".25"/>
+      <rect x="186" y="14" width="12" height="112" fill="url(#kb-ws)"/>
+      <path d="M108 14 L122 8 L198 8 L186 14 Z" fill="#FEF9C3" fillOpacity=".6"/>
+      <rect x="108" y="14" width="78" height="112" rx="6" fill="#78350F"/>
+      <rect x="72" y="14" width="36" height="82" rx="5" fill="url(#kb-wd)"/>
+      <rect x="72" y="14" width="36" height="82" rx="5" fill="url(#kb-gl)"/>
+      <rect x="74" y="18" width="4" height="30" rx="2" fill="white" fillOpacity=".35"/>
+      <rect x="74" y="91" width="8" height="5" rx="2.5" fill="#F59E0B"/>
+      <rect x="110" y="58" width="74" height="4" rx="2" fill="#D97706"/>
+      <rect x="110" y="96" width="74" height="4" rx="2" fill="#D97706"/>
+      <rect x="114" y="20" width="14" height="36" rx="4" fill="#93C5FD"/>
+      <rect x="114" y="18" width="14" height="6" rx="2" fill="#60A5FA"/>
+      <rect x="132" y="24" width="12" height="32" rx="4" fill="#86EFAC"/>
+      <rect x="132" y="22" width="12" height="6" rx="2" fill="#4ADE80"/>
+      <rect x="148" y="20" width="12" height="36" rx="4" fill="#FCA5A5"/>
+      <rect x="148" y="18" width="12" height="6" rx="2" fill="#F87171"/>
+      <rect x="164" y="22" width="16" height="34" rx="4" fill="#C4B5FD"/>
+      <rect x="166" y="22" width="6" height="34" rx="3" fill="white" fillOpacity=".2"/>
+      <rect x="114" y="64" width="18" height="28" rx="4" fill="#FDE68A"/>
+      <rect x="114" y="62" width="18" height="5" rx="2" fill="#F59E0B"/>
+      <rect x="136" y="64" width="16" height="28" rx="4" fill="#FCA5A5"/>
+      <rect x="156" y="66" width="22" height="26" rx="4" fill="#DBEAFE"/>
+      <rect x="158" y="66" width="8" height="26" rx="3" fill="white" fillOpacity=".25"/>
+      <rect x="114" y="102" width="24" height="22" rx="4" fill="#FEF9C3" stroke="#D97706" strokeWidth="1"/>
+      <rect x="142" y="102" width="20" height="22" rx="4" fill="#FEF9C3" stroke="#D97706" strokeWidth="1"/>
+      <rect x="166" y="104" width="14" height="20" rx="3" fill="#D1FAE5"/>
+      <rect x="12" y="134" width="20" height="14" rx="4" fill="#FDE68A"/>
+      <circle cx="50" cy="139" r="9" fill="#FCA5A5"/>
+      <circle cx="46" cy="135" r="3" fill="white" fillOpacity=".3"/>
+      <rect x="112" y="16" width="4" height="40" rx="2" fill="white" fillOpacity=".15"/>
     </svg>
   )
 }

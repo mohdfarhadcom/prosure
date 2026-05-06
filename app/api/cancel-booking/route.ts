@@ -6,7 +6,7 @@ export async function POST(req: Request) {
     const { bookingId } = await req.json()
     if (!bookingId) return NextResponse.json({ ok: true })
     const db = getSupabaseAdmin()
-    await db.from('bookings').delete().eq('id', bookingId).eq('status', 'pending')
+    await db.from('bookings').update({ status: 'cancelled' }).eq('id', bookingId).eq('status', 'pending')
     return NextResponse.json({ ok: true })
   } catch {
     return NextResponse.json({ ok: true })

@@ -78,7 +78,7 @@ function PaymentContent() {
       name: 'Zilpo',
       description: 'Home service booking',
       order_id: orderId,
-      prefill: { contact: user?.phone || '' },
+      prefill: { contact: user?.phone || '', email: user?.email || '' },
       theme: { color: '#F5A623' },
       handler: async (response: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) => {
         clearTimeout(timeoutRef.current)
@@ -101,6 +101,13 @@ function PaymentContent() {
           await cancelPendingBooking()
           router.back()
         },
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      'payment.failed': async (response: any) => {
+        clearTimeout(timeoutRef.current)
+        console.error('[payment] failed:', response.error)
+        await cancelPendingBooking()
+        setErrMsg(`Payment failed: ${response.error?.description || 'Please try again or use a different payment method.'}`)
       },
     }
     clearTimeout(timeoutRef.current)

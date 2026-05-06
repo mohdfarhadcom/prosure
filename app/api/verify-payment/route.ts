@@ -16,7 +16,11 @@ export async function POST(req: Request) {
 
     if (bookingId) {
       const db = getSupabaseAdmin()
-      await db.from('bookings').update({ payment_id: razorpay_payment_id, status: 'confirmed' }).eq('id', bookingId)
+      const { error: updateError } = await db
+        .from('bookings')
+        .update({ payment_id: razorpay_payment_id, status: 'confirmed' })
+        .eq('id', bookingId)
+      if (updateError) console.error('[verify-payment] booking update failed:', updateError.message)
 
       // Send confirmation email
       const { data: booking } = await db.from('bookings').select('*, users(email, name)').eq('id', bookingId).single()
