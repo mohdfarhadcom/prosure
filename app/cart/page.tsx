@@ -3,13 +3,25 @@ import { useRouter } from 'next/navigation'
 import { useCart } from '@/context/CartContext'
 import { useAuth } from '@/context/AuthContext'
 import { useLocation } from '@/context/LocationContext'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import Link from 'next/link'
 
-const GST_RATE = 0.18
 const SERVICE_FEE = 20
+const VISITING_FEE = 59
+const VISITING_FEE_THRESHOLD = 499
+const TIP_OPTIONS = [0, 20, 50, 100]
 
-// Payment app SVG icons
+function getSurge(): { fee: number; label: string } {
+  const h = new Date().getHours()
+  const d = new Date().getDay()
+  const weekend = d === 0 || d === 6
+  const peak = (h >= 7 && h < 10) || (h >= 17 && h < 21)
+  if (peak && weekend) return { fee: 50, label: 'Weekend peak surge' }
+  if (peak) return { fee: 30, label: 'Peak hours surge' }
+  if (weekend) return { fee: 20, label: 'Weekend surge' }
+  return { fee: 0, label: '' }
+}
+
 const UpiIcon = () => (
   <div className="w-9 h-9 rounded-xl bg-purple-600 flex items-center justify-center flex-shrink-0">
     <span className="text-white text-[10px] font-black">UPI</span>
@@ -33,22 +45,40 @@ const CardIcon = () => (
 
 export default function CartPage() {
   const router = useRouter()
-  const { items, remove, add, total, clear } = useCart()
+  const { items, remove, add, total } = useCart()
   const { user } = useAuth()
   const { location } = useLocation()
   const [promo, setPromo] = useState('')
-  const [promoApplied, setPromoApplied] = useState(false)
+  const [appliedPromo, setAppliedPromo] = useState<'ZILPO10' | 'TEST' | null>(null)
   const [promoError, setPromoError] = useState('')
   const [bookingMode, setBookingMode] = useState<'schedule' | 'instant'>('schedule')
+  const [tip, setTip] = useState(0)
+
+  const surge = useMemo(() => getSurge(), [])
 
   const subtotal = total
-  const discount = promoApplied ? Math.round(subtotal * 0.1) : 0
-  const gst = Math.round((subtotal - discount) * GST_RATE)
-  const toPay = subtotal - discount + gst + SERVICE_FEE
+  const visitingFee = subtotal < VISITING_FEE_THRESHOLD ? VISITING_FEE : 0
+  const promoDiscount10 = appliedPromo === 'ZILPO10' ? Math.round(subtotal * 0.1) : 0
+  const normalTotal = subtotal - promoDiscount10 + visitingFee + surge.fee + SERVICE_FEE + tip
+  const toPay = appliedPromo === 'TEST' ? 1 : normalTotal
+  const testDiscount = appliedPromo === 'TEST' ? normalTotal - 1 : 0
 
   const applyPromo = () => {
-    if (promo.toUpperCase() === 'ZILPO10') { setPromoApplied(true); setPromoError('') }
-    else setPromoError('Invalid promo code')
+    const code = promo.trim()
+    setPromoError('')
+    if (code.toUpperCase() === 'ZILPO10') {
+      setAppliedPromo('ZILPO10')
+    } else if (code === 'OwbhnsJue736+#;jhe') {
+      setAppliedPromo('TEST')
+    } else {
+      setPromoError('Invalid promo code')
+    }
+  }
+
+  const removePromo = () => {
+    setAppliedPromo(null)
+    setPromo('')
+    setPromoError('')
   }
 
   const proceed = () => {
@@ -104,14 +134,14 @@ export default function CartPage() {
           <div key={item.slug} className={`flex items-center gap-3 px-4 py-4 ${idx < items.length - 1 ? 'border-b border-gray-50' : ''}`}>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
-              <p className="text-xs text-gray-400 mt-0.5">Rs {item.price} each</p>
+              <p className="text-xs text-gray-400 mt-0.5">₹{item.price} each</p>
             </div>
             <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-2 py-1.5">
-              <button onClick={() => remove(item.slug)} className="text-gray-500 w-5 h-5 flex items-center justify-center font-bold">-</button>
+              <button onClick={() => remove(item.slug)} className="text-gray-500 w-5 h-5 flex items-center justify-center font-bold">−</button>
               <span className="text-sm font-bold w-4 text-center">{item.qty}</span>
               <button onClick={() => add({ slug: item.slug, name: item.name, price: item.price, original: item.original })} className="text-gray-500 w-5 h-5 flex items-center justify-center font-bold">+</button>
             </div>
-            <span className="text-sm font-bold text-gray-900 w-16 text-right">Rs {item.price * item.qty}</span>
+            <span className="text-sm font-bold text-gray-900 w-16 text-right">₹{item.price * item.qty}</span>
           </div>
         ))}
       </div>
@@ -136,32 +166,106 @@ export default function CartPage() {
         <Link href="/location" className="text-[#F5A623] text-xs font-bold ml-2 flex-shrink-0">Change</Link>
       </div>
 
-      {/* Promo */}
-      <div className="flex gap-2 mb-5">
-        <input
-          value={promo}
-          onChange={e => setPromo(e.target.value.toUpperCase())}
-          placeholder="Enter promo code"
-          className="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#F5A623]"
-        />
-        <button onClick={applyPromo} className={`px-4 py-3 rounded-xl text-sm font-bold transition-colors ${promoApplied ? 'bg-green-50 text-green-600 border border-green-200' : 'border border-[#F5A623] text-[#F5A623] hover:bg-[#FFF3DC]'}`}>
-          {promoApplied ? 'Applied' : 'Apply'}
-        </button>
+      {/* Tip */}
+      <div className="bg-white border border-gray-100 rounded-2xl p-4 mb-4">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <p className="text-sm font-semibold text-gray-900">Tip your professional</p>
+            <p className="text-[10px] text-green-600 font-medium mt-0.5">100% goes to them · no commission</p>
+          </div>
+          {tip > 0 && <span className="text-sm font-bold text-[#F5A623]">+₹{tip}</span>}
+        </div>
+        <div className="flex gap-2">
+          {TIP_OPTIONS.map(t => (
+            <button
+              key={t}
+              onClick={() => setTip(t)}
+              className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-colors ${tip === t ? 'bg-[#F5A623] text-white border-[#F5A623]' : 'border-gray-200 text-gray-600 hover:border-[#F5A623]'}`}
+            >
+              {t === 0 ? 'None' : `₹${t}`}
+            </button>
+          ))}
+        </div>
       </div>
-      {promoError && <p className="text-red-500 text-sm -mt-3 mb-4">{promoError}</p>}
+
+      {/* Promo */}
+      {!appliedPromo ? (
+        <div className="flex gap-2 mb-4">
+          <input
+            value={promo}
+            onChange={e => setPromo(e.target.value)}
+            placeholder="Enter promo code"
+            className="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#F5A623]"
+          />
+          <button onClick={applyPromo} className="px-4 py-3 rounded-xl text-sm font-bold border border-[#F5A623] text-[#F5A623] hover:bg-[#FFF3DC] transition-colors">
+            Apply
+          </button>
+        </div>
+      ) : (
+        <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-xl px-4 py-3 mb-4">
+          <div className="flex items-center gap-2">
+            <span className="text-green-600 text-sm">✓</span>
+            <span className="text-sm font-semibold text-green-800">
+              {appliedPromo === 'TEST' ? 'Test code — total ₹1' : 'ZILPO10 — 10% off item total'}
+            </span>
+          </div>
+          <button onClick={removePromo} className="text-xs text-gray-400 font-semibold">Remove</button>
+        </div>
+      )}
+      {promoError && <p className="text-red-500 text-xs -mt-2 mb-4">{promoError}</p>}
 
       {/* Bill breakdown */}
       <div className="bg-gray-50 rounded-2xl p-4 mb-5">
         <h3 className="font-bold text-sm mb-3">Bill details</h3>
         <div className="flex flex-col gap-2.5 text-sm">
-          <div className="flex justify-between"><span className="text-gray-500">Item total</span><span className="font-medium">Rs {subtotal}</span></div>
-          {discount > 0 && <div className="flex justify-between text-green-600"><span>Promo discount (10%)</span><span>- Rs {discount}</span></div>}
-          <div className="flex justify-between"><span className="text-gray-500">GST (18%)</span><span className="font-medium">Rs {gst}</span></div>
-          <div className="flex justify-between"><span className="text-gray-500">Service fee</span><span className="font-medium">Rs {SERVICE_FEE}</span></div>
+          <div className="flex justify-between">
+            <span className="text-gray-500">Item total</span>
+            <span className="font-medium">₹{subtotal}</span>
+          </div>
+          {promoDiscount10 > 0 && (
+            <div className="flex justify-between text-green-600">
+              <span>Promo (ZILPO10 · 10% off)</span>
+              <span>− ₹{promoDiscount10}</span>
+            </div>
+          )}
+          {testDiscount > 0 && (
+            <div className="flex justify-between text-green-600">
+              <span>Special discount</span>
+              <span>− ₹{testDiscount}</span>
+            </div>
+          )}
+          {visitingFee > 0 && (
+            <div className="flex justify-between">
+              <div>
+                <span className="text-gray-500">Visiting fee</span>
+                <p className="text-[10px] text-gray-400">Waived on orders ₹{VISITING_FEE_THRESHOLD}+</p>
+              </div>
+              <span className="font-medium">₹{visitingFee}</span>
+            </div>
+          )}
+          {surge.fee > 0 && (
+            <div className="flex justify-between">
+              <div>
+                <span className="text-amber-600 font-semibold">⚡ {surge.label}</span>
+                <p className="text-[10px] text-gray-400">High demand right now</p>
+              </div>
+              <span className="font-medium text-amber-600">₹{surge.fee}</span>
+            </div>
+          )}
+          <div className="flex justify-between">
+            <span className="text-gray-500">Service fee</span>
+            <span className="font-medium">₹{SERVICE_FEE}</span>
+          </div>
+          {tip > 0 && (
+            <div className="flex justify-between text-green-700">
+              <span>Tip (to professional)</span>
+              <span className="font-medium">₹{tip}</span>
+            </div>
+          )}
           <div className="h-px bg-gray-200 my-1" />
           <div className="flex justify-between font-extrabold text-base">
             <span>Total payable</span>
-            <span className="text-[#F5A623]">Rs {toPay}</span>
+            <span className="text-[#F5A623]">₹{toPay}</span>
           </div>
         </div>
       </div>
@@ -170,35 +274,28 @@ export default function CartPage() {
       <div className="bg-white border border-gray-100 rounded-2xl p-4 mb-5">
         <h3 className="font-semibold text-sm mb-3 text-gray-700">Accepted payments</h3>
         <div className="flex items-center gap-3 overflow-x-auto pb-1">
-          <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
-            <UpiIcon />
-            <span className="text-[10px] text-gray-500">UPI</span>
-          </div>
-          <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
-            <GpayIcon />
-            <span className="text-[10px] text-gray-500">GPay</span>
-          </div>
-          <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
-            <PhonepeIcon />
-            <span className="text-[10px] text-gray-500">PhonePe</span>
-          </div>
-          <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
-            <CardIcon />
-            <span className="text-[10px] text-gray-500">Card</span>
-          </div>
-          <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
-            <div className="w-9 h-9 rounded-xl bg-blue-700 flex items-center justify-center">
-              <span className="text-white text-[9px] font-black">NET</span>
+          {[
+            { icon: <UpiIcon />, label: 'UPI' },
+            { icon: <GpayIcon />, label: 'GPay' },
+            { icon: <PhonepeIcon />, label: 'PhonePe' },
+            { icon: <CardIcon />, label: 'Card' },
+            {
+              icon: <div className="w-9 h-9 rounded-xl bg-blue-700 flex items-center justify-center"><span className="text-white text-[9px] font-black">NET</span></div>,
+              label: 'Netbank',
+            },
+          ].map(({ icon, label }) => (
+            <div key={label} className="flex flex-col items-center gap-1.5 flex-shrink-0">
+              {icon}
+              <span className="text-[10px] text-gray-500">{label}</span>
             </div>
-            <span className="text-[10px] text-gray-500">Netbank</span>
-          </div>
+          ))}
         </div>
       </div>
 
-      <p className="text-xs text-gray-400 mb-4 text-center">20% platform fee included. Rest paid to your professional.</p>
+      <p className="text-xs text-gray-400 mb-4 text-center">₹20 service fee keeps Zilpo running. Tips go 100% to your professional.</p>
 
       <button onClick={proceed} className="w-full bg-[#F5A623] text-white font-bold py-4 rounded-2xl text-base shadow-[0_4px_20px_rgba(245,166,35,0.35)]">
-        {user ? `Pay Rs ${toPay}` : 'Login to continue'}
+        {user ? `Pay ₹${toPay}` : 'Login to continue'}
       </button>
     </main>
   )
