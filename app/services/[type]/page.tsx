@@ -38,7 +38,7 @@ export default function ServiceDetailPage() {
     <main className="page">
       {/* Hero image */}
       <div className="relative w-full h-56">
-        <Image src={svc.img} alt={svc.name} fill className="object-cover" unoptimized />
+        <Image src={svc.img} alt={svc.name} fill className="object-cover" sizes="100vw" priority />
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-transparent" />
         <button
           onClick={() => router.back()}
