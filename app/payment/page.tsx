@@ -101,13 +101,7 @@ function PaymentContent() {
           await cancelPendingBooking()
           router.back()
         },
-      },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      'payment.failed': async (response: any) => {
-        clearTimeout(timeoutRef.current)
-        console.error('[payment] failed:', response.error)
-        await cancelPendingBooking()
-        setErrMsg(`Payment failed: ${response.error?.description || 'Please try again or use a different payment method.'}`)
+        confirm_close: true,
       },
     }
     clearTimeout(timeoutRef.current)
