@@ -13,6 +13,7 @@ type Props = {
   draggable?: boolean
   onDrag?: (lat: number, lng: number) => void
   showWorkers?: boolean
+  fakeMarkers?: { lat: number; lng: number }[]
   height?: string
   defaultZoom?: number
 }
@@ -31,7 +32,7 @@ const YellowPin = () => (
   </svg>
 )
 
-export default function MapComponent({ center, draggable, onDrag, showWorkers, height = '300px', defaultZoom = 15 }: Props) {
+export default function MapComponent({ center, draggable, onDrag, showWorkers, fakeMarkers, height = '300px', defaultZoom = 15 }: Props) {
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
     mapIds: ['DEMO_MAP_ID'],
@@ -107,6 +108,17 @@ export default function MapComponent({ center, draggable, onDrag, showWorkers, h
             key={w.id}
             position={{ lat: w.lat, lng: w.lng }}
             title={w.name}
+            icon={{
+              url: WORKER_ICON,
+              scaledSize: new google.maps.Size(34, 42),
+              anchor: new google.maps.Point(17, 42),
+            }}
+          />
+        ))}
+        {fakeMarkers && fakeMarkers.map((m, i) => (
+          <Marker
+            key={`fake-${i}`}
+            position={{ lat: m.lat, lng: m.lng }}
             icon={{
               url: WORKER_ICON,
               scaledSize: new google.maps.Size(34, 42),

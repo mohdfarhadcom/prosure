@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext'
 import { useLocation } from '@/context/LocationContext'
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
+import { supabase } from '@/lib/supabaseClient'
 
 const SERVICE_FEE = 20
 const VISITING_FEE = 59
@@ -81,10 +82,44 @@ export default function CartPage() {
     setPromoError('')
   }
 
-  const proceed = () => {
+  const [proceeding, setProceeding] = useState(false)
+
+  const proceed = async () => {
     if (!user) { router.push('/login?redirect=/cart'); return }
     if (!location) { router.push('/location'); return }
-    router.push(`/payment?amount=${toPay}&mode=${bookingMode}`)
+    setProceeding(true)
+
+    // Nearest 30-min time slot
+    const now = new Date()
+    const mins = now.getMinutes() < 30 ? 30 : 0
+    now.setMinutes(mins, 0, 0)
+    if (mins === 0) now.setHours(now.getHours() + 1)
+    const h = now.getHours()
+    const ampm = h >= 12 ? 'PM' : 'AM'
+    const h12 = h % 12 || 12
+    const slot = `${h12}:${String(now.getMinutes()).padStart(2, '0')} ${ampm}`
+    const today = new Date().toISOString().split('T')[0]
+    const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0]
+
+    const { data: booking, error } = await supabase.from('bookings').insert({
+      user_id: user.id,
+      date: bookingMode === 'instant' ? today : tomorrow,
+      slot,
+      duration: 1,
+      amount: toPay,
+      booking_type: 'services',
+      booking_mode: bookingMode,
+      status: 'pending',
+    }).select().single()
+
+    if (error || !booking) {
+      setProceeding(false)
+      alert('Could not create booking. Please try again.')
+      return
+    }
+
+    router.push(`/payment?amount=${toPay}&mode=${bookingMode}&bookingId=${booking.id}`)
+    setProceeding(false)
   }
 
   if (items.length === 0) {
@@ -294,8 +329,8 @@ export default function CartPage() {
 
       <p className="text-xs text-gray-400 mb-4 text-center">₹20 service fee keeps Zilpo running. Tips go 100% to your professional.</p>
 
-      <button onClick={proceed} className="w-full bg-[#F5A623] text-white font-bold py-4 rounded-2xl text-base shadow-[0_4px_20px_rgba(245,166,35,0.35)]">
-        {user ? `Pay ₹${toPay}` : 'Login to continue'}
+      <button onClick={proceed} disabled={proceeding} className="w-full bg-[#F5A623] text-white font-bold py-4 rounded-2xl text-base shadow-[0_4px_20px_rgba(245,166,35,0.35)] disabled:opacity-60">
+        {proceeding ? 'Preparing...' : user ? `Pay ₹${toPay}` : 'Login to continue'}
       </button>
     </main>
   )

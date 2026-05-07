@@ -52,9 +52,9 @@ export default function BookingsPage() {
     )
   }
 
-  const today = new Date().toISOString().split('T')[0]
-  const upcoming = bookings.filter(b => b.date >= today && b.status !== 'cancelled' && b.status !== 'completed')
-  const past = bookings.filter(b => b.date < today || b.status === 'completed' || b.status === 'cancelled')
+  const DONE = ['completed', 'cancelled', 'refund_pending', 'refunded']
+  const upcoming = bookings.filter(b => !DONE.includes(b.status))
+  const past = bookings.filter(b => DONE.includes(b.status))
   const shown = tab === 'upcoming' ? upcoming : past
 
   return (
