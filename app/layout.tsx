@@ -6,8 +6,8 @@ import { LocationProvider } from '@/context/LocationContext'
 import Navbar from '@/components/Navbar'
 
 export const metadata: Metadata = {
-  title: 'Zilpo – House Help On Demand',
-  description: 'Book professional house help in minutes.',
+  title: 'Zilpo – Professional at your door in 10 minutes',
+  description: 'Connect to a verified home professional within 10–15 minutes. Cleaning, cooking, laundry and more.',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -26,7 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             >
               zilpo
             </span>
-            <span className="text-xs font-medium text-gray-400 tracking-widest uppercase">House help on demand</span>
+            <span className="text-xs font-medium text-gray-400 tracking-widest uppercase">Pro at your door in 10 min</span>
           </div>
           {/* Progress bar */}
           <div className="w-32 h-0.5 bg-gray-100 rounded-full overflow-hidden">

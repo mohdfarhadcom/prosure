@@ -10,10 +10,10 @@ import ServiceCard from '@/components/ServiceCard'
 import LocationPrompt from '@/components/LocationPrompt'
 
 const BANNERS = [
-  { img: 'https://lh3.googleusercontent.com/d/1YwzOPCvhXzRaYahOBkxhmZjIpVdX2Bql', title: 'A cleaner home starts today', sub: 'Book in under 2 minutes' },
+  { img: 'https://lh3.googleusercontent.com/d/1YwzOPCvhXzRaYahOBkxhmZjIpVdX2Bql', title: 'Pro at your door in 10 min', sub: 'Book in under 2 minutes' },
   { img: 'https://lh3.googleusercontent.com/d/1LQL6P-QAXrm7xRuRLB5raN3aMmAEREJ8', title: 'Professionals at your door', sub: 'Verified, trained, reliable' },
   { img: 'https://lh3.googleusercontent.com/d/1TMcK1JPJMvHs6E1ErC_ovW2BEaUBUjya', title: 'Every corner, spotless', sub: 'Kitchen to bathroom' },
-  { img: 'https://lh3.googleusercontent.com/d/1s6mUyGyoutLE6JGCazbdR48CSq8fwOg9', title: 'Schedule. Relax. Done.', sub: 'Pick a time that works for you' },
+  { img: 'https://lh3.googleusercontent.com/d/1s6mUyGyoutLE6JGCazbdR48CSq8fwOg9', title: 'Connect in 10–15 minutes', sub: 'Pick a time that works for you' },
 ]
 
 
@@ -23,7 +23,7 @@ const FAQS = [
   { q: 'What if I cancel?', a: 'Full refund if you cancel 3+ hours before. No refund within 3 hours.' },
   { q: 'Do I need to provide equipment?', a: 'Yes. Keep basic cleaning supplies at home. Your professional will use them.' },
   { q: 'Is there a damage policy?', a: 'Yes. Up to Rs 6,000 cover per booking. Not on promo bookings.' },
-  { q: 'How are prices set?', a: 'Base prices shown. GST 18% and Rs 20 service fee added at checkout.' },
+  { q: 'How are prices set?', a: 'Base prices shown. A ₹20 service fee is added at checkout. No GST charged — we are below the GST threshold.' },
 ]
 
 export default function HomePage() {

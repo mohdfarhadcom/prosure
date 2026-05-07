@@ -124,7 +124,7 @@ export default function CartPage() {
           </button>
         </div>
         {bookingMode === 'instant' && (
-          <p className="text-xs text-[#F5A623] mt-2 text-center">A professional will arrive within 60 minutes</p>
+          <p className="text-xs text-[#F5A623] mt-2 text-center">⚡ Connect to a professional within 10–15 minutes</p>
         )}
       </div>
 

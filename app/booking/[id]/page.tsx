@@ -357,7 +357,7 @@ export default function BookingDetailPage() {
 
         {isInstantPending && (
           <p className="text-center text-xs text-gray-400">
-            Instant bookings automatically cancel and refund if no professional is found within 5 minutes.
+            We connect you to a professional within 10–15 minutes. If none is available, you get a full refund.
           </p>
         )}
       </div>
