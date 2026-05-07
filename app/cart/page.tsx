@@ -61,8 +61,8 @@ export default function CartPage() {
   const visitingFee = subtotal < VISITING_FEE_THRESHOLD ? VISITING_FEE : 0
   const promoDiscount10 = appliedPromo === 'ZILPO10' ? Math.round(subtotal * 0.1) : 0
   const normalTotal = subtotal - promoDiscount10 + visitingFee + surge.fee + SERVICE_FEE + tip
-  const toPay = appliedPromo === 'TEST' ? 1 : normalTotal
-  const testDiscount = appliedPromo === 'TEST' ? normalTotal - 1 : 0
+  const toPay = appliedPromo === 'TEST' ? 2 : normalTotal
+  const testDiscount = appliedPromo === 'TEST' ? normalTotal - 2 : 0
 
   const applyPromo = () => {
     const code = promo.trim()
@@ -241,7 +241,7 @@ export default function CartPage() {
           <div className="flex items-center gap-2">
             <span className="text-green-600 text-sm">✓</span>
             <span className="text-sm font-semibold text-green-800">
-              {appliedPromo === 'TEST' ? 'Test code — total ₹1' : 'ZILPO10 — 10% off item total'}
+              {appliedPromo === 'TEST' ? 'Test code — total ₹2' : 'ZILPO10 — 10% off item total'}
             </span>
           </div>
           <button onClick={removePromo} className="text-xs text-gray-400 font-semibold">Remove</button>
