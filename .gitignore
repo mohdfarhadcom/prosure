@@ -26,3 +26,7 @@ yarn-debug.log*
 yarn-error.log*
 .vercel
 tsconfig.tsbuildinfo
+
+# local tooling / environment artifacts
+android/
+*.tar.gz
