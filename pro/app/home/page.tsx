@@ -1,31 +1,41 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 import { useI18n } from '@/context/I18nContext'
 import { supabase } from '@/lib/supabaseClient'
 import { distanceMetres } from '@/lib/googleMaps'
+import GpsOffModal from '@/components/GpsOffModal'
 import Navbar from '@/components/Navbar'
 
-const ACCEPT_WINDOW = 90 // seconds to accept an order
+const ACCEPT_WINDOW = 90
 
 type IncomingOrder = {
   id: string
-  service_name: string
   address: string
   lat: number
   lng: number
-  total: number
+  amount: number
   duration: number
-  scheduled_at: string
-  customer_phone?: string
+  date?: string
+  slot?: string
+  service_type?: string
+  booking_type?: string
+  booking_mode?: string
+  user_id?: string
+  customerName?: string
+  isScheduled?: boolean
 }
 
 export default function HomePage() {
-  const { pro, setPro, loading } = useAuth()
+  const { pro, loading } = useAuth()
   const { t } = useI18n()
   const router = useRouter()
-  const [online, setOnline] = useState(false)
+
+  // null = not yet read from localStorage — prevents "go offline" effect firing on mount
+  const [online, setOnline] = useState<boolean | null>(null)
+  const [showGpsModal, setShowGpsModal] = useState(false)
+  const [gpsRetrying, setGpsRetrying] = useState(false)
   const [incomingOrder, setIncomingOrder] = useState<IncomingOrder | null>(null)
   const [accepting, setAccepting] = useState(false)
   const [timer, setTimer] = useState(ACCEPT_WINDOW)
@@ -35,94 +45,135 @@ export default function HomePage() {
   const proLng = useRef<number | null>(null)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  // Read online state from localStorage — runs only on client
+  useEffect(() => {
+    const saved = localStorage.getItem('zilpo_pro_online')
+    setOnline(saved === 'true')
+  }, [])
+
   useEffect(() => {
     if (!loading && !pro) router.replace('/login')
   }, [pro, loading, router])
 
-  // Update worker position
+  // GPS watch — update workers table while online
   useEffect(() => {
     if (!pro || !online) return
+    const proId = pro.id
+    const proName = pro.name
     const watchId = navigator.geolocation.watchPosition(
       async pos => {
         proLat.current = pos.coords.latitude
         proLng.current = pos.coords.longitude
         await supabase.from('workers').upsert({
-          id: pro.id,
+          id: proId,
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
-          name: pro.name,
+          name: proName,
           status: 'available',
         })
-        setPro({ ...pro, lat: pos.coords.latitude, lng: pos.coords.longitude })
       },
       () => {},
       { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
     )
     return () => navigator.geolocation.clearWatch(watchId)
-  }, [online, pro?.id])
+  }, [online, pro?.id, pro?.name])
 
-  // Go offline — remove from workers
+  // Remove from workers only when explicitly set offline (never on initial null)
   useEffect(() => {
-    if (!pro || online) return
+    if (online !== false || !pro) return
     supabase.from('workers').delete().eq('id', pro.id).then(() => {})
   }, [online, pro?.id])
 
-  // Fetch today stats
+  // Today stats
   useEffect(() => {
     if (!pro) return
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     supabase
       .from('bookings')
-      .select('total')
+      .select('amount')
       .eq('professional_id', pro.id)
       .eq('status', 'completed')
-      .gte('scheduled_at', today.toISOString())
+      .gte('created_at', today.toISOString())
       .then(({ data }) => {
         if (data) {
           setTodayJobs(data.length)
-          setTodayEarnings(data.reduce((s, b) => s + (b.total || 0), 0) * 0.8)
+          setTodayEarnings(data.reduce((s, b) => s + (b.amount || 0), 0) * 0.8)
         }
       })
   }, [pro?.id])
 
-  // Real-time order subscription
+  // Enrich order with customer name
+  const enrichOrder = useCallback(async (booking: IncomingOrder) => {
+    if (!booking.user_id) return booking
+    const { data } = await supabase.from('users').select('name').eq('id', booking.user_id).single()
+    return { ...booking, customerName: data?.name || '' }
+  }, [])
+
+  // Check for pending orders missed while offline
+  const checkForPendingOrders = useCallback(async () => {
+    if (!pro || !proLat.current || !proLng.current) return
+    const tenMinsAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString()
+    const { data } = await supabase
+      .from('bookings')
+      .select('*')
+      .eq('status', 'confirmed')
+      .is('professional_id', null)
+      .gte('created_at', tenMinsAgo)
+      .order('created_at', { ascending: false })
+      .limit(3)
+    if (!data || data.length === 0) return
+    for (const booking of data) {
+      if (pro.service_type && booking.service_type && pro.service_type !== booking.service_type) continue
+      if (booking.lat && booking.lng) {
+        const dist = distanceMetres(proLat.current, proLng.current, booking.lat, booking.lng)
+        if (dist > 1000) continue
+      }
+      const enriched = await enrichOrder({ ...booking, isScheduled: booking.booking_mode === 'schedule' })
+      setIncomingOrder(enriched)
+      setTimer(ACCEPT_WINDOW)
+      break
+    }
+  }, [pro, enrichOrder])
+
+  // Real-time order subscription (instant + scheduled)
   useEffect(() => {
     if (!pro || !online) return
-
     const channel = supabase
-      .channel('new-bookings')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'bookings' },
-        payload => {
-          const booking = payload.new as IncomingOrder & { status: string; service_type?: string }
-          if (booking.status !== 'pending') return
-          // Check service type match
-          if (pro.service_type === 'home_help' && booking.service_type !== 'home_help') return
-          if (pro.service_type === 'home_cook' && booking.service_type !== 'home_cook') return
-          // Check 500m radius
-          if (proLat.current && proLng.current && booking.lat && booking.lng) {
-            const dist = distanceMetres(proLat.current, proLng.current, booking.lat, booking.lng)
-            if (dist > 500) return
-          }
-          setIncomingOrder(booking)
-          setTimer(ACCEPT_WINDOW)
+      .channel(`pro-orders-${pro.id}`)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'bookings' }, async payload => {
+        const booking = payload.new as IncomingOrder & { status: string }
+        if (booking.status !== 'confirmed') return
+        if (booking.booking_mode === 'instant' && (booking as unknown as { professional_id?: string }).professional_id) return
+        if (pro.service_type && booking.service_type && pro.service_type !== booking.service_type) return
+        if (proLat.current && proLng.current && booking.lat && booking.lng) {
+          const dist = distanceMetres(proLat.current, proLng.current, booking.lat, booking.lng)
+          if (dist > 1000) return
         }
-      )
+        const enriched = await enrichOrder({ ...booking, isScheduled: booking.booking_mode === 'schedule' })
+        setIncomingOrder(enriched)
+        setTimer(ACCEPT_WINDOW)
+      })
       .subscribe()
-
     return () => { supabase.removeChannel(channel) }
-  }, [online, pro?.id, pro?.service_type])
+  }, [online, pro?.id, pro?.service_type, enrichOrder])
 
-  // Countdown for incoming order
+  // Check for missed orders when going online or returning to app
+  useEffect(() => {
+    if (!online) return
+    checkForPendingOrders()
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') checkForPendingOrders()
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => document.removeEventListener('visibilitychange', handleVisibility)
+  }, [online, checkForPendingOrders])
+
+  // Countdown timer
   useEffect(() => {
     if (!incomingOrder) return
-    if (timer <= 0) {
-      setIncomingOrder(null)
-      return
-    }
-    timerRef.current = setTimeout(() => setTimer(t => t - 1), 1000)
+    if (timer <= 0) { setIncomingOrder(null); return }
+    timerRef.current = setTimeout(() => setTimer(s => s - 1), 1000)
     return () => { if (timerRef.current) clearTimeout(timerRef.current) }
   }, [incomingOrder, timer])
 
@@ -133,7 +184,7 @@ export default function HomePage() {
       .from('bookings')
       .update({ professional_id: pro.id, status: 'accepted' })
       .eq('id', incomingOrder.id)
-      .eq('status', 'pending') // prevent race condition
+      .in('status', ['pending', 'confirmed'])
     setAccepting(false)
     if (!error) {
       setIncomingOrder(null)
@@ -143,86 +194,112 @@ export default function HomePage() {
 
   const rejectOrder = () => setIncomingOrder(null)
 
-  const toggleOnline = () => {
-    if (!online) {
-      navigator.geolocation.getCurrentPosition(
-        pos => {
-          proLat.current = pos.coords.latitude
-          proLng.current = pos.coords.longitude
-          setOnline(true)
-        },
-        () => setOnline(true)
-      )
+  const goOnlineWithLocation = (pos: GeolocationPosition) => {
+    proLat.current = pos.coords.latitude
+    proLng.current = pos.coords.longitude
+    setOnline(true)
+    localStorage.setItem('zilpo_pro_online', 'true')
+    setShowGpsModal(false)
+    setGpsRetrying(false)
+  }
+
+  const handleGpsError = (err: GeolocationPositionError) => {
+    setGpsRetrying(false)
+    if (err.code === 2) {
+      setShowGpsModal(true)
     } else {
-      setOnline(false)
+      setOnline(true)
+      localStorage.setItem('zilpo_pro_online', 'true')
     }
   }
 
-  if (loading || !pro) return null
+  const toggleOnline = () => {
+    if (online) {
+      setOnline(false)
+      localStorage.setItem('zilpo_pro_online', 'false')
+    } else {
+      try {
+        navigator.geolocation.getCurrentPosition(goOnlineWithLocation, handleGpsError, {
+          enableHighAccuracy: true, timeout: 10000, maximumAge: 0,
+        })
+      } catch {
+        setOnline(true)
+        localStorage.setItem('zilpo_pro_online', 'true')
+      }
+    }
+  }
 
+  const retryGps = () => {
+    setGpsRetrying(true)
+    navigator.geolocation.getCurrentPosition(goOnlineWithLocation, handleGpsError, {
+      enableHighAccuracy: true, timeout: 10000, maximumAge: 0,
+    })
+  }
+
+  if (loading || !pro) return null
+  const isOnline = online === true
   const greeting = `${t.hi}, ${pro.name.split(' ')[0]}`
+  const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
 
   return (
     <>
+      {showGpsModal && (
+        <GpsOffModal onDismiss={() => setShowGpsModal(false)} onRetry={retryGps} retrying={gpsRetrying} />
+      )}
+
       <main className="page">
-        {/* Header */}
         <header className="sticky top-0 bg-white z-30 border-b border-gray-100 px-4 py-4">
           <div className="flex items-center justify-between">
             <div>
               <span className="gradient-text font-black text-2xl tracking-tighter">zilpo</span>
               <span className="text-xs text-gray-400 ml-1">pro</span>
             </div>
-            <div className="flex items-center gap-3">
-              <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold ${online ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                <div className={`relative w-2 h-2 rounded-full ${online ? 'bg-green-500' : 'bg-gray-400'}`}>
-                  {online && <div className="absolute inset-0 rounded-full bg-green-400 animate-ping opacity-75" />}
-                </div>
-                {online ? t.online : t.offline}
+            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold ${isOnline ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+              <div className={`relative w-2 h-2 rounded-full ${isOnline ? 'bg-green-500' : 'bg-gray-400'}`}>
+                {isOnline && <div className="absolute inset-0 rounded-full bg-green-400 animate-ping opacity-75" />}
               </div>
+              {online === null ? '...' : isOnline ? t.online : t.offline}
             </div>
           </div>
           <p className="text-base font-semibold text-gray-900 mt-3">{greeting}</p>
           <p className="text-xs text-gray-400">{pro.service_type === 'home_help' ? t.homeHelp : t.homeCook}</p>
         </header>
 
-        {/* Online toggle */}
         <div className="px-4 mt-4">
-          <button
-            onClick={toggleOnline}
-            className={`w-full py-4 rounded-2xl font-bold text-base transition-all shadow-sm ${
-              online
-                ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                : 'bg-[#F5A623] text-white shadow-[0_4px_20px_rgba(245,166,35,0.35)]'
-            }`}
-          >
-            {online ? t.goOffline : t.goOnline}
-          </button>
+          {online === null ? (
+            <div className="w-full py-4 rounded-2xl bg-gray-100 animate-pulse" />
+          ) : (
+            <button
+              onClick={toggleOnline}
+              className={`w-full py-4 rounded-2xl font-bold text-base transition-all shadow-sm ${
+                isOnline ? 'bg-gray-100 text-gray-700 hover:bg-gray-200' : 'bg-[#F5A623] text-white shadow-[0_4px_20px_rgba(245,166,35,0.35)]'
+              }`}
+            >
+              {isOnline ? t.goOffline : t.goOnline}
+            </button>
+          )}
         </div>
 
-        {/* Today stats */}
         <div className="px-4 mt-4 grid grid-cols-2 gap-3">
           <div className="bg-gray-50 rounded-2xl p-4">
-            <p className="text-xs text-gray-400 mb-1">Today's earnings</p>
+            <p className="text-xs text-gray-400 mb-1">Today&apos;s earnings</p>
             <p className="font-bold text-xl text-gray-900">Rs {Math.round(todayEarnings)}</p>
-            <p className="text-[10px] text-gray-400 font-semibold mt-0.5">this week</p>
           </div>
           <div className="bg-gray-50 rounded-2xl p-4">
             <p className="text-xs text-gray-400 mb-1">Jobs today</p>
             <p className="font-bold text-xl text-gray-900">{todayJobs}</p>
-            <p className="text-[10px] text-gray-400 font-semibold mt-0.5">completed</p>
           </div>
         </div>
 
-        {/* Status message */}
         <div className="px-4 mt-6">
-          {online ? (
+          {isOnline ? (
             <div className="bg-green-50 rounded-2xl p-4 flex items-center gap-3">
               <div className="relative w-3 h-3 rounded-full bg-green-500 flex-shrink-0">
                 <div className="absolute inset-0 rounded-full bg-green-400 animate-ping opacity-75" />
               </div>
               <div>
                 <p className="text-sm font-semibold text-green-800">Looking for orders nearby</p>
-                <p className="text-xs text-green-600">You will receive notifications for orders within 500m</p>
+                <p className="text-xs text-green-600">Instant orders within 1km · Scheduled orders in Orders tab</p>
               </div>
             </div>
           ) : (
@@ -236,7 +313,6 @@ export default function HomePage() {
           )}
         </div>
 
-        {/* Approval notice */}
         {pro.status !== 'approved' && (
           <div className="mx-4 mt-4 bg-amber-50 border border-amber-200 rounded-2xl p-4">
             <div className="flex items-start gap-3">
@@ -250,25 +326,25 @@ export default function HomePage() {
         )}
       </main>
 
-      {/* Incoming order modal */}
       {incomingOrder && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-end max-w-[430px] mx-auto">
-          <div className="w-full bg-white rounded-t-3xl p-6 slide-up">
-            {/* Timer ring */}
-            <div className="flex items-center justify-between mb-4">
+          <div className="w-full bg-white rounded-t-3xl overflow-hidden" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
+            <div className="flex items-center justify-between px-6 pt-6 mb-4">
               <div>
-                <p className="font-bold text-lg text-gray-900">{t.newOrder}</p>
-                <p className="text-xs text-gray-400">{t.nearbyOrder}</p>
+                <p className="font-bold text-lg text-gray-900">
+                  {incomingOrder.isScheduled ? '📅 Scheduled Order' : t.newOrder}
+                </p>
+                <p className="text-xs text-gray-400">
+                  {incomingOrder.isScheduled ? `${incomingOrder.date || ''} · ${incomingOrder.slot || ''}` : t.nearbyOrder}
+                </p>
               </div>
-              <div className="relative w-14 h-14">
+              <div className="relative w-14 h-14 flex-shrink-0">
                 <svg className="w-14 h-14 -rotate-90" viewBox="0 0 56 56">
                   <circle cx="28" cy="28" r="24" fill="none" stroke="#F3F4F6" strokeWidth="4" />
-                  <circle
-                    cx="28" cy="28" r="24" fill="none" stroke="#F5A623" strokeWidth="4"
+                  <circle cx="28" cy="28" r="24" fill="none" stroke="#F5A623" strokeWidth="4"
                     strokeDasharray={`${2 * Math.PI * 24}`}
                     strokeDashoffset={`${2 * Math.PI * 24 * (1 - timer / ACCEPT_WINDOW)}`}
-                    strokeLinecap="round"
-                  />
+                    strokeLinecap="round" />
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <span className="text-sm font-bold text-gray-900">{timer}</span>
@@ -276,38 +352,60 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="bg-gray-50 rounded-2xl p-4 mb-4">
-              <p className="font-semibold text-sm text-gray-900 mb-1">{incomingOrder.service_name}</p>
+            <div className="mx-6 mb-3 bg-gray-50 rounded-2xl p-4">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="#9CA3AF"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <div>
+                  <p className="font-semibold text-sm text-gray-900">{incomingOrder.customerName || 'Customer'}</p>
+                  <p className="text-xs text-gray-500">{incomingOrder.service_type === 'home_cook' ? 'Home Cook' : 'Home Help'}</p>
+                </div>
+              </div>
               <p className="text-xs text-gray-500 mb-2 flex items-start gap-1">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" className="flex-shrink-0 mt-0.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/></svg>
                 {incomingOrder.address}
               </p>
-              <div className="flex items-center gap-3">
-                <span className="font-bold text-[#F5A623]">Rs {incomingOrder.total}</span>
+              <div className="flex items-center gap-3 flex-wrap">
+                <span className="font-bold text-[#F5A623]">Rs {incomingOrder.amount}</span>
                 <span className="text-xs text-gray-400">· {incomingOrder.duration} min</span>
                 {proLat.current && proLng.current && incomingOrder.lat && (
                   <span className="text-xs text-gray-400">
-                    · {distanceMetres(proLat.current, proLng.current, incomingOrder.lat, incomingOrder.lng) < 1000
-                      ? `${Math.round(distanceMetres(proLat.current, proLng.current, incomingOrder.lat, incomingOrder.lng))}m`
-                      : `${(distanceMetres(proLat.current, proLng.current, incomingOrder.lat, incomingOrder.lng) / 1000).toFixed(1)}km`
-                    } away
+                    · {(() => {
+                      const d = distanceMetres(proLat.current!, proLng.current!, incomingOrder.lat, incomingOrder.lng)
+                      return d < 1000 ? `${Math.round(d)}m` : `${(d / 1000).toFixed(1)}km`
+                    })()} away
                   </span>
                 )}
+                <span className="text-xs text-gray-400">
+                  · ~{proLat.current && proLng.current && incomingOrder.lat
+                    ? Math.max(1, Math.round(distanceMetres(proLat.current, proLng.current, incomingOrder.lat, incomingOrder.lng) / 250))
+                    : '?'} min ETA
+                </span>
               </div>
             </div>
 
-            <div className="flex gap-3">
-              <button
-                onClick={rejectOrder}
-                className="flex-1 py-3.5 rounded-2xl font-bold text-sm border-2 border-gray-200 text-gray-600 hover:border-red-200 hover:text-red-500 transition-colors"
-              >
+            {mapsKey && proLat.current && proLng.current && (
+              <div className="mx-6 mb-4 rounded-2xl overflow-hidden" style={{ height: 160 }}>
+                <iframe
+                  src={`https://www.google.com/maps/embed/v1/directions?key=${mapsKey}&origin=${proLat.current},${proLng.current}&destination=${incomingOrder.lat},${incomingOrder.lng}&mode=driving&zoom=13`}
+                  width="100%" height="160" style={{ border: 0 }} loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+            )}
+            {(!mapsKey || !proLat.current) && (
+              <div className="mx-6 mb-4 rounded-2xl bg-gray-100 flex items-center justify-center" style={{ height: 80 }}>
+                <p className="text-xs text-gray-400">Enable location to see route</p>
+              </div>
+            )}
+
+            <div className="flex gap-3 px-6 pb-8">
+              <button onClick={rejectOrder} className="flex-1 py-3.5 rounded-2xl font-bold text-sm border-2 border-gray-200 text-gray-600">
                 {t.reject}
               </button>
-              <button
-                onClick={acceptOrder}
-                disabled={accepting}
-                className="flex-[2] py-3.5 rounded-2xl font-bold text-sm bg-[#F5A623] text-white disabled:opacity-50 shadow-[0_4px_20px_rgba(245,166,35,0.35)]"
-              >
+              <button onClick={acceptOrder} disabled={accepting}
+                className="flex-[2] py-3.5 rounded-2xl font-bold text-sm bg-[#F5A623] text-white disabled:opacity-50 shadow-[0_4px_20px_rgba(245,166,35,0.35)]">
                 {accepting ? t.accepting : t.accept}
               </button>
             </div>

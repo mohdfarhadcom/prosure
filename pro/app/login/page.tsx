@@ -119,40 +119,48 @@ function LoginContent() {
     setError('')
     if (!/^\d{10}$/.test(phone)) { setError('Enter a valid 10-digit number'); return }
     setLoading(true)
-    const res = await fetch('/api/send-otp', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone, loginOnly: true }),
-    })
-    const data = await res.json()
-    if (!res.ok) {
-      setError(res.status === 404 ? 'No account found. Please sign up first.' : data.error || t.error)
+    try {
+      const res = await fetch('/api/send-otp', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, loginOnly: true }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(res.status === 404 ? 'No account found. Please sign up first.' : data.error || t.error)
+        return
+      }
+      setStep('otp')
+      setCountdown(30)
+    } catch {
+      setError('Network error. Please check your connection.')
+    } finally {
       setLoading(false)
-      return
     }
-    setStep('otp')
-    setCountdown(30)
-    setLoading(false)
   }
 
   const verify = async () => {
     setError('')
     if (otp.length !== 6) { setError('Enter the 6-digit OTP'); return }
     setLoading(true)
-    const res = await fetch('/api/verify-otp', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone, code: otp }),
-    })
-    const data = await res.json()
-    if (!res.ok) { setError(data.error || t.error); setLoading(false); return }
-    setPro(data.pro)
-
-    // Show videos on first login
-    let seen = false
-    try { seen = !!localStorage.getItem('zilpo_pro_videos_seen') } catch {}
-    if (!seen) {
-      setStep('videos')
-    } else {
-      router.replace('/home')
+    try {
+      const res = await fetch('/api/verify-otp', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, code: otp }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setError(data.error || t.error); return }
+      setPro(data.pro)
+      let seen = false
+      try { seen = !!localStorage.getItem('zilpo_pro_videos_seen') } catch {}
+      if (!seen) {
+        setStep('videos')
+      } else {
+        router.replace('/home')
+      }
+    } catch {
+      setError('Network error. Please check your connection.')
+    } finally {
+      setLoading(false)
     }
   }
 

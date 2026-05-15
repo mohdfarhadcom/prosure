@@ -57,6 +57,10 @@ export default function CartPage() {
 
   const surge = useMemo(() => getSurge(), [])
 
+  const hourlyItem = items.find(i => i.slug.startsWith('hourly-'))
+  const isHourlyCart = !!hourlyItem
+  const hourlyHours = hourlyItem ? parseFloat(hourlyItem.slug.replace('hourly-', '')) : 0
+
   const subtotal = total
   const visitingFee = subtotal < VISITING_FEE_THRESHOLD ? VISITING_FEE : 0
   const promoDiscount10 = appliedPromo === 'ZILPO10' ? Math.round(subtotal * 0.1) : 0
@@ -105,9 +109,9 @@ export default function CartPage() {
       user_id: user.id,
       date: bookingMode === 'instant' ? today : tomorrow,
       slot,
-      duration: 1,
+      duration: isHourlyCart ? hourlyHours : 1,
       amount: toPay,
-      booking_type: 'services',
+      booking_type: isHourlyCart ? 'hourly' : 'services',
       booking_mode: bookingMode,
       status: 'pending',
     }).select().single()
@@ -169,13 +173,17 @@ export default function CartPage() {
           <div key={item.slug} className={`flex items-center gap-3 px-4 py-4 ${idx < items.length - 1 ? 'border-b border-gray-50' : ''}`}>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-gray-900 truncate">{item.name}</p>
-              <p className="text-xs text-gray-400 mt-0.5">₹{item.price} each</p>
+              <p className="text-xs text-gray-400 mt-0.5">₹{item.price}{item.slug.startsWith('hourly-') ? '' : ' each'}</p>
             </div>
-            <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-2 py-1.5">
-              <button onClick={() => remove(item.slug)} className="text-gray-500 w-5 h-5 flex items-center justify-center font-bold">−</button>
-              <span className="text-sm font-bold w-4 text-center">{item.qty}</span>
-              <button onClick={() => add({ slug: item.slug, name: item.name, price: item.price, original: item.original })} className="text-gray-500 w-5 h-5 flex items-center justify-center font-bold">+</button>
-            </div>
+            {item.slug.startsWith('hourly-') ? (
+              <button onClick={() => remove(item.slug)} className="text-xs text-red-500 font-semibold px-3 py-1.5 border border-red-100 rounded-xl">Remove</button>
+            ) : (
+              <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-2 py-1.5">
+                <button onClick={() => remove(item.slug)} className="text-gray-500 w-5 h-5 flex items-center justify-center font-bold">−</button>
+                <span className="text-sm font-bold w-4 text-center">{item.qty}</span>
+                <button onClick={() => add({ slug: item.slug, name: item.name, price: item.price, original: item.original })} className="text-gray-500 w-5 h-5 flex items-center justify-center font-bold">+</button>
+              </div>
+            )}
             <span className="text-sm font-bold text-gray-900 w-16 text-right">₹{item.price * item.qty}</span>
           </div>
         ))}

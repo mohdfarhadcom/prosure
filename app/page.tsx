@@ -28,7 +28,7 @@ const FAQS = [
 
 export default function HomePage() {
   const { location, setLocation } = useLocation()
-  const { count } = useCart()
+  const { count, add } = useCart()
   const router = useRouter()
   const [addressText, setAddressText] = useState('Set location')
   const [serviceQ, setServiceQ] = useState('')
@@ -47,6 +47,11 @@ export default function HomePage() {
   useEffect(() => {
     if (location && showPrompt) setShowPrompt(false)
   }, [location])
+
+  const addHourlyToCart = (h: number, price: number, orig: number) => {
+    add({ slug: `hourly-${h}`, name: `${h} hr Home Help`, price, original: orig })
+    router.push('/cart')
+  }
 
   const filteredServices = serviceQ.trim().length > 0
     ? SERVICES.filter(s => s.name.toLowerCase().includes(serviceQ.toLowerCase()) || s.category.toLowerCase().includes(serviceQ.toLowerCase()))
@@ -144,17 +149,17 @@ export default function HomePage() {
           </div>
           <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 no-scrollbar">
             {[{ h: 0.5, price: 49, orig: 125, save: 76 }, { h: 1, price: 99, orig: 250, save: 151 }, { h: 1.5, price: 149, orig: 325, save: 176 }, { h: 2, price: 189, orig: 450, save: 261 }].map(({ h, price, orig, save }) => (
-              <Link
+              <button
                 key={h}
-                href={`/booking?type=hourly&hours=${h}`}
-                className="flex-shrink-0 w-32 bg-white border border-gray-100 rounded-2xl p-3 shadow-sm hover:border-[#F5A623] hover:shadow-md transition-all"
+                onClick={() => addHourlyToCart(h, price, orig)}
+                className="flex-shrink-0 w-32 bg-white border border-gray-100 rounded-2xl p-3 shadow-sm hover:border-[#F5A623] hover:shadow-md transition-all text-left"
               >
                 <div className="font-bold text-sm text-gray-900">{h} hr</div>
                 <div className="text-[#F5A623] font-extrabold text-lg mt-0.5">Rs {price}</div>
                 <div className="text-xs text-gray-400 line-through">Rs {orig}</div>
                 <div className="mt-2 text-[10px] font-bold text-green-600">Save Rs {save}</div>
-                <div className="mt-2 w-full py-1.5 text-xs font-bold text-[#F5A623] border border-[#F5A623] rounded-xl text-center">Schedule</div>
-              </Link>
+                <div className="mt-2 w-full py-1.5 text-xs font-bold text-white bg-[#F5A623] rounded-xl text-center">Add to cart</div>
+              </button>
             ))}
           </div>
         </div>

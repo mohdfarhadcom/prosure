@@ -3,6 +3,7 @@ import dynamic from 'next/dynamic'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState, useRef, useMemo } from 'react'
 import { useAuth } from '@/context/AuthContext'
+import { useLocation } from '@/context/LocationContext'
 import { supabase } from '@/lib/supabaseClient'
 
 const MapComponent = dynamic(() => import('@/components/MapComponent'), { ssr: false })
@@ -11,18 +12,19 @@ type Booking = {
   id: string; date: string; slot: string; amount: number; status: string;
   booking_type: string; booking_mode?: string; duration: number;
   rating: number | null; rated_at: string | null; created_at?: string;
-  payment_id?: string | null;
-  workers?: { lat: number; lng: number; name: string }
+  payment_id?: string | null; professional_id?: string | null;
+  address?: string; user_id?: string;
+  workers?: { id?: string; lat: number; lng: number; name: string }
 }
 
 const STATUS_STEPS = ['confirmed', 'en route', 'in progress', 'completed']
 const FINDING_DURATION = 10 * 60 // 10 minutes
 
 function useFakePros(center: { lat: number; lng: number }) {
-  const base = useMemo(() => Array.from({ length: 5 }, (_, i) => ({
-    lat: center.lat + (((i * 1.7 + 0.3) % 1) - 0.5) * 0.018,
-    lng: center.lng + (((i * 2.3 + 0.7) % 1) - 0.5) * 0.022,
-  })), [])
+  const base = useMemo(() => Array.from({ length: 5 }, () => ({
+    lat: center.lat + (Math.random() - 0.5) * 0.018,
+    lng: center.lng + (Math.random() - 0.5) * 0.022,
+  })), []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const [positions, setPositions] = useState(base)
 
@@ -102,7 +104,11 @@ function InstantFindingScreen({ booking, onCancel, cancelling }: {
   const [showTimeout, setShowTimeout] = useState(false)
   const [refunding, setRefunding] = useState(false)
 
-  const center = { lat: 28.6139, lng: 77.2090 }
+  const { location: userLocation } = useLocation()
+  const center = useMemo(() => userLocation
+    ? { lat: userLocation.lat, lng: userLocation.lng }
+    : { lat: 28.6139, lng: 77.2090 },
+  [userLocation?.lat, userLocation?.lng]) // eslint-disable-line react-hooks/exhaustive-deps
   const fakePros = useFakePros(center)
 
   useEffect(() => {
@@ -236,6 +242,7 @@ export default function BookingDetailPage() {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
   const { user } = useAuth()
+  const { location: userLocation } = useLocation()
   const [booking, setBooking] = useState<Booking | null>(null)
   const [loading, setLoading] = useState(true)
   const [cancelling, setCancelling] = useState(false)
@@ -244,6 +251,7 @@ export default function BookingDetailPage() {
   const [hoverRating, setHoverRating] = useState(0)
   const [submittingRating, setSubmittingRating] = useState(false)
   const [ratingDone, setRatingDone] = useState(false)
+  const [workerLocation, setWorkerLocation] = useState<{ lat: number; lng: number } | null>(null)
 
   useEffect(() => {
     if (!user) return
@@ -256,6 +264,20 @@ export default function BookingDetailPage() {
       .subscribe()
     return () => { supabase.removeChannel(ch) }
   }, [id, user])
+
+  // Live worker location subscription
+  const bookingProId = booking?.professional_id
+  useEffect(() => {
+    if (!bookingProId) return
+    const ch = supabase
+      .channel(`worker-loc-${bookingProId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'workers', filter: `id=eq.${bookingProId}` }, p => {
+        const w = p.new as { lat?: number; lng?: number }
+        if (w.lat && w.lng) setWorkerLocation({ lat: w.lat, lng: w.lng })
+      })
+      .subscribe()
+    return () => { supabase.removeChannel(ch) }
+  }, [bookingProId])
 
   const fetchBooking = async () => {
     const { data } = await supabase.from('bookings').select('*, workers(*)').eq('id', id).single()
@@ -281,14 +303,21 @@ export default function BookingDetailPage() {
           body: JSON.stringify({ bookingId: b.id, paymentId: b.payment_id, amount: b.amount }),
         })
         const data = await res.json()
-        if (!data.success) throw new Error(data.error)
-        setBooking(prev => prev ? { ...prev, status: 'refund_pending' } : null)
+        if (data.success || data.refund_pending) {
+          setBooking(prev => prev ? { ...prev, status: 'refund_pending' } : null)
+          if (!data.success) {
+            alert('Refund has been flagged for manual processing. Our team will process it within 24 hours. Support: +91 99108 95985')
+          }
+        } else {
+          throw new Error(data.error)
+        }
       } else {
         await supabase.from('bookings').update({ status: 'cancelled' }).eq('id', id)
         setBooking(prev => prev ? { ...prev, status: 'cancelled' } : null)
       }
-    } catch {
-      alert('Could not process refund automatically. Please contact support at team@getzilpo.com')
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Unknown error'
+      alert(`Could not process refund: ${msg}\n\nContact support: +91 99108 95985 or team@getzilpo.com`)
     }
     setRefunding(false)
   }
@@ -321,12 +350,15 @@ export default function BookingDetailPage() {
 
   const stepIdx = STATUS_STEPS.indexOf(booking.status)
   const progress = stepIdx < 0 ? 0 : Math.round((stepIdx / (STATUS_STEPS.length - 1)) * 100)
-  const mapCenter = booking.workers ? { lat: booking.workers.lat, lng: booking.workers.lng } : { lat: 28.6139, lng: 77.2090 }
+  const mapCenter = workerLocation
+    ?? (booking.workers ? { lat: booking.workers.lat, lng: booking.workers.lng } : null)
+    ?? (userLocation ? { lat: userLocation.lat, lng: userLocation.lng } : { lat: 28.6139, lng: 77.2090 })
   const showMap = !['cancelled', 'refund_pending', 'refunded'].includes(booking.status)
   const isCancelable = !['completed', 'cancelled', 'refund_pending', 'refunded'].includes(booking.status)
   const statusColor = booking.status === 'completed' ? 'bg-green-50 text-green-700' :
     booking.status === 'cancelled' ? 'bg-red-50 text-red-600' :
-    booking.status === 'refund_pending' ? 'bg-blue-50 text-blue-600' : 'bg-amber-50 text-amber-700'
+    booking.status === 'refund_pending' ? 'bg-blue-50 text-blue-600' :
+    booking.status === 'refunded' ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-700'
 
   return (
     <main className="page">
@@ -344,6 +376,15 @@ export default function BookingDetailPage() {
         <div className="mx-4 mt-4 bg-blue-50 border border-blue-100 rounded-2xl p-4">
           <p className="text-sm font-semibold text-blue-800 mb-1">Refund initiated</p>
           <p className="text-xs text-blue-600">Your payment will be returned within 5–7 business days to your original payment method.</p>
+        </div>
+      )}
+      {booking.status === 'refunded' && (
+        <div className="mx-4 mt-4 bg-green-50 border border-green-100 rounded-2xl p-4 flex items-center gap-3">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <div>
+            <p className="text-sm font-semibold text-green-800">Refund processed ✓</p>
+            <p className="text-xs text-green-600">Payment has been returned to your account.</p>
+          </div>
         </div>
       )}
 

@@ -1,5 +1,5 @@
 'use client'
-import { useState, useMemo, Suspense } from 'react'
+import { useState, useMemo, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 import { useCart } from '@/context/CartContext'
@@ -24,8 +24,18 @@ function BookingContent() {
   const initHours = parseFloat(params.get('hours') || '1')
 
   const { user } = useAuth()
-  const { items } = useCart()
+  const { items, add } = useCart()
   const { location } = useLocation()
+
+  // Redirect hourly bookings to cart
+  useEffect(() => {
+    if (type !== 'hourly' || !initHours) return
+    const price = HOURLY_PRICES[initHours] ?? Math.round(initHours * 99)
+    const origMap: Record<number, number> = { 0.5: 125, 1: 250, 1.5: 325, 2: 450, 2.5: 549, 3: 649 }
+    const original = origMap[initHours] ?? Math.round(price * 2.5)
+    add({ slug: `hourly-${initHours}`, name: `${initHours} hr Home Help`, price, original })
+    router.replace('/cart')
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Calculate dates client-side only to avoid SSR hydration mismatch
   const dates = useMemo(() => Array.from({ length: 14 }, (_, i) => addDays(new Date(), i + 1)), [])

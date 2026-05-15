@@ -46,21 +46,26 @@ export default function MapComponent({ center, draggable, onDrag, showWorkers, f
 
   useEffect(() => {
     if (!showWorkers) return
+    const LAT_DELTA = 0.018
+    const LNG_DELTA = 0.022
+    const isNearby = (w: Worker) =>
+      Math.abs(w.lat - center.lat) < LAT_DELTA && Math.abs(w.lng - center.lng) < LNG_DELTA
     supabase.from('workers').select('*').then(({ data }) => {
-      if (data) setWorkers(data as Worker[])
+      if (data) setWorkers((data as Worker[]).filter(isNearby))
     })
     const ch = supabase
       .channel('workers')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'workers' }, p => {
         setWorkers(prev => {
           const w = p.new as Worker
+          if (!isNearby(w)) return prev.filter(x => x.id !== w.id)
           const idx = prev.findIndex(x => x.id === w.id)
           return idx >= 0 ? prev.map((x, i) => (i === idx ? w : x)) : [...prev, w]
         })
       })
       .subscribe()
     return () => { supabase.removeChannel(ch) }
-  }, [showWorkers])
+  }, [showWorkers, center.lat, center.lng])
 
   const onLoad = useCallback((map: google.maps.Map) => {
     mapRef.current = map

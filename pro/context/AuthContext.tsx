@@ -1,5 +1,5 @@
 'use client'
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, useRef, ReactNode } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 
 export type Pro = {
@@ -39,6 +39,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (p) localStorage.setItem('zilpo_pro', JSON.stringify(p))
     else localStorage.removeItem('zilpo_pro')
   }
+
+  // Real-time profile sync — reflects admin approvals and name changes across devices
+  const proIdRef = useRef<string | null>(null)
+  const proRef = useRef<Pro | null>(null)
+  proRef.current = pro
+  useEffect(() => {
+    if (!pro?.id || proIdRef.current === pro.id) return
+    proIdRef.current = pro.id
+    const ch = supabase
+      .channel(`pro-profile-${pro.id}`)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'professionals', filter: `id=eq.${pro.id}` }, p => {
+        const current = proRef.current
+        if (!current) return
+        const updated: Pro = { ...current, ...(p.new as Partial<Pro>) }
+        setProState(updated)
+        localStorage.setItem('zilpo_pro', JSON.stringify(updated))
+      })
+      .subscribe()
+    return () => { supabase.removeChannel(ch) }
+  }, [pro?.id])
 
   const logout = async () => {
     localStorage.removeItem('zilpo_pro')
