@@ -13,7 +13,29 @@ export async function GET(req: Request) {
     .select('id, name, phone, service_type, id_proof_type, id_proof_url, id_proof_verified, created_at')
     .not('id_proof_url', 'is', null)
     .order('created_at', { ascending: false })
-  return NextResponse.json({ professionals: data || [] })
+
+  // Generate signed URLs for each document (valid for 1 hour)
+  const professionals = await Promise.all(
+    (data || []).map(async (p: Record<string, unknown>) => {
+      if (!p.id_proof_url || !p.id_proof_type || !p.id) return p
+      const path = `${p.id}/${p.id_proof_type}`
+      const extensions = ['jpg', 'jpeg', 'png', 'webp', 'pdf']
+      let signedUrl = p.id_proof_url as string
+
+      for (const ext of extensions) {
+        const { data: signed } = await db.storage
+          .from('id-proofs')
+          .createSignedUrl(`${path}.${ext}`, 3600)
+        if (signed?.signedUrl) {
+          signedUrl = signed.signedUrl
+          break
+        }
+      }
+      return { ...p, signed_url: signedUrl }
+    })
+  )
+
+  return NextResponse.json({ professionals })
 }
 
 export async function POST(req: Request) {

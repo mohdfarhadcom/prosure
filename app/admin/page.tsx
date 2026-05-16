@@ -7,7 +7,7 @@ type Stats = { users: number; professionals: number; pendingPros: number; totalR
 type Pro = { id: string; name: string; phone: string; service_type: string; gender: string; status: string; created_at: string }
 type DeletionRequest = { id: string; professional_id: string; reason: string; created_at: string; professionals: { name: string; phone: string; service_type: string } }
 type WithdrawalRequest = { id: string; professional_id: string; amount: number; upi_id: string; status: string; created_at: string; professionals: { name: string; phone: string } }
-type IdProof = { id: string; name: string; phone: string; service_type: string; id_proof_type: string; id_proof_url: string; id_proof_verified: boolean; created_at: string }
+type IdProof = { id: string; name: string; phone: string; service_type: string; id_proof_type: string; id_proof_url: string; signed_url?: string; id_proof_verified: boolean; created_at: string }
 
 type Tab = 'stats' | 'pros' | 'deletions' | 'withdrawals' | 'idproofs'
 
@@ -229,7 +229,7 @@ export default function AdminPage() {
                   </span>
                 </div>
                 <a
-                  href={p.id_proof_url}
+                  href={p.signed_url || p.id_proof_url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="block w-full py-2 text-center text-xs font-bold text-blue-600 border border-blue-200 rounded-xl mb-2 bg-blue-50"
