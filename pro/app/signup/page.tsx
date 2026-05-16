@@ -1,16 +1,27 @@
 'use client'
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { useAuth } from '@/context/AuthContext'
+import { useAuth, Pro } from '@/context/AuthContext'
 import { useI18n } from '@/context/I18nContext'
+import { supabase } from '@/lib/supabaseClient'
+
+const ID_TYPES = [
+  { value: 'aadhaar', label: 'Aadhaar Card' },
+  { value: 'pan', label: 'PAN Card' },
+  { value: 'voter', label: 'Voter ID' },
+  { value: 'ration', label: 'Ration Card' },
+]
+
+const STEPS = ['info', 'service', 'phone', 'otp', 'idproof'] as const
+type Step = typeof STEPS[number]
 
 function SignupContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { setPro } = useAuth()
   const { t } = useI18n()
-  const [step, setStep] = useState<'info' | 'service' | 'phone' | 'otp'>('info')
+  const [step, setStep] = useState<Step>('info')
   const [phone, setPhone] = useState(searchParams.get('phone') || '')
   const [name, setName] = useState('')
   const [gender, setGender] = useState('')
@@ -19,6 +30,14 @@ function SignupContent() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [countdown, setCountdown] = useState(0)
+  const [pendingPro, setPendingPro] = useState<Pro | null>(null)
+
+  // ID proof state
+  const [idType, setIdType] = useState('')
+  const [idFile, setIdFile] = useState<File | null>(null)
+  const [idPreview, setIdPreview] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (countdown > 0) {
@@ -61,7 +80,52 @@ function SignupContent() {
     const data = await res.json()
     setLoading(false)
     if (!res.ok) { setError(data.error || t.error); return }
-    setPro(data.pro)
+    // Store pro data and proceed to ID proof step
+    setPendingPro(data.pro as Pro)
+    setStep('idproof')
+  }
+
+  const pickFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0]
+    if (!f) return
+    if (f.size > 10 * 1024 * 1024) { setError('File must be under 10 MB'); return }
+    setIdFile(f)
+    setIdPreview(URL.createObjectURL(f))
+    setError('')
+  }
+
+  const uploadIdProof = async () => {
+    if (!pendingPro || !idType || !idFile) { setError('Please select document type and upload a file'); return }
+    setError('')
+    setUploading(true)
+
+    const ext = idFile.name.split('.').pop() || 'jpg'
+    const path = `${pendingPro.id}/${idType}.${ext}`
+
+    const { error: upErr } = await supabase.storage.from('id-proofs').upload(path, idFile, { upsert: true })
+    if (upErr) {
+      setUploading(false)
+      setError('Upload failed: ' + upErr.message)
+      return
+    }
+
+    // Get signed URL for reference (stored but not public)
+    const { data: urlData } = supabase.storage.from('id-proofs').getPublicUrl(path)
+
+    // Update professional record
+    await supabase.from('professionals').update({
+      id_proof_type: idType,
+      id_proof_url: urlData?.publicUrl || path,
+    }).eq('id', pendingPro.id)
+
+    setUploading(false)
+    setPro(pendingPro)
+    router.replace('/home')
+  }
+
+  const skipIdProof = () => {
+    if (!pendingPro) return
+    setPro(pendingPro)
     router.replace('/home')
   }
 
@@ -73,8 +137,8 @@ function SignupContent() {
           <p className="text-xs text-gray-400 mt-0.5">Professional</p>
         </div>
         <div className="flex gap-1">
-          {['info', 'service', 'phone', 'otp'].map((s, i) => (
-            <div key={s} className={`h-1.5 rounded-full transition-all ${step === s ? 'w-6 bg-[#F5A623]' : i < ['info', 'service', 'phone', 'otp'].indexOf(step) ? 'w-3 bg-[#F5A623]/40' : 'w-3 bg-gray-200'}`} />
+          {STEPS.map((s, i) => (
+            <div key={s} className={`h-1.5 rounded-full transition-all ${step === s ? 'w-6 bg-[#F5A623]' : i < STEPS.indexOf(step) ? 'w-3 bg-[#F5A623]/40' : 'w-3 bg-gray-200'}`} />
           ))}
         </div>
       </div>
@@ -225,6 +289,70 @@ function SignupContent() {
             <button onClick={() => { setStep('phone'); setOtp(''); setError('') }}
               className="w-full mt-3 text-xs text-gray-400 text-center">
               ← Change number
+            </button>
+          </>
+        )}
+
+        {step === 'idproof' && (
+          <>
+            <div className="mb-2">
+              <span className="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-1 rounded-full">Account created ✓</span>
+            </div>
+            <h1 className="font-bold text-2xl text-gray-900 mb-1 mt-3">Verify your identity</h1>
+            <p className="text-sm text-gray-400 mb-5 leading-relaxed">
+              Upload a government-issued ID. This is kept securely and only accessed if legally required (e.g. police inquiry).
+            </p>
+
+            <p className="text-xs font-semibold text-gray-500 mb-2">Document type</p>
+            <div className="grid grid-cols-2 gap-2 mb-5">
+              {ID_TYPES.map(({ value, label }) => (
+                <button key={value} onClick={() => setIdType(value)}
+                  className={`py-3 rounded-xl text-sm font-semibold border transition-colors ${
+                    idType === value ? 'bg-[#F5A623] text-white border-[#F5A623]' : 'border-gray-200 text-gray-700'
+                  }`}>
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            <p className="text-xs font-semibold text-gray-500 mb-2">Upload photo / scan</p>
+            <input ref={fileRef} type="file" accept="image/*,application/pdf" onChange={pickFile} className="hidden" />
+
+            {idPreview ? (
+              <div className="relative mb-4">
+                <img src={idPreview} alt="ID preview" className="w-full h-40 object-cover rounded-2xl border border-gray-200" />
+                <button
+                  onClick={() => { setIdFile(null); setIdPreview(null) }}
+                  className="absolute top-2 right-2 bg-white rounded-full w-7 h-7 flex items-center justify-center shadow text-gray-500 font-bold text-sm"
+                >×</button>
+              </div>
+            ) : (
+              <button
+                onClick={() => fileRef.current?.click()}
+                className="w-full border-2 border-dashed border-gray-200 rounded-2xl py-8 flex flex-col items-center gap-2 mb-4 hover:border-[#F5A623] transition-colors"
+              >
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <p className="text-sm text-gray-400 font-medium">Tap to upload</p>
+                <p className="text-xs text-gray-300">JPG, PNG, or PDF · max 10 MB</p>
+              </button>
+            )}
+
+            {error && <p className="text-xs text-red-500 mb-3">{error}</p>}
+
+            <div className="bg-blue-50 border border-blue-100 rounded-2xl px-4 py-3 mb-5">
+              <p className="text-xs text-blue-700 font-semibold mb-0.5">Your privacy is protected</p>
+              <p className="text-[10px] text-blue-600 leading-relaxed">Documents are encrypted and stored privately. Only shared with authorities if legally required. Customers never see this.</p>
+            </div>
+
+            <button
+              onClick={uploadIdProof}
+              disabled={uploading || !idType || !idFile}
+              className="w-full bg-[#F5A623] text-white font-bold py-4 rounded-2xl text-base disabled:opacity-40 shadow-[0_4px_20px_rgba(245,166,35,0.35)]"
+            >
+              {uploading ? 'Uploading...' : 'Submit & continue'}
+            </button>
+            <button onClick={skipIdProof} className="w-full mt-3 text-xs text-gray-400 text-center">
+              Skip for now (you can add later in profile)
             </button>
           </>
         )}

@@ -13,8 +13,8 @@ const sections = [
     body: 'We collect your full name, mobile number, and email address during registration. We collect your government-issued ID and proof of address for identity verification. We collect your service category, skills, and experience details for profile creation. We collect your bank account or UPI details to process earnings payouts. We collect location data when you are active on the platform to match you with nearby bookings.',
   },
   {
-    title: 'Identity and background verification',
-    body: 'To maintain platform safety, we may verify your identity using Aadhaar, PAN, or other government-issued documents. Verification data is processed securely and retained only for as long as your account is active, plus a period required by law. We may share verification data with authorised third-party verification partners under strict confidentiality agreements.',
+    title: 'Identity verification and ID documents',
+    body: 'All professionals are required to upload a government-issued ID (Aadhaar Card, PAN Card, Voter ID, or Ration Card) during registration. This document is stored securely and privately in our system. It is never shared with customers. It will only be disclosed to law enforcement authorities if legally required — for example, in response to a verified police inquiry or court order. You can request access to your stored document at any time by emailing team@thezilpo.com.',
   },
   {
     title: 'How we use your data',
@@ -54,7 +54,7 @@ const sections = [
   },
   {
     title: 'Contact',
-    body: 'For privacy-related queries or to exercise your rights: team@thezilpo.com | +91 98100 40589',
+    body: 'For privacy-related queries or to exercise your rights: team@thezilpo.com | +91 99353 67449',
   },
 ]
 

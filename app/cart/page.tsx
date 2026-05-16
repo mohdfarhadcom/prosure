@@ -102,50 +102,66 @@ export default function CartPage() {
 
   const proceed = async () => {
     if (!user) { router.push('/login?redirect=/cart'); return }
-    if (!location) { router.push('/location'); return }
     setProceeding(true)
 
-    // Compute slot for instant bookings
-    const now = new Date()
-    const mins = now.getMinutes() < 30 ? 30 : 0
-    now.setMinutes(mins, 0, 0)
-    if (mins === 0) now.setHours(now.getHours() + 1)
-    const h = now.getHours()
-    const ampm = h >= 12 ? 'PM' : 'AM'
-    const h12 = h % 12 || 12
-    const instantSlot = `${h12}:${String(now.getMinutes()).padStart(2, '0')} ${ampm}`
-    const today = new Date().toISOString().split('T')[0]
+    try {
+      // Compute slot for instant bookings
+      const now = new Date()
+      const mins = now.getMinutes() < 30 ? 30 : 0
+      now.setMinutes(mins, 0, 0)
+      if (mins === 0) now.setHours(now.getHours() + 1)
+      const h = now.getHours()
+      const ampm = h >= 12 ? 'PM' : 'AM'
+      const h12 = h % 12 || 12
+      const instantSlot = `${h12}:${String(now.getMinutes()).padStart(2, '0')} ${ampm}`
+      const today = new Date().toISOString().split('T')[0]
 
-    const bookingDate = bookingMode === 'instant' ? today : format(chosenDate, 'yyyy-MM-dd')
-    const bookingSlot = bookingMode === 'instant' ? instantSlot : selectedSlot
+      const bookingDate = bookingMode === 'instant' ? today : format(chosenDate, 'yyyy-MM-dd')
+      const bookingSlot = bookingMode === 'instant' ? instantSlot : selectedSlot
 
-    const { data: booking, error } = await supabase.from('bookings').insert({
-      user_id: user.id,
-      date: bookingDate,
-      slot: bookingSlot,
-      duration: isHourlyCart ? hourlyHours : 1,
-      amount: toPay,
-      booking_type: isHourlyCart ? 'hourly' : 'services',
-      booking_mode: bookingMode,
-      status: 'pending',
-    }).select().single()
+      const insertPayload: Record<string, unknown> = {
+        user_id: user.id,
+        date: bookingDate,
+        slot: bookingSlot,
+        duration: isHourlyCart ? hourlyHours : 1,
+        amount: toPay,
+        booking_type: isHourlyCart ? 'hourly' : 'services',
+        booking_mode: bookingMode,
+        status: 'pending',
+      }
+      if (location) {
+        insertPayload.lat = location.lat
+        insertPayload.lng = location.lng
+        insertPayload.address = location.address
+      }
 
-    if (error || !booking) {
+      const { data: booking, error } = await supabase
+        .from('bookings')
+        .insert(insertPayload)
+        .select()
+        .single()
+
+      if (error || !booking) {
+        console.error('[cart] booking insert failed:', error?.message)
+        setProceeding(false)
+        alert(`Could not create booking: ${error?.message || 'Unknown error'}. Please try again.`)
+        return
+      }
+
+      // Free booking (test promo) — skip payment
+      if (toPay === 0) {
+        await supabase.from('bookings').update({ status: 'confirmed', payment_id: 'test_free' }).eq('id', booking.id)
+        clear()
+        router.replace(`/booking/${booking.id}`)
+        return
+      }
+
+      router.push(`/payment?amount=${toPay}&bookingId=${booking.id}`)
+    } catch (err) {
+      console.error('[cart] proceed error:', err)
       setProceeding(false)
-      alert('Could not create booking. Please try again.')
-      return
+      alert('Something went wrong. Please try again.')
     }
-
-    // Free booking (test promo) — skip payment
-    if (toPay === 0) {
-      await supabase.from('bookings').update({ status: 'confirmed', payment_id: 'test_free' }).eq('id', booking.id)
-      clear()
-      router.replace(`/booking/${booking.id}`)
-      return
-    }
-
-    router.push(`/payment?amount=${toPay}&mode=${bookingMode}&bookingId=${booking.id}`)
-    setProceeding(false)
   }
 
   if (items.length === 0) {

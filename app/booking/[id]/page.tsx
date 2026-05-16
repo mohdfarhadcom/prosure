@@ -294,6 +294,9 @@ export default function BookingDetailPage() {
     setBooking(prev => prev ? { ...prev, rating, rated_at: new Date().toISOString() } : null)
   }
 
+  const ratingSubmitted = booking.rated_at || ratingDone
+  const submittedRating = ratingDone ? rating : (booking.rating ?? 0)
+
   const initiateRefund = async (b: Booking) => {
     setRefunding(true)
     try {
@@ -306,7 +309,7 @@ export default function BookingDetailPage() {
         if (data.success || data.refund_pending) {
           setBooking(prev => prev ? { ...prev, status: 'refund_pending' } : null)
           if (!data.success) {
-            alert('Refund has been flagged for manual processing. Our team will process it within 24 hours. Support: +91 99108 95985')
+            alert('Refund has been flagged for manual processing. Our team will process it within 24 hours. Support: +91 99353 67449')
           }
         } else {
           throw new Error(data.error)
@@ -317,7 +320,7 @@ export default function BookingDetailPage() {
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Unknown error'
-      alert(`Could not process refund: ${msg}\n\nContact support: +91 99108 95985 or team@thezilpo.com`)
+      alert(`Could not process refund: ${msg}\n\nContact support: +91 99353 67449 or team@thezilpo.com`)
     }
     setRefunding(false)
   }
@@ -455,11 +458,23 @@ export default function BookingDetailPage() {
           </div>
         )}
 
-        {(booking.rated_at || ratingDone) && booking.status === 'completed' && (
-          <div className="bg-green-50 rounded-2xl p-4 flex items-center gap-3">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="#22C55E"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            <p className="text-sm font-semibold text-green-800">Thanks for your rating!</p>
-          </div>
+        {ratingSubmitted && booking.status === 'completed' && (
+          submittedRating <= 3 ? (
+            <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D97706" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <p className="text-sm font-bold text-amber-800">Sorry to hear that!</p>
+              </div>
+              <p className="text-xs text-amber-700 mb-3 leading-relaxed">If you have an issue to report, please reach out to our support team — we&apos;re here to help.</p>
+              <a href="mailto:team@thezilpo.com" className="text-xs font-semibold text-amber-800 block mb-1">✉ team@thezilpo.com</a>
+              <a href="tel:+919935367449" className="text-xs font-semibold text-amber-800 block">📞 For immediate support call +91 99353 67449</a>
+            </div>
+          ) : (
+            <div className="bg-green-50 rounded-2xl p-4 flex items-center gap-3">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="#22C55E"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <p className="text-sm font-semibold text-green-800">Thanks for your rating!</p>
+            </div>
+          )
         )}
 
         {isCancelable && (

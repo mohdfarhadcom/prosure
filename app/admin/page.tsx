@@ -6,14 +6,20 @@ const ADMIN_KEY = 'zilpo@admin2024'
 type Stats = { users: number; professionals: number; pendingPros: number; totalRevenue: number; ourEarnings: number; totalBookings: number }
 type Pro = { id: string; name: string; phone: string; service_type: string; gender: string; status: string; created_at: string }
 type DeletionRequest = { id: string; professional_id: string; reason: string; created_at: string; professionals: { name: string; phone: string; service_type: string } }
+type WithdrawalRequest = { id: string; professional_id: string; amount: number; upi_id: string; status: string; created_at: string; professionals: { name: string; phone: string } }
+type IdProof = { id: string; name: string; phone: string; service_type: string; id_proof_type: string; id_proof_url: string; id_proof_verified: boolean; created_at: string }
+
+type Tab = 'stats' | 'pros' | 'deletions' | 'withdrawals' | 'idproofs'
 
 export default function AdminPage() {
   const [authed, setAuthed] = useState(false)
   const [pw, setPw] = useState('')
-  const [tab, setTab] = useState<'stats' | 'pros' | 'deletions'>('stats')
+  const [tab, setTab] = useState<Tab>('stats')
   const [stats, setStats] = useState<Stats | null>(null)
   const [pros, setPros] = useState<Pro[]>([])
   const [deletions, setDeletions] = useState<DeletionRequest[]>([])
+  const [withdrawals, setWithdrawals] = useState<WithdrawalRequest[]>([])
+  const [idProofs, setIdProofs] = useState<IdProof[]>([])
   const [loading, setLoading] = useState(false)
 
   const headers = { 'x-admin-key': ADMIN_KEY }
@@ -27,13 +33,21 @@ export default function AdminPage() {
       const r = await fetch('/api/admin/pros', { headers })
       const d = await r.json()
       setPros(d.pros || [])
-    } else {
+    } else if (tab === 'deletions') {
       const r = await fetch('/api/admin/deletions', { headers })
       const d = await r.json()
       setDeletions(d.requests || [])
+    } else if (tab === 'withdrawals') {
+      const r = await fetch('/api/admin/withdrawals', { headers })
+      const d = await r.json()
+      setWithdrawals(d.requests || [])
+    } else if (tab === 'idproofs') {
+      const r = await fetch('/api/admin/idproofs', { headers })
+      const d = await r.json()
+      setIdProofs(d.professionals || [])
     }
     setLoading(false)
-  }, [tab])
+  }, [tab]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { if (authed) load() }, [authed, tab, load])
 
@@ -48,6 +62,25 @@ export default function AdminPage() {
     await fetch('/api/admin/deletions', { method: 'POST', headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify({ id, professionalId, action }) })
     load()
   }
+
+  const handleWithdrawal = async (id: string, action: 'approve' | 'reject') => {
+    const note = action === 'approve' ? 'Paid via UPI' : prompt('Rejection reason:') || ''
+    await fetch('/api/admin/withdrawals', { method: 'POST', headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify({ id, action, adminNote: note }) })
+    load()
+  }
+
+  const verifyIdProof = async (id: string, verified: boolean) => {
+    await fetch('/api/admin/idproofs', { method: 'POST', headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify({ id, verified }) })
+    load()
+  }
+
+  const TABS: { key: Tab; label: string }[] = [
+    { key: 'stats', label: 'Stats' },
+    { key: 'pros', label: 'Pros' },
+    { key: 'withdrawals', label: 'Withdrawals' },
+    { key: 'idproofs', label: 'ID Proofs' },
+    { key: 'deletions', label: 'Deletions' },
+  ]
 
   if (!authed) {
     return (
@@ -78,11 +111,11 @@ export default function AdminPage() {
       </header>
 
       {/* Tabs */}
-      <div className="flex gap-2 px-6 py-4">
-        {(['stats', 'pros', 'deletions'] as const).map(t => (
-          <button key={t} onClick={() => setTab(t)}
-            className={`px-4 py-2 rounded-xl text-sm font-semibold capitalize transition-colors ${tab === t ? 'bg-[#F5A623] text-white' : 'bg-white text-gray-600 border border-gray-200'}`}>
-            {t === 'deletions' ? 'Deletion Requests' : t.charAt(0).toUpperCase() + t.slice(1)}
+      <div className="flex gap-2 px-4 py-4 overflow-x-auto no-scrollbar">
+        {TABS.map(({ key, label }) => (
+          <button key={key} onClick={() => setTab(key)}
+            className={`px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-colors flex-shrink-0 ${tab === key ? 'bg-[#F5A623] text-white' : 'bg-white text-gray-600 border border-gray-200'}`}>
+            {label}
           </button>
         ))}
       </div>
@@ -136,6 +169,86 @@ export default function AdminPage() {
                     className="flex-1 py-2 bg-red-50 text-red-600 text-xs font-bold rounded-xl border border-red-200">
                     Delete
                   </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Withdrawals */}
+        {tab === 'withdrawals' && !loading && (
+          <div className="flex flex-col gap-3">
+            {withdrawals.length === 0 && <p className="text-gray-400 text-sm py-8 text-center">No withdrawal requests yet.</p>}
+            {withdrawals.map(req => (
+              <div key={req.id} className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <div>
+                    <p className="font-bold text-gray-900">{req.professionals?.name}</p>
+                    <p className="text-sm text-gray-500">+91 {req.professionals?.phone}</p>
+                    <p className="text-sm font-semibold text-[#F5A623] mt-1">₹{Math.round(req.amount)}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">UPI: <span className="font-mono font-semibold">{req.upi_id}</span></p>
+                    <p className="text-xs text-gray-400 mt-0.5">{new Date(req.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                  </div>
+                  <span className={`text-xs font-bold px-2.5 py-1 rounded-xl flex-shrink-0 ${
+                    req.status === 'approved' ? 'bg-green-100 text-green-700' :
+                    req.status === 'rejected' ? 'bg-red-100 text-red-600' :
+                    'bg-amber-100 text-amber-700'
+                  }`}>{req.status}</span>
+                </div>
+                {req.status === 'pending' && (
+                  <div className="flex gap-2 mt-3">
+                    <button onClick={() => handleWithdrawal(req.id, 'approve')}
+                      className="flex-1 py-2 bg-green-500 text-white text-xs font-bold rounded-xl">
+                      Mark Paid
+                    </button>
+                    <button onClick={() => handleWithdrawal(req.id, 'reject')}
+                      className="flex-1 py-2 bg-red-50 text-red-600 text-xs font-bold rounded-xl border border-red-200">
+                      Reject
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ID Proofs */}
+        {tab === 'idproofs' && !loading && (
+          <div className="flex flex-col gap-3">
+            {idProofs.length === 0 && <p className="text-gray-400 text-sm py-8 text-center">No ID proofs uploaded yet.</p>}
+            {idProofs.map(p => (
+              <div key={p.id} className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
+                <div className="flex items-start justify-between gap-2 mb-3">
+                  <div>
+                    <p className="font-bold text-gray-900">{p.name}</p>
+                    <p className="text-sm text-gray-500">+91 {p.phone} · {p.service_type}</p>
+                    <p className="text-xs text-gray-400 mt-0.5 capitalize">Document: {p.id_proof_type}</p>
+                  </div>
+                  <span className={`text-xs font-bold px-2.5 py-1 rounded-xl flex-shrink-0 ${p.id_proof_verified ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                    {p.id_proof_verified ? 'Verified' : 'Unverified'}
+                  </span>
+                </div>
+                <a
+                  href={p.id_proof_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full py-2 text-center text-xs font-bold text-blue-600 border border-blue-200 rounded-xl mb-2 bg-blue-50"
+                >
+                  View Document
+                </a>
+                <div className="flex gap-2">
+                  {!p.id_proof_verified && (
+                    <button onClick={() => verifyIdProof(p.id, true)}
+                      className="flex-1 py-2 bg-green-500 text-white text-xs font-bold rounded-xl">
+                      Mark Verified
+                    </button>
+                  )}
+                  {p.id_proof_verified && (
+                    <button onClick={() => verifyIdProof(p.id, false)}
+                      className="flex-1 py-2 bg-gray-100 text-gray-600 text-xs font-bold rounded-xl">
+                      Unverify
+                    </button>
+                  )}
                 </div>
               </div>
             ))}

@@ -20,24 +20,28 @@ export async function POST(req: Request) {
     // Mark completed
     await supabase.from('bookings').update({ status: 'completed' }).eq('id', bookingId)
 
-    // Credit wallet
-    const { data: wallet } = await supabase.from('pro_wallets').select('*').eq('professional_id', professionalId).single()
-    if (wallet) {
-      await supabase.from('pro_wallets').update({
-        balance: (wallet.balance || 0) + proEarning,
-        total_earned: (wallet.total_earned || 0) + proEarning,
-        updated_at: new Date().toISOString(),
-      }).eq('professional_id', professionalId)
-    }
+    // Only create wallet transaction for paid bookings (skip ₹0 test bookings)
+    if (proEarning > 0) {
+      const availableAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
 
-    // Create wallet transaction
-    await supabase.from('wallet_transactions').insert({
-      professional_id: professionalId,
-      booking_id: bookingId,
-      amount: proEarning,
-      type: 'credit',
-      status: 'completed',
-    })
+      // Add to total_earned immediately; balance is only updated when released after 7 days
+      const { data: wallet } = await supabase.from('pro_wallets').select('*').eq('professional_id', professionalId).single()
+      if (wallet) {
+        await supabase.from('pro_wallets').update({
+          total_earned: (wallet.total_earned || 0) + proEarning,
+          updated_at: new Date().toISOString(),
+        }).eq('professional_id', professionalId)
+      }
+
+      await supabase.from('wallet_transactions').insert({
+        professional_id: professionalId,
+        booking_id: bookingId,
+        amount: proEarning,
+        type: 'credit',
+        status: 'processing',
+        available_at: availableAt,
+      })
+    }
 
     // Send rating email to customer
     const userEmail = (booking as { users?: { email?: string } }).users?.email

@@ -18,7 +18,11 @@ const sections = [
   },
   {
     title: 'Earnings and payouts',
-    body: 'You receive 80% of the service price. Zilpo retains a 20% platform fee per completed booking. Payouts are processed within 3 business days of booking completion. Zilpo may withhold payout if a dispute or chargeback is raised against a booking.',
+    body: 'You receive 80% of the service price for every completed booking. Zilpo retains a 20% platform fee. Your earnings are held in your Zilpo wallet for 7 days after service completion as a customer protection measure. After 7 days, funds are released to your available balance and you can withdraw to your UPI account. Withdrawal requests are processed within 24 hours. Zilpo may withhold payout if a dispute or chargeback is raised.',
+  },
+  {
+    title: 'Identity verification',
+    body: 'You are required to upload a government-issued ID (Aadhaar Card, PAN Card, Voter ID, or Ration Card) during signup. This is stored securely and privately. It will only be shared with law enforcement if legally required. You can request your stored document by emailing team@thezilpo.com.',
   },
   {
     title: 'Accepted bookings',
@@ -66,7 +70,7 @@ const sections = [
   },
   {
     title: 'Contact',
-    body: 'For any questions regarding these terms: team@thezilpo.com | +91 98100 40589',
+    body: 'For any questions regarding these terms: team@thezilpo.com | +91 99353 67449',
   },
 ]
 
