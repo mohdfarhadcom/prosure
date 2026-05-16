@@ -6,11 +6,18 @@ import { useLocation } from '@/context/LocationContext'
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabaseClient'
+import { format, addDays } from 'date-fns'
 
 const SERVICE_FEE = 20
 const VISITING_FEE = 59
 const VISITING_FEE_THRESHOLD = 499
 const TIP_OPTIONS = [0, 20, 50, 100]
+const SLOTS = [
+  '7:00 AM','7:30 AM','8:00 AM','8:30 AM','9:00 AM','9:30 AM','10:00 AM','10:30 AM',
+  '11:00 AM','11:30 AM','12:00 PM','12:30 PM','1:00 PM','1:30 PM','2:00 PM','2:30 PM',
+  '3:00 PM','3:30 PM','4:00 PM','4:30 PM','5:00 PM','5:30 PM','6:00 PM','6:30 PM',
+  '7:00 PM','7:30 PM','8:00 PM',
+]
 
 function getSurge(): { fee: number; label: string } {
   const h = new Date().getHours()
@@ -46,14 +53,19 @@ const CardIcon = () => (
 
 export default function CartPage() {
   const router = useRouter()
-  const { items, remove, add, total } = useCart()
+  const { items, remove, add, total, clear } = useCart()
   const { user } = useAuth()
   const { location } = useLocation()
   const [promo, setPromo] = useState('')
   const [appliedPromo, setAppliedPromo] = useState<'ZILPO10' | 'TEST' | null>(null)
   const [promoError, setPromoError] = useState('')
-  const [bookingMode, setBookingMode] = useState<'schedule' | 'instant'>('schedule')
+  const [bookingMode, setBookingMode] = useState<'schedule' | 'instant'>('instant')
   const [tip, setTip] = useState(0)
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+  const [selectedSlot, setSelectedSlot] = useState('9:00 AM')
+
+  const dates = useMemo(() => Array.from({ length: 14 }, (_, i) => addDays(new Date(), i + 1)), [])
+  const chosenDate = selectedDate ?? dates[0]
 
   const surge = useMemo(() => getSurge(), [])
 
@@ -65,8 +77,8 @@ export default function CartPage() {
   const visitingFee = subtotal < VISITING_FEE_THRESHOLD ? VISITING_FEE : 0
   const promoDiscount10 = appliedPromo === 'ZILPO10' ? Math.round(subtotal * 0.1) : 0
   const normalTotal = subtotal - promoDiscount10 + visitingFee + surge.fee + SERVICE_FEE + tip
-  const toPay = appliedPromo === 'TEST' ? 2 : normalTotal
-  const testDiscount = appliedPromo === 'TEST' ? normalTotal - 2 : 0
+  const toPay = appliedPromo === 'TEST' ? 0 : normalTotal
+  const testDiscount = appliedPromo === 'TEST' ? normalTotal : 0
 
   const applyPromo = () => {
     const code = promo.trim()
@@ -93,7 +105,7 @@ export default function CartPage() {
     if (!location) { router.push('/location'); return }
     setProceeding(true)
 
-    // Nearest 30-min time slot
+    // Compute slot for instant bookings
     const now = new Date()
     const mins = now.getMinutes() < 30 ? 30 : 0
     now.setMinutes(mins, 0, 0)
@@ -101,14 +113,16 @@ export default function CartPage() {
     const h = now.getHours()
     const ampm = h >= 12 ? 'PM' : 'AM'
     const h12 = h % 12 || 12
-    const slot = `${h12}:${String(now.getMinutes()).padStart(2, '0')} ${ampm}`
+    const instantSlot = `${h12}:${String(now.getMinutes()).padStart(2, '0')} ${ampm}`
     const today = new Date().toISOString().split('T')[0]
-    const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0]
+
+    const bookingDate = bookingMode === 'instant' ? today : format(chosenDate, 'yyyy-MM-dd')
+    const bookingSlot = bookingMode === 'instant' ? instantSlot : selectedSlot
 
     const { data: booking, error } = await supabase.from('bookings').insert({
       user_id: user.id,
-      date: bookingMode === 'instant' ? today : tomorrow,
-      slot,
+      date: bookingDate,
+      slot: bookingSlot,
       duration: isHourlyCart ? hourlyHours : 1,
       amount: toPay,
       booking_type: isHourlyCart ? 'hourly' : 'services',
@@ -119,6 +133,14 @@ export default function CartPage() {
     if (error || !booking) {
       setProceeding(false)
       alert('Could not create booking. Please try again.')
+      return
+    }
+
+    // Free booking (test promo) — skip payment
+    if (toPay === 0) {
+      await supabase.from('bookings').update({ status: 'confirmed', payment_id: 'test_free' }).eq('id', booking.id)
+      clear()
+      router.replace(`/booking/${booking.id}`)
       return
     }
 
@@ -150,22 +172,63 @@ export default function CartPage() {
         <p className="text-xs text-gray-400 mb-2">When do you need the service?</p>
         <div className="flex bg-gray-100 rounded-2xl p-1 gap-1">
           <button
-            onClick={() => setBookingMode('schedule')}
-            className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${bookingMode === 'schedule' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-400'}`}
-          >
-            Schedule
-          </button>
-          <button
             onClick={() => setBookingMode('instant')}
             className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${bookingMode === 'instant' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-400'}`}
           >
             ⚡ Instant
+          </button>
+          <button
+            onClick={() => setBookingMode('schedule')}
+            className={`flex-1 py-3 rounded-xl text-sm font-bold transition-all ${bookingMode === 'schedule' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-400'}`}
+          >
+            Schedule
           </button>
         </div>
         {bookingMode === 'instant' && (
           <p className="text-xs text-[#F5A623] mt-2 text-center">⚡ Connect to a professional within 10–15 minutes</p>
         )}
       </div>
+
+      {/* Schedule: date + time picker */}
+      {bookingMode === 'schedule' && (
+        <div className="mb-5 bg-gray-50 rounded-2xl p-4">
+          <p className="text-xs font-semibold text-gray-500 mb-3">Select date</p>
+          <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 no-scrollbar mb-4">
+            {dates.map(d => (
+              <button
+                key={format(d, 'yyyy-MM-dd')}
+                onClick={() => setSelectedDate(d)}
+                className={`flex-shrink-0 flex flex-col items-center w-14 py-3 rounded-xl border transition-colors ${
+                  format(chosenDate, 'yyyy-MM-dd') === format(d, 'yyyy-MM-dd')
+                    ? 'bg-[#F5A623] text-white border-[#F5A623]'
+                    : 'border-gray-200 text-gray-700 bg-white'
+                }`}
+              >
+                <span className="text-[10px] font-medium">{format(d, 'EEE')}</span>
+                <span className="font-bold text-base">{format(d, 'd')}</span>
+                <span className="text-[10px]">{format(d, 'MMM')}</span>
+              </button>
+            ))}
+          </div>
+          <p className="text-xs font-semibold text-gray-500 mb-2">Select time</p>
+          <div className="flex flex-wrap gap-2">
+            {SLOTS.map(slot => (
+              <button
+                key={slot}
+                onClick={() => setSelectedSlot(slot)}
+                className={`px-3 py-2 rounded-xl text-xs border transition-colors ${
+                  selectedSlot === slot ? 'bg-[#F5A623] text-white border-[#F5A623] font-bold' : 'border-gray-200 text-gray-700 bg-white'
+                }`}
+              >
+                {slot}
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-gray-400 mt-3">
+            Booked for {format(chosenDate, 'EEE, MMM d')} at {selectedSlot}
+          </p>
+        </div>
+      )}
 
       {/* Services */}
       <div className="flex flex-col gap-0 mb-4 bg-white rounded-2xl border border-gray-100 overflow-hidden">
@@ -249,7 +312,7 @@ export default function CartPage() {
           <div className="flex items-center gap-2">
             <span className="text-green-600 text-sm">✓</span>
             <span className="text-sm font-semibold text-green-800">
-              {appliedPromo === 'TEST' ? 'Test code — total ₹2' : 'ZILPO10 — 10% off item total'}
+              {appliedPromo === 'TEST' ? 'Test code — total ₹0' : 'ZILPO10 — 10% off item total'}
             </span>
           </div>
           <button onClick={removePromo} className="text-xs text-gray-400 font-semibold">Remove</button>
@@ -338,7 +401,7 @@ export default function CartPage() {
       <p className="text-xs text-gray-400 mb-4 text-center">₹20 service fee keeps Zilpo running. Tips go 100% to your professional.</p>
 
       <button onClick={proceed} disabled={proceeding} className="w-full bg-[#F5A623] text-white font-bold py-4 rounded-2xl text-base shadow-[0_4px_20px_rgba(245,166,35,0.35)] disabled:opacity-60">
-        {proceeding ? 'Preparing...' : user ? `Pay ₹${toPay}` : 'Login to continue'}
+        {proceeding ? 'Preparing...' : user ? (toPay === 0 ? 'Confirm booking (free)' : `Pay ₹${toPay}`) : 'Login to continue'}
       </button>
     </main>
   )
