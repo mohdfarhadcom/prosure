@@ -8,6 +8,20 @@ import Navbar from '@/components/Navbar'
 export const metadata: Metadata = {
   title: 'Zilpo – Professional at your door in 10 minutes',
   description: 'Connect to a verified home professional within 10–15 minutes. Cleaning, cooking, laundry and more.',
+  metadataBase: new URL('https://thezilpo.com'),
+  alternates: { canonical: 'https://thezilpo.com' },
+  openGraph: {
+    title: 'Zilpo – Professional at your door in 10 minutes',
+    description: 'Connect to a verified home professional within 10–15 minutes. Cleaning, cooking, laundry and more.',
+    url: 'https://thezilpo.com',
+    siteName: 'Zilpo',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Zilpo – Professional at your door in 10 minutes',
+    description: 'Connect to a verified home professional within 10–15 minutes.',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

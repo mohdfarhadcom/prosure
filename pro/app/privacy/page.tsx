@@ -46,7 +46,7 @@ const sections = [
   },
   {
     title: 'Your rights',
-    body: 'You have the right to access a copy of the personal data we hold about you. You have the right to correct inaccurate data. You have the right to request deletion of your account and associated data. To exercise any of these rights, email team@getzilpo.com. We will respond within 7 working days.',
+    body: 'You have the right to access a copy of the personal data we hold about you. You have the right to correct inaccurate data. You have the right to request deletion of your account and associated data. To exercise any of these rights, email team@thezilpo.com. We will respond within 7 working days.',
   },
   {
     title: 'Changes to this policy',
@@ -54,7 +54,7 @@ const sections = [
   },
   {
     title: 'Contact',
-    body: 'For privacy-related queries or to exercise your rights: team@getzilpo.com | +91 98100 40589',
+    body: 'For privacy-related queries or to exercise your rights: team@thezilpo.com | +91 98100 40589',
   },
 ]
 

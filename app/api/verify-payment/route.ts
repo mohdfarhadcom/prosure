@@ -27,7 +27,7 @@ export async function POST(req: Request) {
       const email = (booking as { users?: { email?: string } })?.users?.email
       const name = (booking as { users?: { name?: string } })?.users?.name || 'there'
       if (email) {
-        await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'https://getzilpo.com'}/api/send-email`, {
+        await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'https://thezilpo.com'}/api/send-email`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -38,9 +38,9 @@ export async function POST(req: Request) {
               <p>We have received your payment and your booking is now confirmed.</p>
               <p><strong>Date:</strong> ${booking?.date || ''} · <strong>Time:</strong> ${booking?.slot || ''}</p>
               <p style="margin:24px 0">
-                <a href="https://getzilpo.com/booking/${bookingId}" style="background:#F5A623;color:white;padding:12px 24px;border-radius:12px;text-decoration:none;font-weight:bold">Track your booking</a>
+                <a href="https://thezilpo.com/booking/${bookingId}" style="background:#F5A623;color:white;padding:12px 24px;border-radius:12px;text-decoration:none;font-weight:bold">Track your booking</a>
               </p>
-              <p style="color:#999;font-size:12px">Zilpo · House help on demand · team@getzilpo.com</p>
+              <p style="color:#999;font-size:12px">Zilpo · House help on demand · team@thezilpo.com</p>
             </div>`,
           }),
         }).catch(() => {})

@@ -247,7 +247,7 @@ export default function HomePage() {
             <Link href="/help" className="hover:text-[#F5A623]">Help</Link>
             <Link href="/terms" className="hover:text-[#F5A623]">Terms</Link>
             <Link href="/privacy" className="hover:text-[#F5A623]">Privacy</Link>
-            <span>team@getzilpo.com</span>
+            <span>team@thezilpo.com</span>
           </div>
         </footer>
       </main>

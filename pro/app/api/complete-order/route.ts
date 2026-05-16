@@ -43,7 +43,7 @@ export async function POST(req: Request) {
     const userEmail = (booking as { users?: { email?: string } }).users?.email
     const userName = (booking as { users?: { name?: string } }).users?.name || 'there'
     if (userEmail) {
-      await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'https://getzilpo.com'}/api/send-email`, {
+      await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'https://thezilpo.com'}/api/send-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -53,9 +53,9 @@ export async function POST(req: Request) {
             <h2 style="color:#F5A623">Hi ${userName}! 🌟</h2>
             <p>Your booking was completed. We hope you had a great experience!</p>
             <p style="margin:24px 0">
-              <a href="https://getzilpo.com/booking/${bookingId}" style="background:#F5A623;color:white;padding:12px 24px;border-radius:12px;text-decoration:none;font-weight:bold">Rate your experience</a>
+              <a href="https://thezilpo.com/booking/${bookingId}" style="background:#F5A623;color:white;padding:12px 24px;border-radius:12px;text-decoration:none;font-weight:bold">Rate your experience</a>
             </p>
-            <p style="color:#999;font-size:12px">Thank you for choosing Zilpo · team@getzilpo.com</p>
+            <p style="color:#999;font-size:12px">Thank you for choosing Zilpo · team@thezilpo.com</p>
           </div>`,
         }),
       }).catch(() => {})

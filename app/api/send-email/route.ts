@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_hzs8ubB1_GQL442jG1E4AEMEw6ZYJAa5G'
-const FROM = 'Zilpo <team@getzilpo.com>'
+const FROM = 'Zilpo <team@thezilpo.com>'
 
 export async function POST(req: Request) {
   try {

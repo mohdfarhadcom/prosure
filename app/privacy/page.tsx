@@ -16,8 +16,8 @@ export default function PrivacyPage() {
         { title: 'Location', body: 'Location is used to show nearby workers and calculate service area. Location data is not stored permanently after a session ends.' },
         { title: 'Payments', body: 'Payments are processed by Razorpay. We do not store card numbers or UPI IDs. We only store the payment reference for booking records.' },
         { title: 'Communications', body: 'We send OTP codes via SMS. We may send booking status updates. You can opt out of non-essential messages by contacting us.' },
-        { title: 'Your rights', body: 'You can request deletion of your account and data by emailing team@getzilpo.com. We will process deletion within 7 working days.' },
-        { title: 'Contact', body: 'For any privacy concerns: team@getzilpo.com or +91 98100 40589.' },
+        { title: 'Your rights', body: 'You can request deletion of your account and data by emailing team@thezilpo.com. We will process deletion within 7 working days.' },
+        { title: 'Contact', body: 'For any privacy concerns: team@thezilpo.com or +91 98100 40589.' },
       ].map(({ title, body }) => (
         <div key={title} className="mb-6">
           <h2 className="font-semibold text-sm mb-2">{title}</h2>

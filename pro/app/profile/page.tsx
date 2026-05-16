@@ -180,7 +180,7 @@ export default function ProfilePage() {
         <div className="px-4 mt-8 pb-4 text-center">
           <span className="gradient-text font-black text-2xl tracking-tighter">zilpo</span>
           <p className="text-xs text-gray-400 mt-1">Professional v1.0</p>
-          <p className="text-xs text-gray-300 mt-0.5">team@getzilpo.com</p>
+          <p className="text-xs text-gray-300 mt-0.5">team@thezilpo.com</p>
         </div>
       </main>
 

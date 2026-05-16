@@ -42,7 +42,7 @@ const sections = [
   },
   {
     title: 'Account suspension and termination',
-    body: "Zilpo may suspend or terminate your account for repeated cancellations, customer complaints, policy violations, or fraudulent activity. You may appeal a suspension by emailing team@getzilpo.com within 7 days. Zilpo's decision after review is final.",
+    body: "Zilpo may suspend or terminate your account for repeated cancellations, customer complaints, policy violations, or fraudulent activity. You may appeal a suspension by emailing team@thezilpo.com within 7 days. Zilpo's decision after review is final.",
   },
   {
     title: 'Ratings and reviews',
@@ -62,7 +62,7 @@ const sections = [
   },
   {
     title: 'Contact',
-    body: 'For any questions regarding these terms: team@getzilpo.com | +91 98100 40589',
+    body: 'For any questions regarding these terms: team@thezilpo.com | +91 98100 40589',
   },
 ]
 

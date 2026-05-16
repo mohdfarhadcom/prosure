@@ -15,7 +15,7 @@ const FAQS = [
     category: 'Account',
     items: [
       { q: 'How do I log in?', a: 'Enter your mobile number. We send a 6-digit OTP to verify.' },
-      { q: 'Can I change my phone number?', a: 'Contact us at team@getzilpo.com with your request.' },
+      { q: 'Can I change my phone number?', a: 'Contact us at team@thezilpo.com with your request.' },
     ],
   },
   {
@@ -30,7 +30,7 @@ const FAQS = [
     category: 'Service quality',
     items: [
       { q: 'Do I need to provide cleaning equipment?', a: 'Yes. Please keep basic supplies like mops, brooms, and cleaning liquids ready. Your professional will use your equipment.' },
-      { q: 'What if there is a service issue?', a: 'Contact us immediately at team@getzilpo.com or call +91 90581 72570. We will resolve it.' },
+      { q: 'What if there is a service issue?', a: 'Contact us immediately at team@thezilpo.com or call +91 90581 72570. We will resolve it.' },
       { q: 'Is there a damage policy?', a: 'Damage cover is capped at Rs 6,000 per booking. Not applicable on promo bookings.' },
     ],
   },
@@ -59,7 +59,7 @@ export default function HelpPage() {
       {/* Contact */}
       <div className="bg-[#FFF3DC] rounded-xl p-4 mb-8">
         <p className="font-semibold text-sm mb-1">Contact us</p>
-        <p className="text-sm text-gray-700">team@getzilpo.com</p>
+        <p className="text-sm text-gray-700">team@thezilpo.com</p>
         <p className="text-sm text-gray-700">+91 90581 72570</p>
       </div>
 

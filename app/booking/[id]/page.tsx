@@ -317,7 +317,7 @@ export default function BookingDetailPage() {
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Unknown error'
-      alert(`Could not process refund: ${msg}\n\nContact support: +91 99108 95985 or team@getzilpo.com`)
+      alert(`Could not process refund: ${msg}\n\nContact support: +91 99108 95985 or team@thezilpo.com`)
     }
     setRefunding(false)
   }
