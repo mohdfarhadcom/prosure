@@ -294,8 +294,8 @@ export default function BookingDetailPage() {
     setBooking(prev => prev ? { ...prev, rating, rated_at: new Date().toISOString() } : null)
   }
 
-  const ratingSubmitted = booking.rated_at || ratingDone
-  const submittedRating = ratingDone ? rating : (booking.rating ?? 0)
+  const ratingSubmitted = booking?.rated_at || ratingDone
+  const submittedRating = ratingDone ? rating : (booking?.rating ?? 0)
 
   const initiateRefund = async (b: Booking) => {
     setRefunding(true)
