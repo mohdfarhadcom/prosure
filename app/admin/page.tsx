@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
 
-const ADMIN_KEY = 'zilpo@admin2024'
+const ADMIN_KEY = '9058172570@JhojhaFarhad'
 
 type Stats = { users: number; professionals: number; pendingPros: number; totalRevenue: number; ourEarnings: number; totalBookings: number }
 type Pro = { id: string; name: string; phone: string; service_type: string; gender: string; status: string; created_at: string }

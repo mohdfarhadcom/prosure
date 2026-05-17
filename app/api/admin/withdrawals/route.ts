@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabaseServer'
 
-const ADMIN_KEY = process.env.ADMIN_KEY || 'zilpo@admin2024'
+const ADMIN_KEY = process.env.ADMIN_KEY || '9058172570@JhojhaFarhad'
 
 function auth(req: Request) {
   return req.headers.get('x-admin-key') === ADMIN_KEY

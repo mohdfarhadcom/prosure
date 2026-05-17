@@ -3,7 +3,7 @@ import { getSupabaseAdmin } from '@/lib/supabaseServer'
 
 export async function GET(req: Request) {
   const auth = req.headers.get('x-admin-key')
-  if (auth !== (process.env.ADMIN_KEY || 'zilpo@admin2024')) {
+  if (auth !== (process.env.ADMIN_KEY || '9058172570@JhojhaFarhad')) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
   const db = getSupabaseAdmin()

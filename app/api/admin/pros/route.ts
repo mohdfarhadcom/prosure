@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabaseServer'
 
-const KEY = process.env.ADMIN_KEY || 'zilpo@admin2024'
+const KEY = process.env.ADMIN_KEY || '9058172570@JhojhaFarhad'
 
 export async function GET(req: Request) {
   if (req.headers.get('x-admin-key') !== KEY) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
