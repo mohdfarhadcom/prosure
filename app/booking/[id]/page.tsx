@@ -26,12 +26,14 @@ function getStartOtp(bookingId: string): string {
 const FINDING_DURATION = 10 * 60 // 10 minutes
 
 function useFakePros(center: { lat: number; lng: number }) {
-  const base = useMemo(() => Array.from({ length: 5 }, () => ({
-    lat: center.lat + (Math.random() - 0.5) * 0.018,
-    lng: center.lng + (Math.random() - 0.5) * 0.022,
-  })), []) // eslint-disable-line react-hooks/exhaustive-deps
+  const [positions, setPositions] = useState<{ lat: number; lng: number }[]>([])
 
-  const [positions, setPositions] = useState(base)
+  useEffect(() => {
+    setPositions(Array.from({ length: 5 }, () => ({
+      lat: center.lat + (Math.random() - 0.5) * 0.018,
+      lng: center.lng + (Math.random() - 0.5) * 0.022,
+    })))
+  }, [center.lat, center.lng])
 
   useEffect(() => {
     const id = setInterval(() => {
