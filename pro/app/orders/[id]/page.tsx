@@ -8,16 +8,15 @@ import Navbar from '@/components/Navbar'
 
 type Booking = {
   id: string
-  service_name: string
-  scheduled_at: string
+  booking_type: string
+  date: string
+  slot: string
   address: string
   lat?: number
   lng?: number
-  total: number
+  amount: number
   status: string
   duration?: number
-  customer_phone?: string
-  customer_name?: string
 }
 
 export default function OrderDetailPage() {
@@ -43,7 +42,6 @@ export default function OrderDetailPage() {
       .then(({ data }) => setBooking(data as Booking))
   }, [id])
 
-  // Real-time updates
   useEffect(() => {
     if (!id) return
     const ch = supabase
@@ -74,12 +72,24 @@ export default function OrderDetailPage() {
     </main>
   )
 
-  const d = new Date(booking.scheduled_at)
-  const dateStr = d.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })
-  const timeStr = d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })
+  // Format date from "2026-05-18" and slot from "5:30 PM" directly
+  const dateStr = booking.date
+    ? new Date(booking.date + 'T00:00:00').toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+    : '—'
+  const timeStr = booking.slot || '—'
+
+  const durLabel = booking.duration
+    ? (booking.duration >= 60 ? `${booking.duration / 60} hr` : `${booking.duration} min`)
+    : ''
+  const serviceLabel = booking.booking_type === 'hourly'
+    ? `${durLabel} Home Help`
+    : 'Home Services'
+
+  const proEarning = Math.round((booking.amount || 0) * 0.8)
 
   const statusColor: Record<string, string> = {
     pending: 'bg-yellow-100 text-yellow-700',
+    confirmed: 'bg-yellow-100 text-yellow-700',
     accepted: 'bg-blue-100 text-blue-700',
     completed: 'bg-green-100 text-green-700',
     cancelled: 'bg-red-100 text-red-700',
@@ -87,6 +97,7 @@ export default function OrderDetailPage() {
 
   const statusLabel: Record<string, string> = {
     pending: t.statusPending,
+    confirmed: t.statusPending,
     accepted: t.statusAccepted,
     completed: t.statusCompleted,
     cancelled: t.statusCancelled,
@@ -105,14 +116,12 @@ export default function OrderDetailPage() {
           </span>
         </header>
 
-        <div className="px-4 mt-4">
+        <div className="px-4 mt-4 pb-32">
           {/* Service */}
           <div className="bg-gray-50 rounded-2xl p-4 mb-3">
             <p className="text-xs text-gray-400 mb-0.5">{t.service}</p>
-            <p className="font-bold text-base text-gray-900">{booking.service_name}</p>
-            {booking.duration && (
-              <p className="text-xs text-gray-500 mt-0.5">{booking.duration} {t.mins}</p>
-            )}
+            <p className="font-bold text-base text-gray-900">{serviceLabel}</p>
+            {durLabel && <p className="text-xs text-gray-500 mt-0.5">{durLabel}</p>}
           </div>
 
           {/* Date & time */}
@@ -130,41 +139,17 @@ export default function OrderDetailPage() {
           {/* Address */}
           <div className="bg-gray-50 rounded-2xl p-4 mb-3">
             <p className="text-xs text-gray-400 mb-0.5">{t.address}</p>
-            <p className="font-medium text-sm text-gray-900">{booking.address}</p>
+            <p className="font-medium text-sm text-gray-900">{booking.address || '—'}</p>
           </div>
 
           {/* Amount */}
           <div className="bg-gray-50 rounded-2xl p-4 mb-6">
             <p className="text-xs text-gray-400 mb-0.5">{t.amount}</p>
             <div className="flex items-baseline gap-2">
-              <p className="font-bold text-xl text-[#F5A623]">{t.rs} {booking.total}</p>
-              <p className="text-xs text-gray-400">You earn: Rs {Math.round(booking.total * 0.8)}</p>
+              <p className="font-bold text-xl text-[#F5A623]">{t.rs} {booking.amount}</p>
+              <p className="text-xs text-gray-400">You earn: ₹{proEarning}</p>
             </div>
           </div>
-
-          {/* Actions */}
-          {booking.status === 'accepted' && (
-            <div className="flex flex-col gap-3">
-              {booking.lat && booking.lng && (
-                <a
-                  href={`https://maps.google.com/?q=${booking.lat},${booking.lng}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="w-full py-3.5 rounded-2xl font-bold text-sm bg-gray-100 text-gray-700 text-center flex items-center justify-center gap-2"
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                  {t.navigate}
-                </a>
-              )}
-              <button
-                onClick={markComplete}
-                disabled={completing}
-                className="w-full py-4 rounded-2xl font-bold text-base bg-[#F5A623] text-white disabled:opacity-50 shadow-[0_4px_20px_rgba(245,166,35,0.35)]"
-              >
-                {completing ? t.saving : t.markComplete}
-              </button>
-            </div>
-          )}
 
           {booking.status === 'completed' && (
             <div className="bg-green-50 rounded-2xl p-4 flex items-center gap-3">
@@ -173,12 +158,37 @@ export default function OrderDetailPage() {
               </div>
               <div>
                 <p className="text-sm font-bold text-green-800">Job completed!</p>
-                <p className="text-xs text-green-600">Rs {Math.round(booking.total * 0.8)} will be added to your wallet after customer rating</p>
+                <p className="text-xs text-green-600">₹{proEarning} will be added to your wallet after 7 days</p>
               </div>
             </div>
           )}
         </div>
       </main>
+
+      {/* Sticky action buttons */}
+      {booking.status === 'accepted' && (
+        <div className="fixed bottom-16 left-0 right-0 px-4 pb-2 flex flex-col gap-2 bg-white border-t border-gray-100 pt-3 z-40">
+          {booking.lat && booking.lng && (
+            <a
+              href={`https://maps.google.com/?q=${booking.lat},${booking.lng}`}
+              target="_blank"
+              rel="noreferrer"
+              className="w-full py-3.5 rounded-2xl font-bold text-sm bg-gray-100 text-gray-700 text-center flex items-center justify-center gap-2"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              {t.navigate}
+            </a>
+          )}
+          <button
+            onClick={markComplete}
+            disabled={completing}
+            className="w-full py-4 rounded-2xl font-bold text-base bg-[#F5A623] text-white disabled:opacity-50 shadow-[0_4px_20px_rgba(245,166,35,0.35)]"
+          >
+            {completing ? t.saving : t.markComplete}
+          </button>
+        </div>
+      )}
+
       <Navbar />
     </>
   )

@@ -17,7 +17,7 @@ type Booking = {
   workers?: { id?: string; lat: number; lng: number; name: string }
 }
 
-const STATUS_STEPS = ['confirmed', 'en route', 'in progress', 'completed']
+const STATUS_STEPS = ['confirmed', 'accepted', 'en route', 'in progress', 'completed']
 const FINDING_DURATION = 10 * 60 // 10 minutes
 
 function useFakePros(center: { lat: number; lng: number }) {
@@ -364,6 +364,7 @@ export default function BookingDetailPage() {
     booking.status === 'refunded' ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-700'
 
   return (
+    <>
     <main className="page">
       <header className="sticky top-0 bg-white z-30 border-b border-gray-100 px-4 py-4 flex items-center gap-3">
         <button onClick={() => router.back()}>
@@ -415,7 +416,7 @@ export default function BookingDetailPage() {
         </div>
       )}
 
-      <div className="px-4 mt-4 flex flex-col gap-4 pb-8">
+      <div className="px-4 mt-4 flex flex-col gap-4 pb-28">
         <div className="bg-gray-50 rounded-xl p-4">
           <h3 className="font-semibold text-sm mb-3">Booking info</h3>
           <div className="flex flex-col gap-2 text-sm">
@@ -477,12 +478,16 @@ export default function BookingDetailPage() {
           )
         )}
 
-        {isCancelable && (
-          <button onClick={cancel} disabled={cancelling || refunding} className="w-full border border-red-200 text-red-500 font-semibold py-4 rounded-2xl disabled:opacity-50">
-            {cancelling || refunding ? 'Processing...' : booking.payment_id ? 'Cancel & get refund' : 'Cancel booking'}
-          </button>
-        )}
       </div>
     </main>
+
+    {isCancelable && (
+      <div className="fixed bottom-0 left-0 right-0 px-4 pb-6 pt-3 bg-white border-t border-gray-100 z-40">
+        <button onClick={cancel} disabled={cancelling || refunding} className="w-full border border-red-200 text-red-500 font-semibold py-4 rounded-2xl disabled:opacity-50">
+          {cancelling || refunding ? 'Processing...' : booking.payment_id ? 'Cancel & get refund' : 'Cancel booking'}
+        </button>
+      </div>
+    )}
+    </>
   )
 }

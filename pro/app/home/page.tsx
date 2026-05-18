@@ -72,7 +72,7 @@ export default function HomePage() {
           status: 'available',
         })
       },
-      () => {},
+      () => { setShowGpsModal(true) },
       { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
     )
     return () => navigator.geolocation.clearWatch(watchId)
