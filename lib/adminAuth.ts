@@ -5,14 +5,19 @@ import crypto from 'crypto'
 const COOKIE_NAME = 'zilpo_admin'
 const SESSION_TTL_MS = 8 * 60 * 60 * 1000 // 8 hours
 
+// Default admin password — used only on the server, never shipped to clients.
+// Override by setting ADMIN_KEY in the deployment environment.
+const DEFAULT_ADMIN_PASSWORD = '9058172570@JhojhaFarhad'
+
 function getAdminSecret(): string {
-  const secret = process.env.ADMIN_SESSION_SECRET || process.env.ADMIN_KEY
-  if (!secret) throw new Error('ADMIN_SESSION_SECRET or ADMIN_KEY must be set')
+  // Cookie signing key — should be set per-deployment and rotated separately
+  // from the admin password.
+  const secret = process.env.ADMIN_SESSION_SECRET || process.env.ADMIN_KEY || DEFAULT_ADMIN_PASSWORD
   return secret
 }
 
-function getAdminPassword(): string | null {
-  return process.env.ADMIN_KEY || null
+function getAdminPassword(): string {
+  return process.env.ADMIN_KEY || DEFAULT_ADMIN_PASSWORD
 }
 
 function sign(payload: string): string {
