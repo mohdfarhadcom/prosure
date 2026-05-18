@@ -10,17 +10,17 @@ export type Pro = {
   gender?: string
   lat?: number
   lng?: number
-  status: string  // 'pending' | 'approved'
+  status: string
 }
 
 type AuthCtx = {
   pro: Pro | null
   loading: boolean
   setPro: (p: Pro | null) => void
-  logout: () => void
+  logout: () => Promise<void>
 }
 
-const Ctx = createContext<AuthCtx>({ pro: null, loading: true, setPro: () => {}, logout: () => {} })
+const Ctx = createContext<AuthCtx>({ pro: null, loading: true, setPro: () => {}, logout: async () => {} })
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [pro, setProState] = useState<Pro | null>(null)
@@ -40,7 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     else localStorage.removeItem('zilpo_pro')
   }
 
-  // Real-time profile sync — reflects admin approvals and name changes across devices
+  // Real-time profile sync — reflects admin approvals across devices
   const proIdRef = useRef<string | null>(null)
   const proRef = useRef<Pro | null>(null)
   proRef.current = pro
@@ -61,7 +61,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [pro?.id])
 
   const logout = async () => {
+    try { await fetch('/api/logout', { method: 'POST' }) } catch {}
     localStorage.removeItem('zilpo_pro')
+    localStorage.removeItem('zilpo_pro_online')
     setProState(null)
     await supabase.auth.signOut().catch(() => {})
   }

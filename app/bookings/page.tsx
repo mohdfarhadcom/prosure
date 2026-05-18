@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
-import { supabase } from '@/lib/supabaseClient'
 import BookingCard from '@/components/BookingCard'
 import Link from 'next/link'
 
@@ -30,13 +29,15 @@ export default function BookingsPage() {
   }, [user])
 
   const fetchBookings = async () => {
-    const today = new Date().toISOString().split('T')[0]
-    const { data } = await supabase
-      .from('bookings')
-      .select('*, booking_items(services(name))')
-      .eq('user_id', user!.id)
-      .order('created_at', { ascending: false })
-    setBookings((data || []) as Booking[])
+    try {
+      const res = await fetch('/api/bookings')
+      if (res.ok) {
+        const data = await res.json()
+        setBookings((data.bookings || []) as Booking[])
+      }
+    } catch (err) {
+      console.error('[bookings] fetch error:', err)
+    }
     setLoading(false)
   }
 
