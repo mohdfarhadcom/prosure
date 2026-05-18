@@ -4,7 +4,6 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth, Pro } from '@/context/AuthContext'
 import { useI18n } from '@/context/I18nContext'
-import { supabase } from '@/lib/supabaseClient'
 
 const ID_TYPES = [
   { value: 'aadhaar', label: 'Aadhaar Card' },
@@ -99,24 +98,23 @@ function SignupContent() {
     setError('')
     setUploading(true)
 
-    const ext = idFile.name.split('.').pop() || 'jpg'
-    const path = `${pendingPro.id}/${idType}.${ext}`
+    const fd = new FormData()
+    fd.append('idType', idType)
+    fd.append('file', idFile)
 
-    const { error: upErr } = await supabase.storage.from('id-proofs').upload(path, idFile, { upsert: true })
-    if (upErr) {
+    try {
+      const res = await fetch('/api/upload-id-proof', { method: 'POST', body: fd })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setUploading(false)
+        setError(data?.error || 'Upload failed. Please try again.')
+        return
+      }
+    } catch {
       setUploading(false)
-      setError('Upload failed: ' + upErr.message)
+      setError('Network error. Please try again.')
       return
     }
-
-    // Get signed URL for reference (stored but not public)
-    const { data: urlData } = supabase.storage.from('id-proofs').getPublicUrl(path)
-
-    // Update professional record
-    await supabase.from('professionals').update({
-      id_proof_type: idType,
-      id_proof_url: urlData?.publicUrl || path,
-    }).eq('id', pendingPro.id)
 
     setUploading(false)
     setPro(pendingPro)

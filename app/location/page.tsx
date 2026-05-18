@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useLocation } from '@/context/LocationContext'
 import { useAuth } from '@/context/AuthContext'
-import { supabase } from '@/lib/supabaseClient'
 import { reverseGeocode, cleanAddress } from '@/lib/googleMaps'
 
 const MapComponent = dynamic(() => import('@/components/MapComponent'), { ssr: false })
@@ -87,9 +86,11 @@ export default function LocationPage() {
     setSaving(true)
     setLocation({ lat: center.lat, lng: center.lng, address })
     if (user) {
-      await supabase.from('addresses').insert({
-        user_id: user.id, label, lat: center.lat, lng: center.lng, full_address: address,
-      })
+      await fetch('/api/addresses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ label, lat: center.lat, lng: center.lng, full_address: address }),
+      }).catch(() => {})
     }
     setSaving(false)
     router.back()

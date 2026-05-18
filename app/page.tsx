@@ -18,12 +18,12 @@ const BANNERS = [
 
 
 const FAQS = [
-  { q: 'How do I book?', a: 'Add a service, pick a date and time, pay online. Done.' },
-  { q: 'Are professionals verified?', a: 'Yes. Government ID check, police verification, and skills test before hiring.' },
-  { q: 'What if I cancel?', a: 'Full refund if you cancel 3+ hours before. No refund within 3 hours.' },
-  { q: 'Do I need to provide equipment?', a: 'Yes. Keep basic cleaning supplies at home. Your professional will use them.' },
-  { q: 'Is there a damage policy?', a: 'Yes. Up to Rs 6,000 cover per booking. Not on promo bookings.' },
-  { q: 'How are prices set?', a: 'Base prices shown. A ₹20 service fee is added at checkout. No GST charged — we are below the GST threshold.' },
+  { q: 'How do I book?', a: 'Pick a service, choose instant or a scheduled slot, pay online. A professional reaches you in 10–15 minutes for instant bookings.' },
+  { q: 'Are the professionals verified?', a: 'Every professional uploads a government ID (Aadhaar / PAN / Voter / Ration) which our team reviews before they can take bookings.' },
+  { q: 'What if I want to cancel?', a: 'Cancel before the professional starts and you get a full refund. Refunds reach your account in 5–7 business days.' },
+  { q: 'Do I need to provide equipment?', a: 'Yes — keep your mops, brooms, and basic supplies ready. The professional uses what you have at home.' },
+  { q: 'Is there a damage policy?', a: 'Up to ₹6,000 per booking is covered. Not applicable on promo bookings.' },
+  { q: 'How are prices set?', a: 'Base price is shown on each service. A ₹20 platform fee is added at checkout. No GST is charged.' },
 ]
 
 export default function HomePage() {
@@ -196,13 +196,13 @@ export default function HomePage() {
 
         {/* ── Trust section ── */}
         <div className="px-4 mt-8">
-          <h2 className="font-bold text-base mb-1">Reliable and trustworthy</h2>
-          <p className="text-xs text-gray-400 mb-4">Verified through multiple checks</p>
+          <h2 className="font-bold text-base mb-1">Safer than calling someone you don&apos;t know</h2>
+          <p className="text-xs text-gray-500 mb-4">Three things we do for every booking.</p>
           <div className="grid grid-cols-3 gap-3">
             {[
-              { title: 'Verified ID', desc: 'Government document check for every professional.' },
-              { title: 'Skills tested', desc: 'Practical test before first booking.' },
-              { title: 'Police check', desc: 'Background verification done.' },
+              { title: 'Verified ID', desc: 'Every professional uploads a government ID we review before they can take bookings.' },
+              { title: 'Masked calls', desc: 'Your number is never shared. Calls route through a masked line.' },
+              { title: 'Damage cover', desc: 'Up to ₹6,000 cover per booking. We sort it out, not you.' },
             ].map(({ title, desc }) => (
               <div key={title} className="bg-gradient-to-b from-gray-50 to-white rounded-2xl p-3 border border-gray-100 text-center">
                 <div className="w-8 h-8 bg-[#FFF3DC] rounded-full flex items-center justify-center mx-auto mb-2">

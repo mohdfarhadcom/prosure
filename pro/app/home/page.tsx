@@ -55,33 +55,34 @@ export default function HomePage() {
     if (!loading && !pro) router.replace('/login')
   }, [pro, loading, router])
 
-  // GPS watch — update workers table while online
+  // GPS watch — push location to server while online (throttled)
   useEffect(() => {
     if (!pro || !online) return
-    const proId = pro.id
-    const proName = pro.name
+    let lastSent = 0
     const watchId = navigator.geolocation.watchPosition(
-      async pos => {
+      pos => {
         proLat.current = pos.coords.latitude
         proLng.current = pos.coords.longitude
-        await supabase.from('workers').upsert({
-          id: proId,
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-          name: proName,
-          status: 'available',
-        })
+        // Throttle to 1 request / 5 seconds — geolocation can fire often
+        const now = Date.now()
+        if (now - lastSent < 5000) return
+        lastSent = now
+        fetch('/api/pro/location', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+        }).catch(() => {})
       },
       () => { setShowGpsModal(true) },
       { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
     )
     return () => navigator.geolocation.clearWatch(watchId)
-  }, [online, pro?.id, pro?.name])
+  }, [online, pro?.id])
 
   // Remove from workers only when explicitly set offline (never on initial null)
   useEffect(() => {
     if (online !== false || !pro) return
-    supabase.from('workers').delete().eq('id', pro.id).then(() => {})
+    fetch('/api/pro/location', { method: 'DELETE' }).catch(() => {})
   }, [online, pro?.id])
 
   // Today stats
@@ -180,16 +181,26 @@ export default function HomePage() {
   const acceptOrder = async () => {
     if (!incomingOrder || !pro) return
     setAccepting(true)
-    const { error } = await supabase
-      .from('bookings')
-      .update({ professional_id: pro.id, status: 'accepted' })
-      .eq('id', incomingOrder.id)
-      .in('status', ['pending', 'confirmed'])
-    setAccepting(false)
-    if (!error) {
-      setIncomingOrder(null)
-      router.push(`/orders/${incomingOrder.id}`)
+    try {
+      const res = await fetch('/api/accept-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId: incomingOrder.id }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (res.ok) {
+        setIncomingOrder(null)
+        router.push(`/orders/${incomingOrder.id}`)
+      } else if (res.status === 409) {
+        // Lost the race — silently drop the toast
+        setIncomingOrder(null)
+      } else {
+        alert(data?.error || 'Could not accept order')
+      }
+    } catch {
+      alert('Network error. Try again.')
     }
+    setAccepting(false)
   }
 
   const rejectOrder = () => setIncomingOrder(null)

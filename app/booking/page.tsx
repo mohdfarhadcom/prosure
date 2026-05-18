@@ -4,7 +4,6 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 import { useCart } from '@/context/CartContext'
 import { useLocation } from '@/context/LocationContext'
-import { supabase } from '@/lib/supabaseClient'
 import { SERVICES } from '@/lib/services'
 import { format, addDays } from 'date-fns'
 
@@ -63,18 +62,31 @@ function BookingContent() {
 
     setLoading(true)
     try {
-      const { data: booking, error } = await supabase.from('bookings').insert({
-        user_id: user.id,
-        date: format(chosenDate, 'yyyy-MM-dd'),
-        slot: selectedSlot,
-        duration: Math.round((tab === 'hourly' ? selectedHours : 1) * 60),
-        amount: bookingAmount,
-        booking_type: tab,
-        status: 'pending',
-      }).select().single()
+      const items = tab === 'hourly'
+        ? [{ slug: `hourly-${selectedHours}`, quantity: 1 }]
+        : selectedServices.map(slug => ({ slug, quantity: 1 }))
 
-      if (error) throw error
-      router.push(`/payment?amount=${bookingAmount}&bookingId=${booking.id}`)
+      const res = await fetch('/api/create-booking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items,
+          bookingMode: 'schedule',
+          date: format(chosenDate, 'yyyy-MM-dd'),
+          slot: selectedSlot,
+          location: location ? { lat: location.lat, lng: location.lng, address: location.address } : null,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok || !data.bookingId) {
+        alert(data?.error || 'Booking failed. Please try again.')
+        return
+      }
+      if (data.free) {
+        router.replace(`/booking/${data.bookingId}`)
+        return
+      }
+      router.push(`/payment?amount=${data.amount}&bookingId=${data.bookingId}`)
     } catch (err) {
       console.error(err)
       alert('Booking failed. Please try again.')

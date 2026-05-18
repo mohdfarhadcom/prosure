@@ -122,14 +122,10 @@ function InstantFindingScreen({ booking, onCancel, cancelling }: {
   const handleRefund = async () => {
     setRefunding(true)
     try {
-      if (booking.payment_id) {
-        await fetch('/api/refund', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ bookingId: booking.id, paymentId: booking.payment_id, amount: booking.amount }),
-        })
-      } else {
-        await supabase.from('bookings').update({ status: 'cancelled' }).eq('id', booking.id)
-      }
+      await fetch('/api/refund', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId: booking.id }),
+      })
     } catch {}
     setRefunding(false)
     setShowTimeout(false)
@@ -283,8 +279,17 @@ export default function BookingDetailPage() {
   }, [bookingProId])
 
   const fetchBooking = async () => {
-    const { data } = await supabase.from('bookings').select('*, workers(*)').eq('id', id).single()
-    setBooking(data as Booking)
+    try {
+      const res = await fetch(`/api/booking/${id}`)
+      if (res.ok) {
+        const data = await res.json()
+        setBooking(data.booking as Booking)
+      } else if (res.status === 401) {
+        router.replace(`/login?redirect=/booking/${id}`)
+      }
+    } catch (err) {
+      console.error('[booking] fetch error:', err)
+    }
     setLoading(false)
   }
 
@@ -303,23 +308,20 @@ export default function BookingDetailPage() {
   const initiateRefund = async (b: Booking) => {
     setRefunding(true)
     try {
-      if (b.payment_id) {
-        const res = await fetch('/api/refund', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ bookingId: b.id, paymentId: b.payment_id, amount: b.amount }),
-        })
-        const data = await res.json()
-        if (data.success || data.refund_pending) {
-          setBooking(prev => prev ? { ...prev, status: 'refund_pending' } : null)
-          if (!data.success) {
-            alert('Refund has been flagged for manual processing. Our team will process it within 24 hours. Support: +91 9058172570')
-          }
-        } else {
-          throw new Error(data.error)
-        }
-      } else {
-        await supabase.from('bookings').update({ status: 'cancelled' }).eq('id', id)
+      const res = await fetch('/api/refund', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId: b.id }),
+      })
+      const data = await res.json()
+      if (data.cancelled) {
         setBooking(prev => prev ? { ...prev, status: 'cancelled' } : null)
+      } else if (data.success) {
+        setBooking(prev => prev ? { ...prev, status: 'refund_pending' } : null)
+      } else if (data.refund_pending) {
+        setBooking(prev => prev ? { ...prev, status: 'refund_pending' } : null)
+        alert('Refund has been flagged for manual processing. Our team will process it within 24 hours. Support: +91 9058172570')
+      } else {
+        throw new Error(data.error || 'Refund failed')
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Unknown error'

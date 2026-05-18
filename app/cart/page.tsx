@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation'
 import { useCart } from '@/context/CartContext'
 import { useAuth } from '@/context/AuthContext'
 import { useLocation } from '@/context/LocationContext'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import { format, addDays } from 'date-fns'
 
@@ -94,6 +94,27 @@ export default function CartPage() {
   }
 
   const [proceeding, setProceeding] = useState(false)
+
+  // Track abandoned cart: ping the server when items change so the admin can
+  // recover lost checkouts. Debounced and only when there's something to track.
+  useEffect(() => {
+    if (items.length === 0) return
+    const handle = setTimeout(() => {
+      fetch('/api/track-cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          step: 'cart_viewed',
+          items: items.map(i => ({ slug: i.slug, name: i.name })),
+          subtotal, total: toPay,
+          bookingMode,
+          promoCode: appliedPromo === 'ZILPO10' ? 'ZILPO10' : null,
+          location: location ? { lat: location.lat, lng: location.lng, address: location.address } : null,
+        }),
+      }).catch(() => {})
+    }, 1500)
+    return () => clearTimeout(handle)
+  }, [items.length, toPay, bookingMode, appliedPromo, location?.address, subtotal])
 
   const proceed = async () => {
     if (!user) { router.push('/login?redirect=/cart'); return }

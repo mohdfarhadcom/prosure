@@ -92,29 +92,29 @@ export default function WalletPage() {
   useEffect(() => {
     if (!pro) return
     loadWallet()
-    // Trigger release of matured holds on page load
-    fetch('/api/release-wallet', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ professionalId: pro.id }),
-    }).then(() => loadWallet())
+    loadWallet()
   }, [pro?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadWallet = async () => {
     if (!pro) return
-    const [{ data: w }, { data: txData }] = await Promise.all([
-      supabase.from('pro_wallets').select('*').eq('professional_id', pro.id).single(),
-      supabase.from('wallet_transactions').select('*').eq('professional_id', pro.id).order('created_at', { ascending: false }).limit(30),
-    ])
-    setWallet(w as Wallet)
-    const all = (txData as Tx[]) || []
-    setTxs(all)
-    // Calculate amount still under 7-day hold
-    const now = new Date()
-    const pending = all
-      .filter(tx => tx.status === 'processing' && tx.type === 'credit' && tx.available_at && new Date(tx.available_at) > now)
-      .reduce((sum, tx) => sum + (tx.amount || 0), 0)
-    setPendingAmount(pending)
+    try {
+      const res = await fetch('/api/wallet')
+      if (!res.ok) {
+        setFetching(false)
+        return
+      }
+      const data = await res.json()
+      setWallet(data.wallet as Wallet)
+      const all = (data.transactions as Tx[]) || []
+      setTxs(all)
+      const now = new Date()
+      const pending = all
+        .filter(tx => tx.status === 'processing' && tx.type === 'credit' && tx.available_at && new Date(tx.available_at) > now)
+        .reduce((sum, tx) => sum + (tx.amount || 0), 0)
+      setPendingAmount(pending)
+    } catch (err) {
+      console.error('[wallet] load error:', err)
+    }
     setFetching(false)
   }
 
@@ -137,7 +137,7 @@ export default function WalletPage() {
     const res = await fetch('/api/request-withdrawal', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ professionalId: pro.id, amount, upiId }),
+      body: JSON.stringify({ amount, upiId }),
     })
     const data = await res.json()
     setWithdrawing(false)
