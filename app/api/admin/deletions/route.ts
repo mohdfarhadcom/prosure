@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabaseServer'
-
-const KEY = process.env.ADMIN_KEY || '9058172570@JhojhaFarhad'
+import { isAdminRequest, adminAuthFail } from '@/lib/adminAuth'
 
 export async function GET(req: Request) {
-  if (req.headers.get('x-admin-key') !== KEY) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!isAdminRequest(req)) return adminAuthFail()
   const db = getSupabaseAdmin()
   const { data } = await db.from('deletion_requests')
     .select('*, professionals(name, phone, service_type)')
@@ -14,15 +13,20 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  if (req.headers.get('x-admin-key') !== KEY) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  const { id, professionalId, action } = await req.json()
+  if (!isAdminRequest(req)) return adminAuthFail()
+  const body = await req.json().catch(() => null) as { id?: string; professionalId?: string; action?: string } | null
+  if (!body?.id || !body?.professionalId || !body?.action) {
+    return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
+  }
   const db = getSupabaseAdmin()
-  if (action === 'approve') {
-    await db.from('pro_wallets').delete().eq('professional_id', professionalId)
-    await db.from('professionals').delete().eq('id', professionalId)
-    await db.from('deletion_requests').update({ status: 'approved' }).eq('id', id)
+  if (body.action === 'approve') {
+    await db.from('pro_wallets').delete().eq('professional_id', body.professionalId)
+    await db.from('professionals').delete().eq('id', body.professionalId)
+    await db.from('deletion_requests').update({ status: 'approved' }).eq('id', body.id)
+  } else if (body.action === 'reject') {
+    await db.from('deletion_requests').update({ status: 'rejected' }).eq('id', body.id)
   } else {
-    await db.from('deletion_requests').update({ status: 'rejected' }).eq('id', id)
+    return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
   }
   return NextResponse.json({ ok: true })
 }

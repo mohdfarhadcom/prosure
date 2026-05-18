@@ -14,15 +14,11 @@ type Booking = {
   rating: number | null; rated_at: string | null; created_at?: string;
   payment_id?: string | null; professional_id?: string | null;
   address?: string; user_id?: string;
+  otp?: string | null;
   workers?: { id?: string; lat: number; lng: number; name: string }
 }
 
 const STATUS_STEPS = ['confirmed', 'accepted', 'en route', 'in progress', 'completed']
-
-function getStartOtp(bookingId: string): string {
-  const hex = bookingId.replace(/-/g, '').slice(0, 8)
-  return String(parseInt(hex, 16) % 10000).padStart(4, '0')
-}
 const FINDING_DURATION = 10 * 60 // 10 minutes
 
 function useFakePros(center: { lat: number; lng: number }) {
@@ -431,7 +427,7 @@ export default function BookingDetailPage() {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5A623" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               <p className="text-xs font-bold text-[#D97706]">Your start code</p>
             </div>
-            <p className="text-3xl font-black tracking-[0.3em] text-[#F5A623] my-2">{getStartOtp(booking.id)}</p>
+            <p className="text-3xl font-black tracking-[0.3em] text-[#F5A623] my-2">{booking.otp || '----'}</p>
             <p className="text-xs text-gray-500">Share this code with your professional when they arrive to start the service.</p>
           </div>
         )}

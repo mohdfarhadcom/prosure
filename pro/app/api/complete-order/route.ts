@@ -1,72 +1,111 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { requirePro } from '@/lib/proSession'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-)
+function getDb() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!url || !key) throw new Error('Supabase env missing')
+  return createClient(url, key, { auth: { persistSession: false } })
+}
+
+function escapeHtml(s: string | null | undefined): string {
+  if (s == null) return ''
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+async function sendEmail(to: string, subject: string, html: string) {
+  const key = process.env.RESEND_API_KEY
+  if (!key || !to) return
+  try {
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from: 'Zilpo <team@thezilpo.com>', to, subject, html }),
+    })
+  } catch {}
+}
 
 export async function POST(req: Request) {
-  try {
-    const { bookingId, professionalId } = await req.json()
-    if (!bookingId || !professionalId) return NextResponse.json({ error: 'Missing fields' }, { status: 400 })
+  const auth = requirePro(req)
+  if (auth instanceof NextResponse) return auth
 
-    // Get booking
-    const { data: booking } = await supabase.from('bookings').select('*, users(email, name)').eq('id', bookingId).single()
-    if (!booking) return NextResponse.json({ error: 'Booking not found' }, { status: 404 })
+  const body = await req.json().catch(() => null) as { bookingId?: string } | null
+  if (!body?.bookingId) return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
 
-    const proEarning = Math.round((booking.amount || 0) * 0.8)
-
-    // Mark completed
-    await supabase.from('bookings').update({ status: 'completed' }).eq('id', bookingId)
-
-    // Only create wallet transaction for paid bookings (skip ₹0 test bookings)
-    if (proEarning > 0) {
-      const availableAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-
-      // Add to total_earned immediately; balance is only updated when released after 7 days
-      const { data: wallet } = await supabase.from('pro_wallets').select('*').eq('professional_id', professionalId).single()
-      if (wallet) {
-        await supabase.from('pro_wallets').update({
-          total_earned: (wallet.total_earned || 0) + proEarning,
-          updated_at: new Date().toISOString(),
-        }).eq('professional_id', professionalId)
-      }
-
-      await supabase.from('wallet_transactions').insert({
-        professional_id: professionalId,
-        booking_id: bookingId,
-        amount: proEarning,
-        type: 'credit',
-        status: 'processing',
-        available_at: availableAt,
-      })
-    }
-
-    // Send rating email to customer
-    const userEmail = (booking as { users?: { email?: string } }).users?.email
-    const userName = (booking as { users?: { name?: string } }).users?.name || 'there'
-    if (userEmail) {
-      await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'https://thezilpo.com'}/api/send-email`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          to: userEmail,
-          subject: 'How was your Zilpo experience?',
-          html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
-            <h2 style="color:#F5A623">Hi ${userName}! 🌟</h2>
-            <p>Your booking was completed. We hope you had a great experience!</p>
-            <p style="margin:24px 0">
-              <a href="https://thezilpo.com/booking/${bookingId}" style="background:#F5A623;color:white;padding:12px 24px;border-radius:12px;text-decoration:none;font-weight:bold">Rate your experience</a>
-            </p>
-            <p style="color:#999;font-size:12px">Thank you for choosing Zilpo · team@thezilpo.com</p>
-          </div>`,
-        }),
-      }).catch(() => {})
-    }
-
-    return NextResponse.json({ ok: true, proEarning })
-  } catch (err) {
-    return NextResponse.json({ error: String(err) }, { status: 500 })
+  const db = getDb()
+  const { data: booking } = await db.from('bookings')
+    .select('id, status, amount, professional_id, users(email, name)')
+    .eq('id', body.bookingId).single()
+  if (!booking) return NextResponse.json({ error: 'Booking not found' }, { status: 404 })
+  if (booking.professional_id !== auth.proId) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
+  if (booking.status === 'completed') {
+    return NextResponse.json({ ok: true, alreadyCompleted: true })
+  }
+  if (booking.status !== 'in progress') {
+    return NextResponse.json({ error: `Cannot complete a ${booking.status} booking` }, { status: 409 })
+  }
+
+  // Atomic status flip — only completes if still in progress.
+  const { data: updated } = await db.from('bookings')
+    .update({ status: 'completed', service_completed_at: new Date().toISOString() })
+    .eq('id', booking.id)
+    .eq('status', 'in progress')
+    .eq('professional_id', auth.proId)
+    .select('id')
+  if (!updated || updated.length === 0) {
+    return NextResponse.json({ error: 'Could not complete booking' }, { status: 409 })
+  }
+
+  const proEarning = Math.round((Number(booking.amount) || 0) * 0.8)
+
+  if (proEarning > 0) {
+    const availableAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+
+    // wallet_transactions.booking_id is UNIQUE, so this insert is idempotent.
+    const { error: insErr } = await db.from('wallet_transactions').insert({
+      professional_id: auth.proId,
+      booking_id: booking.id,
+      amount: proEarning,
+      type: 'credit',
+      status: 'processing',
+      available_at: availableAt,
+    })
+    if (insErr && !String(insErr.message).includes('duplicate')) {
+      console.error('[complete-order] wallet insert failed:', insErr.message)
+    } else if (!insErr) {
+      // First-time credit — update total_earned. balance unchanged until 7-day release.
+      const { data: wallet } = await db.from('pro_wallets').select('total_earned').eq('professional_id', auth.proId).single()
+      await db.from('pro_wallets').update({
+        total_earned: (Number(wallet?.total_earned) || 0) + proEarning,
+        updated_at: new Date().toISOString(),
+      }).eq('professional_id', auth.proId)
+    }
+  }
+
+  const userInfo = (booking as { users?: { email?: string; name?: string } }).users
+  if (userInfo?.email) {
+    const name = escapeHtml(userInfo.name || 'there')
+    await sendEmail(
+      userInfo.email,
+      'How was your Zilpo service?',
+      `<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
+        <h2 style="color:#F5A623;margin:0 0 8px">Hi ${name}, your service is done.</h2>
+        <p style="color:#374151">Thanks for choosing Zilpo. Could you take a moment to rate your professional?</p>
+        <p style="margin:24px 0">
+          <a href="https://thezilpo.com/booking/${escapeHtml(booking.id)}" style="background:#F5A623;color:white;padding:12px 24px;border-radius:12px;text-decoration:none;font-weight:600">Rate your service</a>
+        </p>
+        <p style="color:#9CA3AF;font-size:12px;margin-top:32px">Zilpo &middot; team@thezilpo.com &middot; +91 9058172570</p>
+      </div>`
+    )
+  }
+
+  return NextResponse.json({ ok: true, proEarning })
 }

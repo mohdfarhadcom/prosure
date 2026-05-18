@@ -1,44 +1,39 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { requirePro } from '@/lib/proSession'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-)
+function getDb() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!url || !key) throw new Error('Supabase env missing')
+  return createClient(url, key, { auth: { persistSession: false } })
+}
 
 export async function POST(req: Request) {
-  try {
-    const { professionalId } = await req.json()
-    if (!professionalId) return NextResponse.json({ error: 'Missing professionalId' }, { status: 400 })
+  const auth = requirePro(req)
+  if (auth instanceof NextResponse) return auth
 
-    const now = new Date().toISOString()
-    const { data: ready } = await supabase
-      .from('wallet_transactions')
-      .select('amount')
-      .eq('professional_id', professionalId)
-      .eq('status', 'processing')
-      .eq('type', 'credit')
-      .lte('available_at', now)
+  const db = getDb()
+  const now = new Date().toISOString()
 
-    if (!ready || ready.length === 0) return NextResponse.json({ ok: true, released: 0 })
+  // Move ready rows to "available" first; the RETURNING set is the only source of truth.
+  const { data: moved } = await db
+    .from('wallet_transactions')
+    .update({ status: 'available', show_received_at: now })
+    .eq('professional_id', auth.proId)
+    .eq('status', 'processing')
+    .eq('type', 'credit')
+    .lte('available_at', now)
+    .select('id, amount')
 
-    const releaseAmount = ready.reduce((sum, t) => sum + (t.amount || 0), 0)
+  if (!moved || moved.length === 0) return NextResponse.json({ ok: true, released: 0 })
 
-    await supabase.from('wallet_transactions')
-      .update({ status: 'available' })
-      .eq('professional_id', professionalId)
-      .eq('status', 'processing')
-      .eq('type', 'credit')
-      .lte('available_at', now)
+  const released = moved.reduce((s: number, t: { amount: number | null }) => s + (Number(t.amount) || 0), 0)
+  const { data: wallet } = await db.from('pro_wallets').select('balance').eq('professional_id', auth.proId).single()
+  await db.from('pro_wallets').update({
+    balance: Math.round(((Number(wallet?.balance) || 0) + released) * 100) / 100,
+    updated_at: now,
+  }).eq('professional_id', auth.proId)
 
-    const { data: wallet } = await supabase.from('pro_wallets').select('balance').eq('professional_id', professionalId).single()
-    await supabase.from('pro_wallets').update({
-      balance: (wallet?.balance || 0) + releaseAmount,
-      updated_at: now,
-    }).eq('professional_id', professionalId)
-
-    return NextResponse.json({ ok: true, released: releaseAmount })
-  } catch (err) {
-    return NextResponse.json({ error: String(err) }, { status: 500 })
-  }
+  return NextResponse.json({ ok: true, released })
 }

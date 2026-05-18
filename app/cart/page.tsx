@@ -5,7 +5,6 @@ import { useAuth } from '@/context/AuthContext'
 import { useLocation } from '@/context/LocationContext'
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
-import { supabase } from '@/lib/supabaseClient'
 import { format, addDays } from 'date-fns'
 
 const SERVICE_FEE = 20
@@ -69,10 +68,6 @@ export default function CartPage() {
 
   const surge = useMemo(() => getSurge(), [])
 
-  const hourlyItem = items.find(i => i.slug.startsWith('hourly-'))
-  const isHourlyCart = !!hourlyItem
-  const hourlyHours = hourlyItem ? parseFloat(hourlyItem.slug.replace('hourly-', '')) : 0
-
   const subtotal = total
   const visitingFee = subtotal < VISITING_FEE_THRESHOLD ? VISITING_FEE : 0
   const promoDiscount10 = appliedPromo === 'ZILPO10' ? Math.round(subtotal * 0.1) : 0
@@ -105,58 +100,45 @@ export default function CartPage() {
     setProceeding(true)
 
     try {
-      // Compute slot for instant bookings
-      const now = new Date()
-      const mins = now.getMinutes() < 30 ? 30 : 0
-      now.setMinutes(mins, 0, 0)
-      if (mins === 0) now.setHours(now.getHours() + 1)
-      const h = now.getHours()
-      const ampm = h >= 12 ? 'PM' : 'AM'
-      const h12 = h % 12 || 12
-      const instantSlot = `${h12}:${String(now.getMinutes()).padStart(2, '0')} ${ampm}`
-      const today = new Date().toISOString().split('T')[0]
+      const bookingDate = bookingMode === 'schedule' ? format(chosenDate, 'yyyy-MM-dd') : undefined
 
-      const bookingDate = bookingMode === 'instant' ? today : format(chosenDate, 'yyyy-MM-dd')
-      const bookingSlot = bookingMode === 'instant' ? instantSlot : selectedSlot
-
-      const insertPayload: Record<string, unknown> = {
-        user_id: user.id,
-        date: bookingDate,
-        slot: bookingSlot,
-        duration: Math.round((isHourlyCart ? hourlyHours : 1) * 60),
-        amount: toPay,
-        booking_type: isHourlyCart ? 'hourly' : 'services',
-        booking_mode: bookingMode,
-        status: 'pending',
-      }
-      if (location) {
-        insertPayload.lat = location.lat
-        insertPayload.lng = location.lng
-        insertPayload.address = location.address
-      }
-
-      const { data: booking, error } = await supabase
-        .from('bookings')
-        .insert(insertPayload)
-        .select()
-        .single()
-
-      if (error || !booking) {
-        console.error('[cart] booking insert failed:', error?.message)
+      const res = await fetch('/api/create-booking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: items.map(i => ({ slug: i.slug, quantity: 1 })),
+          tip,
+          promoCode: appliedPromo === 'ZILPO10' ? 'ZILPO10' : appliedPromo === 'TEST' ? 'OwbhnsJue736+#;jhe' : null,
+          bookingMode,
+          date: bookingDate,
+          slot: bookingMode === 'schedule' ? selectedSlot : undefined,
+          location: location ? { lat: location.lat, lng: location.lng, address: location.address } : null,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok || !data.bookingId) {
         setProceeding(false)
-        alert(`Could not create booking: ${error?.message || 'Unknown error'}. Please try again.`)
+        alert(data.error || 'Could not create booking. Please try again.')
         return
       }
 
-      // Free booking (test promo) — skip payment
-      if (toPay === 0) {
-        await supabase.from('bookings').update({ status: 'confirmed', payment_id: 'test_free' }).eq('id', booking.id)
+      // Track recovery: if user proceeds to payment, the cart is "in checkout".
+      // The abandoned-cart row (if any) will be marked recovered when verify-payment runs.
+      try {
+        await fetch('/api/track-cart', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ step: 'payment_initiated', items: items.map(i => ({ slug: i.slug, name: i.name })), total: data.amount }),
+        })
+      } catch {}
+
+      if (data.free) {
         clear()
-        router.replace(`/booking/${booking.id}`)
+        router.replace(`/booking/${data.bookingId}`)
         return
       }
 
-      router.push(`/payment?amount=${toPay}&bookingId=${booking.id}`)
+      router.push(`/payment?amount=${data.amount}&bookingId=${data.bookingId}`)
     } catch (err) {
       console.error('[cart] proceed error:', err)
       setProceeding(false)

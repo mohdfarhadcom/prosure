@@ -19,12 +19,6 @@ type Booking = {
   duration?: number
 }
 
-// Deterministic 4-digit start OTP derived from booking ID
-function getStartOtp(bookingId: string): string {
-  const hex = bookingId.replace(/-/g, '').slice(0, 8)
-  return String(parseInt(hex, 16) % 10000).padStart(4, '0')
-}
-
 export default function OrderDetailPage() {
   const { pro, loading } = useAuth()
   const { t } = useI18n()
@@ -64,14 +58,23 @@ export default function OrderDetailPage() {
 
   const verifyAndStart = async () => {
     if (!booking || !pro) return
-    const correct = getStartOtp(booking.id)
-    if (otpInput.trim() !== correct) {
-      setOtpError('Wrong code. Ask the customer to check their Zilpo app.')
-      return
-    }
     setOtpError('')
     setStarting(true)
-    await supabase.from('bookings').update({ status: 'in progress' }).eq('id', booking.id)
+    try {
+      const res = await fetch('/api/start-job', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId: booking.id, code: otpInput.trim() }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setOtpError(data?.error || 'Could not start the service.')
+      } else {
+        setOtpInput('')
+      }
+    } catch {
+      setOtpError('Network error. Try again.')
+    }
     setStarting(false)
   }
 
