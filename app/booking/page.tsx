@@ -67,7 +67,7 @@ function BookingContent() {
         user_id: user.id,
         date: format(chosenDate, 'yyyy-MM-dd'),
         slot: selectedSlot,
-        duration: tab === 'hourly' ? selectedHours : 1,
+        duration: Math.round((tab === 'hourly' ? selectedHours : 1) * 60),
         amount: bookingAmount,
         booking_type: tab,
         status: 'pending',

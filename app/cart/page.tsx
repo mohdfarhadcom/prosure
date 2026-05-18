@@ -123,7 +123,7 @@ export default function CartPage() {
         user_id: user.id,
         date: bookingDate,
         slot: bookingSlot,
-        duration: isHourlyCart ? hourlyHours : 1,
+        duration: Math.round((isHourlyCart ? hourlyHours : 1) * 60),
         amount: toPay,
         booking_type: isHourlyCart ? 'hourly' : 'services',
         booking_mode: bookingMode,

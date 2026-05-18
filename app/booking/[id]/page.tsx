@@ -421,7 +421,7 @@ export default function BookingDetailPage() {
           <div className="flex flex-col gap-2 text-sm">
             <div className="flex justify-between"><span className="text-gray-500">Date</span><span>{booking.date}</span></div>
             <div className="flex justify-between"><span className="text-gray-500">Time</span><span>{booking.slot}</span></div>
-            <div className="flex justify-between"><span className="text-gray-500">Duration</span><span>{booking.duration} hr</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">Duration</span><span>{booking.duration >= 60 ? `${booking.duration / 60} hr` : `${booking.duration} min`}</span></div>
             <div className="flex justify-between"><span className="text-gray-500">Mode</span><span className="capitalize">{booking.booking_mode || 'scheduled'}</span></div>
             <div className="flex justify-between"><span className="text-gray-500">Amount paid</span><span className="font-semibold">₹{booking.amount}</span></div>
           </div>
