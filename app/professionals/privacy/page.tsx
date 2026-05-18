@@ -58,7 +58,7 @@ const sections = [
   },
   {
     title: 'Contact',
-    body: 'For privacy-related queries or to exercise your rights: team@thezilpo.com | +91 99353 67449',
+    body: 'For privacy-related queries or to exercise your rights: team@thezilpo.com | +91 9058172570',
   },
 ]
 

@@ -45,7 +45,7 @@ export default function PrivacyPage() {
         },
         {
           title: 'Contact',
-          body: 'For any privacy concerns: team@thezilpo.com | +91 99353 67449',
+          body: 'For any privacy concerns: team@thezilpo.com | +91 9058172570',
         },
       ].map(({ title, body }) => (
         <div key={title} className="mb-6">

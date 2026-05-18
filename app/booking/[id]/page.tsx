@@ -18,6 +18,11 @@ type Booking = {
 }
 
 const STATUS_STEPS = ['confirmed', 'accepted', 'en route', 'in progress', 'completed']
+
+function getStartOtp(bookingId: string): string {
+  const hex = bookingId.replace(/-/g, '').slice(0, 8)
+  return String(parseInt(hex, 16) % 10000).padStart(4, '0')
+}
 const FINDING_DURATION = 10 * 60 // 10 minutes
 
 function useFakePros(center: { lat: number; lng: number }) {
@@ -309,7 +314,7 @@ export default function BookingDetailPage() {
         if (data.success || data.refund_pending) {
           setBooking(prev => prev ? { ...prev, status: 'refund_pending' } : null)
           if (!data.success) {
-            alert('Refund has been flagged for manual processing. Our team will process it within 24 hours. Support: +91 99353 67449')
+            alert('Refund has been flagged for manual processing. Our team will process it within 24 hours. Support: +91 9058172570')
           }
         } else {
           throw new Error(data.error)
@@ -320,7 +325,7 @@ export default function BookingDetailPage() {
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Unknown error'
-      alert(`Could not process refund: ${msg}\n\nContact support: +91 99353 67449 or team@thezilpo.com`)
+      alert(`Could not process refund: ${msg}\n\nContact support: +91 9058172570 or team@thezilpo.com`)
     }
     setRefunding(false)
   }
@@ -417,6 +422,17 @@ export default function BookingDetailPage() {
       )}
 
       <div className="px-4 mt-4 flex flex-col gap-4 pb-28">
+        {/* Start OTP — shown when professional has accepted, waiting to start */}
+        {booking.status === 'accepted' && (
+          <div className="bg-[#FFF3DC] border border-[#F5A623]/30 rounded-2xl p-4">
+            <div className="flex items-center gap-2 mb-1">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5A623" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <p className="text-xs font-bold text-[#D97706]">Your start code</p>
+            </div>
+            <p className="text-3xl font-black tracking-[0.3em] text-[#F5A623] my-2">{getStartOtp(booking.id)}</p>
+            <p className="text-xs text-gray-500">Share this code with your professional when they arrive to start the service.</p>
+          </div>
+        )}
         <div className="bg-gray-50 rounded-xl p-4">
           <h3 className="font-semibold text-sm mb-3">Booking info</h3>
           <div className="flex flex-col gap-2 text-sm">
@@ -468,7 +484,7 @@ export default function BookingDetailPage() {
               </div>
               <p className="text-xs text-amber-700 mb-3 leading-relaxed">If you have an issue to report, please reach out to our support team — we&apos;re here to help.</p>
               <a href="mailto:team@thezilpo.com" className="text-xs font-semibold text-amber-800 block mb-1">✉ team@thezilpo.com</a>
-              <a href="tel:+919935367449" className="text-xs font-semibold text-amber-800 block">📞 For immediate support call +91 99353 67449</a>
+              <a href="tel:+919058172570" className="text-xs font-semibold text-amber-800 block">📞 For immediate support call +91 9058172570</a>
             </div>
           ) : (
             <div className="bg-green-50 rounded-2xl p-4 flex items-center gap-3">

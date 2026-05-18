@@ -80,7 +80,7 @@ function LoginContent() {
               type="tel"
               value={phone}
               onChange={e => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-              placeholder="99353 67449"
+              placeholder="9058172570"
               className="flex-1 px-4 py-4 text-sm outline-none"
               maxLength={10}
               inputMode="numeric"

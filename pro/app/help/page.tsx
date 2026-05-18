@@ -34,7 +34,7 @@ export default function HelpPage() {
         <div className="bg-[#FFF3DC] rounded-2xl p-4 mb-6">
           <p className="font-semibold text-sm mb-2">{t.contactUs}</p>
           <p className="text-sm text-gray-700">team@thezilpo.com</p>
-          <p className="text-sm text-gray-700">+91 99353 67449</p>
+          <p className="text-sm text-gray-700">+91 9058172570</p>
           <p className="text-xs text-gray-400 mt-2">Mon – Sat, 9 AM – 7 PM</p>
         </div>
 

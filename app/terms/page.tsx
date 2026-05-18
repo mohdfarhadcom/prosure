@@ -53,7 +53,7 @@ export default function TermsPage() {
         },
         {
           title: 'Contact',
-          body: 'team@thezilpo.com | +91 99353 67449',
+          body: 'team@thezilpo.com | +91 9058172570',
         },
       ].map(({ title, body }) => (
         <div key={title} className="mb-6">

@@ -19,6 +19,12 @@ type Booking = {
   duration?: number
 }
 
+// Deterministic 4-digit start OTP derived from booking ID
+function getStartOtp(bookingId: string): string {
+  const hex = bookingId.replace(/-/g, '').slice(0, 8)
+  return String(parseInt(hex, 16) % 10000).padStart(4, '0')
+}
+
 export default function OrderDetailPage() {
   const { pro, loading } = useAuth()
   const { t } = useI18n()
@@ -27,6 +33,9 @@ export default function OrderDetailPage() {
   const id = params.id as string
   const [booking, setBooking] = useState<Booking | null>(null)
   const [completing, setCompleting] = useState(false)
+  const [otpInput, setOtpInput] = useState('')
+  const [otpError, setOtpError] = useState('')
+  const [starting, setStarting] = useState(false)
 
   useEffect(() => {
     if (!loading && !pro) router.replace('/login')
@@ -53,6 +62,19 @@ export default function OrderDetailPage() {
     return () => { supabase.removeChannel(ch) }
   }, [id])
 
+  const verifyAndStart = async () => {
+    if (!booking || !pro) return
+    const correct = getStartOtp(booking.id)
+    if (otpInput.trim() !== correct) {
+      setOtpError('Wrong code. Ask the customer to check their Zilpo app.')
+      return
+    }
+    setOtpError('')
+    setStarting(true)
+    await supabase.from('bookings').update({ status: 'in progress' }).eq('id', booking.id)
+    setStarting(false)
+  }
+
   const markComplete = async () => {
     if (!booking || !pro) return
     setCompleting(true)
@@ -72,7 +94,6 @@ export default function OrderDetailPage() {
     </main>
   )
 
-  // Format date from "2026-05-18" and slot from "5:30 PM" directly
   const dateStr = booking.date
     ? new Date(booking.date + 'T00:00:00').toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
     : '—'
@@ -91,6 +112,7 @@ export default function OrderDetailPage() {
     pending: 'bg-yellow-100 text-yellow-700',
     confirmed: 'bg-yellow-100 text-yellow-700',
     accepted: 'bg-blue-100 text-blue-700',
+    'in progress': 'bg-purple-100 text-purple-700',
     completed: 'bg-green-100 text-green-700',
     cancelled: 'bg-red-100 text-red-700',
   }
@@ -99,6 +121,7 @@ export default function OrderDetailPage() {
     pending: t.statusPending,
     confirmed: t.statusPending,
     accepted: t.statusAccepted,
+    'in progress': 'In Progress',
     completed: t.statusCompleted,
     cancelled: t.statusCancelled,
   }
@@ -116,7 +139,7 @@ export default function OrderDetailPage() {
           </span>
         </header>
 
-        <div className="px-4 mt-4 pb-32">
+        <div className="px-4 mt-4 pb-40">
           {/* Service */}
           <div className="bg-gray-50 rounded-2xl p-4 mb-3">
             <p className="text-xs text-gray-400 mb-0.5">{t.service}</p>
@@ -143,13 +166,34 @@ export default function OrderDetailPage() {
           </div>
 
           {/* Amount */}
-          <div className="bg-gray-50 rounded-2xl p-4 mb-6">
+          <div className="bg-gray-50 rounded-2xl p-4 mb-3">
             <p className="text-xs text-gray-400 mb-0.5">{t.amount}</p>
             <div className="flex items-baseline gap-2">
               <p className="font-bold text-xl text-[#F5A623]">{t.rs} {booking.amount}</p>
               <p className="text-xs text-gray-400">You earn: ₹{proEarning}</p>
             </div>
           </div>
+
+          {/* OTP entry — shown when accepted (arrived at customer, need start code) */}
+          {booking.status === 'accepted' && (
+            <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-3">
+              <div className="flex items-center gap-2 mb-2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <p className="text-sm font-bold text-blue-800">Ask customer for start code</p>
+              </div>
+              <p className="text-xs text-blue-600 mb-3">Customer can see their 4-digit code on the Zilpo app. Enter it below to start the service.</p>
+              <input
+                type="number"
+                inputMode="numeric"
+                maxLength={4}
+                value={otpInput}
+                onChange={e => { setOtpInput(e.target.value.slice(0, 4)); setOtpError('') }}
+                placeholder="Enter 4-digit code"
+                className="w-full border border-blue-200 rounded-xl px-4 py-3 text-center text-2xl font-bold tracking-[0.5em] outline-none focus:border-blue-400 bg-white mb-2"
+              />
+              {otpError && <p className="text-xs text-red-500 text-center mb-2">{otpError}</p>}
+            </div>
+          )}
 
           {booking.status === 'completed' && (
             <div className="bg-green-50 rounded-2xl p-4 flex items-center gap-3">
@@ -166,9 +210,9 @@ export default function OrderDetailPage() {
       </main>
 
       {/* Sticky action buttons */}
-      {booking.status === 'accepted' && (
+      {(booking.status === 'accepted' || booking.status === 'in progress') && (
         <div className="fixed bottom-16 left-0 right-0 px-4 pb-2 flex flex-col gap-2 bg-white border-t border-gray-100 pt-3 z-40">
-          {booking.lat && booking.lng && (
+          {booking.lat && booking.lng && booking.status === 'accepted' && (
             <a
               href={`https://maps.google.com/?q=${booking.lat},${booking.lng}`}
               target="_blank"
@@ -179,13 +223,24 @@ export default function OrderDetailPage() {
               {t.navigate}
             </a>
           )}
-          <button
-            onClick={markComplete}
-            disabled={completing}
-            className="w-full py-4 rounded-2xl font-bold text-base bg-[#F5A623] text-white disabled:opacity-50 shadow-[0_4px_20px_rgba(245,166,35,0.35)]"
-          >
-            {completing ? t.saving : t.markComplete}
-          </button>
+          {booking.status === 'accepted' && (
+            <button
+              onClick={verifyAndStart}
+              disabled={otpInput.length < 4 || starting}
+              className="w-full py-4 rounded-2xl font-bold text-base bg-[#F5A623] text-white disabled:opacity-40 shadow-[0_4px_20px_rgba(245,166,35,0.35)]"
+            >
+              {starting ? 'Starting...' : 'Start Service'}
+            </button>
+          )}
+          {booking.status === 'in progress' && (
+            <button
+              onClick={markComplete}
+              disabled={completing}
+              className="w-full py-4 rounded-2xl font-bold text-base bg-[#F5A623] text-white disabled:opacity-50 shadow-[0_4px_20px_rgba(245,166,35,0.35)]"
+            >
+              {completing ? t.saving : t.markComplete}
+            </button>
+          )}
         </div>
       )}
 

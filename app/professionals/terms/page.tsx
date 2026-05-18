@@ -70,7 +70,7 @@ const sections = [
   },
   {
     title: 'Contact',
-    body: 'For any questions regarding these terms: team@thezilpo.com | +91 99353 67449',
+    body: 'For any questions regarding these terms: team@thezilpo.com | +91 9058172570',
   },
 ]
 
